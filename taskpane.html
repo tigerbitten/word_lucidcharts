@@ -2,80 +2,288 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lucidchart Diagrams</title>
+<link rel="icon" href="icon-32.png">
+<script>
+  // Registered before office.js loads, so it runs before office.js's own message
+  // listener: Lucid's embed posts to this window, and office.js talks to Word
+  // over the same window messages. Keeping Lucid's messages away from it is a
+  // guess at why Word calls hung in Word on the web ("r is not a function").
+  window.addEventListener("message", e => {
+    if (e.origin !== "https://lucid.app") return;
+    e.stopImmediatePropagation();
+    onLucidMessage(e.data);
+  });
+</script>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <style>
   * { box-sizing: border-box; }
-  body { font-family: "Segoe UI", Calibri, system-ui, sans-serif; margin: 0; height: 100vh;
-    display: flex; flex-direction: column; background: #fff; color: #000; }
-  #bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid #e0e0e0; flex: none; font-size: 0.85rem; }
-  #build { color: #999; margin-left: auto; }
-  #status { color: #555; }
-  #frame { flex: 1; min-height: 0; width: 100%; border: 0; }
+  [hidden] { display: none !important; }
+  body { font-family: "Segoe UI", Calibri, system-ui, sans-serif; font-size: 14px; margin: 0;
+    height: 100vh; display: flex; flex-direction: column; background: #fff; color: #000; }
+  button { font: inherit; padding: 0.35rem 0.7rem; border: 1px solid #bbb; border-radius: 4px;
+    background: #f5f5f5; cursor: pointer; }
+  button:hover:not(:disabled) { background: #e9eefb; }
+  button:disabled { color: #aaa; cursor: default; }
+  button.primary { background: #2563eb; border-color: #1d4ed8; color: #fff; }
+  button.primary:disabled { background: #9db5ef; border-color: #9db5ef; color: #fff; }
+
+  #top { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid #e0e0e0; flex: none; }
+  #status { flex: 1; min-width: 0; color: #444; font-size: 0.85rem; }
+  #status.err { color: #b42318; }
+  #build { color: #999; font-size: 0.75rem; flex: none; }
+
+  #main { flex: 1; min-height: 0; position: relative; }
+  #frame { width: 100%; height: 100%; border: 0; display: block; }
+  #card { position: absolute; inset: 0; padding: 2rem 1.2rem; text-align: center; background: #fff; }
+  #card p { color: #444; line-height: 1.45; max-width: 26rem; margin: 0 auto 1rem; }
+
+  #actions { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.6rem;
+    border-top: 1px solid #e0e0e0; flex: none; }
+  #fallback { flex-basis: 100%; font-size: 0.8rem; color: #666; }
+  #fallback input { width: 100%; margin-top: 0.3rem; font: inherit; padding: 0.25rem; }
 </style>
 </head>
 <body>
-<div id="bar">
-  <button id="load">Load editor</button>
-  <a id="login" href="https://localhost:3000/login" target="_blank" hidden>Sign in to Lucid</a>
-  <input id="docUrl" placeholder="paste Lucid document URL" size="28">
-  <button id="insert">Insert into Word</button>
-  <span id="status"></span>
-  <span id="build">build v6</span>
+<div id="top">
+  <span id="status">Starting...</span>
+  <span id="build">build v7</span>
 </div>
-<iframe id="frame"></iframe>
+<div id="main">
+  <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
+  <div id="card">
+    <p id="cardText"></p>
+    <button id="signIn" class="primary" hidden>Sign in to Lucid</button>
+    <button id="retry" hidden>Retry</button>
+  </div>
+</div>
+<div id="actions">
+  <button id="insert" class="primary" title="Insert the diagram open in the editor below the cursor">Insert into document</button>
+  <button id="update" title="Replace every picture of this diagram in the document with its latest version">Update in document</button>
+  <button id="open" title="Open the diagram picture selected in the document in the editor">Open selected</button>
+  <button id="new" title="Back to Lucid's document picker">New / other diagram</button>
+  <details id="fallback">
+    <summary>Diagram not detected?</summary>
+    Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
+    <input id="docUrl" placeholder="https://lucid.app/lucidchart/...">
+  </details>
+</div>
 <script>
 // Hardcoded: the prototype backend runs on this machine only (see server.js).
 const BACKEND = "https://localhost:3000";
+const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const MAX_WIDTH_PT = 468; // 6.5in: the text width of a Letter page with 1in margins
 const $ = id => document.getElementById(id);
 
-$("load").onclick = async () => {
-  $("status").textContent = "getting embed token...";
-  $("login").hidden = true;
+let inWord = false;
+let current = null;  // { documentId, embedId } of the diagram open in the editor
+let busy = false;
+
+function say(msg, isError) {
+  $("status").textContent = msg;
+  $("status").className = isError ? "err" : "";
+  (isError ? console.error : console.log)("status:", msg);
+}
+
+function refreshButtons() {
+  const ready = inWord && !busy;
+  $("insert").disabled = !ready || !current;
+  $("update").disabled = !ready || !current;
+  $("open").disabled = !ready;
+  $("new").disabled = busy;
+}
+
+function showCard(text, { signIn = false, retry = false } = {}) {
+  $("cardText").textContent = text;
+  $("signIn").hidden = !signIn;
+  $("retry").hidden = !retry;
+  $("card").hidden = false;
+  $("frame").hidden = true;
+}
+
+function within(promise, ms, what) {
+  return Promise.race([promise, new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(what + " didn't respond. Try again; if it keeps happening, reload the add-in.")), ms))]);
+}
+
+const word = fn => within(Word.run(fn), 20000, "Word");
+
+// Every backend call goes through here, so failures come back as something to act on.
+async function backend(path) {
   let r;
-  try { r = await fetch(BACKEND + "/embed-token"); }
-  catch (e) { $("status").textContent = "backend unreachable -- is `node server.js` running?"; return; }
-  const body = await r.text();
-  console.log("embed-token", r.status, body.slice(0, 80));
-  if (r.status === 401) { $("status").textContent = "not signed in"; $("login").hidden = false; return; }
-  if (!r.ok) { $("status").textContent = "error " + r.status + ": " + body; return; }
-  $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(body);
-  $("status").textContent = "";
-};
-
-// Lucid's embed doesn't say which document you opened, so the URL is pasted.
-$("insert").onclick = async () => {
-  try {
-    const id = ($("docUrl").value.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [])[0];
-    if (!id) { $("status").textContent = "no document id in that URL"; return; }
-    $("status").textContent = "exporting...";
-    const r = await fetch(BACKEND + "/export?doc=" + id);
-    console.log("export", r.status, r.headers.get("content-type"));
-    if (r.status === 401) { $("status").textContent = "not signed in"; $("login").hidden = false; return; }
-    if (!r.ok) { $("status").textContent = "export error " + r.status + ": " + await r.text(); return; }
-    const bytes = new Uint8Array(await r.arrayBuffer());
-    console.log("export bytes", bytes.length);
-    let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
-    // Every Office call is raced against a timeout so a hang says where it hung.
-    const within = (p, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(what + " timed out")), 8000))]);
-    $("status").textContent = "v6: waiting for Office...";
-    const info = await within(Office.onReady(), "Office.onReady");
-    console.log("office info", info);
-    $("status").textContent = "v6: Word.run (" + (info && info.host) + "/" + (info && info.platform) + ")...";
-    await within(Word.run(async ctx => {
-      ctx.document.getSelection().insertInlinePictureFromBase64(btoa(bin), Word.InsertLocation.replace);
-      await ctx.sync();
-    }), "Word.run");
-    $("status").textContent = "inserted";
-  } catch (e) {
-    console.error(e);
-    $("status").textContent = "failed: " + e.message;
+  try { r = await fetch(BACKEND + path); }
+  catch (e) {
+    showCard("Can't reach the add-in's backend at " + BACKEND + ". Start it with `node server.js` in the project folder. "
+      + "If it is running, your browser may be blocking this page from reaching localhost: allow local network access "
+      + "for tigerbitten.github.io in the browser's site settings.", { retry: true });
+    throw new Error("Backend unreachable.");
   }
+  if (r.ok) return r.json();
+  const msg = await r.text();
+  if (r.status === 401) showCard(msg + " Sign in, then come back here.", { signIn: true });
+  throw new Error(msg);
+}
+
+// Runs one button's work: one thing at a time, and errors land in the status line.
+async function act(label, fn) {
+  busy = true; refreshButtons(); say(label);
+  try { await fn(); }
+  catch (e) { console.error(e); say(e.message, true); }
+  finally { busy = false; refreshButtons(); }
+}
+
+async function loadEditor(embedId) {
+  const { token } = await backend("/embed-token" + (embedId ? "?embedId=" + embedId : ""));
+  $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(token);
+  $("card").hidden = true;
+  $("frame").hidden = false;
+}
+
+async function start() {
+  say("Connecting...");
+  try {
+    if ((await backend("/status")).signedIn) {
+      await loadEditor();
+      say("Pick or create a document, choose Edit, then click Insert in the editor.");
+    } else {
+      showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });
+      say("Not signed in.");
+    }
+  } catch (e) { say(e.message, true); }
+}
+
+// The embed announces which document was picked; that's the diagram Insert/Update use.
+function onLucidMessage(data) {
+  if (typeof data === "string") { try { data = JSON.parse(data); } catch { return; } }
+  console.log("lucid message", data);
+  if (data && data.type === "LucidEmbedEvent" && data.event === "EmbedCreated") {
+    current = { documentId: data.documentId, embedId: data.embedId };
+    say(inWord ? "Ready. Edit the diagram, then Insert into document." : "Diagram ready (open in Word to insert).");
+    refreshButtons();
+  }
+}
+
+// Alt text links the picture back to its Lucid diagram so it can be reopened and
+// updated. Stage 2 adds the Mermaid translation below these lines.
+function altText(title) {
+  return `Lucidchart diagram: ${title}\nhttps://lucid.app/lucidchart/${current.documentId}/edit`
+    + (current.embedId ? `\nlucid-embed: ${current.embedId}` : "");
+}
+
+function parseAlt(alt) {
+  const doc = (alt || "").match(new RegExp("lucid\\.app/lucidchart/(" + UUID + ")"));
+  const embed = (alt || "").match(new RegExp("lucid-embed: (" + UUID + ")"));
+  return doc && { documentId: doc[1], embedId: embed ? embed[1] : null };
+}
+
+function dress(pic, d) {
+  const widthPt = d.width * 72 / d.dpi, heightPt = d.height * 72 / d.dpi;
+  const scale = Math.min(1, MAX_WIDTH_PT / widthPt);
+  pic.width = widthPt * scale;
+  pic.height = heightPt * scale;
+  pic.altTextTitle = d.title;
+  pic.altTextDescription = altText(d.title);
+}
+
+async function exportCurrent() {
+  say("Exporting from Lucid...");
+  const d = await backend("/export?doc=" + current.documentId);
+  console.log("export", d.title, d.width + "x" + d.height, d.base64.length, "base64 chars");
+  say("Placing in document...");
+  return d;
+}
+
+$("insert").onclick = () => act("Inserting...", async () => {
+  const d = await exportCurrent();
+  await word(async ctx => {
+    const para = ctx.document.getSelection().paragraphs.getLast().insertParagraph("", Word.InsertLocation.after);
+    para.alignment = Word.Alignment.centered;
+    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d);
+    await ctx.sync();
+  });
+  say(`Inserted "${d.title}".`);
+});
+
+$("update").onclick = () => act("Updating...", async () => {
+  const d = await exportCurrent();
+  let n = 0;
+  await word(async ctx => {
+    const pics = ctx.document.body.inlinePictures;
+    pics.load("items/altTextDescription");
+    await ctx.sync();
+    for (const p of pics.items) {
+      const found = parseAlt(p.altTextDescription);
+      if (found && found.documentId === current.documentId) { dress(p.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d); n++; }
+    }
+    await ctx.sync();
+  });
+  if (!n) throw new Error("No picture of this diagram in the document, so nothing to update. Use Insert instead. "
+    + "(Pictures set to wrap with text aren't found; set them back to In Line with Text.)");
+  say(`Updated ${n} picture${n > 1 ? "s" : ""} of "${d.title}".`);
+});
+
+$("open").onclick = () => act("Opening...", async () => {
+  let alt;
+  await word(async ctx => {
+    const pics = ctx.document.getSelection().inlinePictures;
+    pics.load("items/altTextDescription");
+    await ctx.sync();
+    if (!pics.items.length) throw new Error("Click a diagram picture in the document first, then Open selected.");
+    alt = pics.items[0].altTextDescription;
+  });
+  const found = parseAlt(alt);
+  if (!found) throw new Error("That picture wasn't inserted by this add-in: its alt text has no Lucid link.");
+  current = found;
+  // Without an embed id (inserted via a pasted URL) the editor can't jump to it; Update still works.
+  await loadEditor(found.embedId);
+  say(found.embedId ? "Opened. Edit, then Update in document." : "Linked to that diagram. Pick it in the editor to edit, then Update in document.");
+});
+
+$("new").onclick = () => act("Loading...", async () => {
+  current = null;
+  await loadEditor();
+  say("Pick or create a document, choose Edit, then click Insert in the editor.");
+});
+
+$("docUrl").oninput = () => {
+  const m = $("docUrl").value.match(new RegExp(UUID));
+  if (!m) return;
+  current = { documentId: m[0], embedId: null };
+  say("Using the pasted document.");
+  refreshButtons();
 };
 
-// Embed iframe may postMessage; log everything until we know what it sends.
-window.addEventListener("message", e => console.log("message from", e.origin, e.data));
+$("signIn").onclick = () => {
+  // Lucid's sign-in page refuses to load in a frame, so it gets a real browser tab.
+  if (inWord && Office.context.requirements.isSetSupported("OpenBrowserWindowApi", "1.1")) Office.context.ui.openBrowserWindow(BACKEND + "/login");
+  else window.open(BACKEND + "/login", "_blank");
+  say("Finish signing in in the tab that opened...");
+  // Poll until the backend has a token, then carry on without another click.
+  const until = Date.now() + 5 * 60000;
+  const timer = setInterval(async () => {
+    let s;
+    try { s = await (await fetch(BACKEND + "/status")).json(); } catch { return; }
+    if (s.signedIn) { clearInterval(timer); start(); }
+    else if (Date.now() > until) { clearInterval(timer); say("Sign-in timed out. Click Sign in to try again.", true); }
+  }, 2000);
+};
+
+$("retry").onclick = start;
+
+(async () => {
+  refreshButtons();
+  // The page also runs in a plain browser (handy for testing the Lucid side);
+  // there Office never connects, and the Word buttons stay off.
+  try {
+    const info = await within(Office.onReady(), 5000, "Office");
+    inWord = info.host === Office.HostType.Word;
+  } catch (e) { console.warn(e.message); }
+  if (!inWord) console.warn("not running inside Word: Insert/Update/Open are disabled");
+  refreshButtons();
+  await start();
+})();
 </script>
 </body>
 </html>
