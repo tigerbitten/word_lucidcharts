@@ -28,28 +28,46 @@ function pageToMermaid(page) {
   const lines = (page.items && page.items.lines) || [];
   const byId = new Map(shapes.map(s => [s.id, s]));
   const linesById = new Map(lines.map(l => [l.id, l]));
-  // A container's members: the shapes it lists. Lucid's Mermaid subgraphs
-  // ("diagram as code") list only their connectors, so for a container listing
-  // no shapes, its members are those connectors' ends.
+  // A container's members are the shapes it lists.
+  const isCodeSubgraph = s => /^LucidNativeMermaid.*Subgraph/.test(s.class);
   const members = new Map();
   for (const s of shapes) {
-    if (!s.contains) continue;
-    const ids = new Set(s.contains.shapes || []);
-    if (!ids.size) for (const lid of s.contains.lines || []) {
+    if (s.contains && !isCodeSubgraph(s) && (s.contains.shapes || []).length) members.set(s.id, [...s.contains.shapes]);
+  }
+  // Lucid's Mermaid subgraph shapes ("diagram as code") list only connectors.
+  // Each shape at the end of those connectors goes to the subgraph listing the
+  // most of its connectors (ties: the first), so a connector crossing between
+  // subgraphs can't drag a shape out of its own. Subgraph shapes are never
+  // members of each other: Mermaid-code nesting isn't recoverable.
+  const votes = new Map(); // shape id -> Map(subgraph id -> connectors)
+  for (const s of shapes.filter(s => isCodeSubgraph(s) && s.contains)) {
+    for (const lid of s.contains.lines || []) {
       const l = linesById.get(lid);
-      if (l) for (const end of [l.endpoint1.connectedTo, l.endpoint2.connectedTo]) if (byId.has(end) && end !== s.id) ids.add(end);
+      if (!l) continue;
+      for (const end of [l.endpoint1.connectedTo, l.endpoint2.connectedTo]) {
+        if (!byId.has(end) || isCodeSubgraph(byId.get(end))) continue;
+        const v = votes.get(end) || new Map();
+        v.set(s.id, (v.get(s.id) || 0) + 1);
+        votes.set(end, v);
+      }
     }
-    if (ids.size) members.set(s.id, [...ids]);
+  }
+  for (const [id, v] of votes) {
+    const [best] = [...v].reduce((a, b) => (b[1] > a[1] ? b : a));
+    members.set(best, [...(members.get(best) || []), id]);
   }
   const isContainer = s => members.has(s.id);
 
   // Each shape belongs to its innermost container: of the containers listing it,
   // the one listing the fewest shapes (Lucid lists nested members at every level).
+  // A container never ends up inside itself or its own descendants: a cycle
+  // would drop both containers from the output.
   const parent = new Map();
+  const isAncestor = (a, b) => { for (let p = parent.get(b); p; p = parent.get(p)) if (p === a) return true; return false; };
   for (const [cid, ids] of members) {
     for (const id of ids) {
       const p = parent.get(id);
-      if (!p || members.get(p).length > ids.length) parent.set(id, cid);
+      if (id !== cid && !isAncestor(id, cid) && (!p || members.get(p).length > ids.length)) parent.set(id, cid);
     }
   }
 

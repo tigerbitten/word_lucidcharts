@@ -18,9 +18,8 @@ Two stages:
 
 ## How it fits together
 
-Lucid API facts and limits for new features: `notes.md`.
-
-
+- Lucid API facts and limits (what embeds, export, contents, search and
+  import can and can't do): `notes.md`. Check it before designing a feature.
 - `taskpane.html` (GitHub Pages) embeds Lucid with a **token-based editable
   embed**: `https://lucid.app/embeds?token=<embed session token>`. Without an
   embedId the iframe shows Lucid's document picker; when the user picks one,
@@ -44,15 +43,22 @@ Lucid API facts and limits for new features: `notes.md`.
   positions**, so only structure survives. Output is checked against the real
   Mermaid 11 parser. Sequence/ER forms are not built yet: no real examples of
   Lucid's class names for them so far.
-- Pages made from Mermaid code in Lucid (`LucidNativeMermaid*` shapes) export with every shape piled in one spot (Lucid bug, with or without crop). `/pages` flags them `fromCode`; the pane renders the page's Mermaid with mermaid@11 from jsDelivr (plain SVG labels, so the canvas isn't tainted) instead of calling `/export`. Their subgraph shapes list only connectors, so `mermaid.js` infers members from connector ends.
-- Captions are Word's (Caption style + SEQ Figure field, WordApi 1.5). Update
-  only rewrites a caption whose title part still equals the old title.
+- Pages made from Mermaid code in Lucid can't be exported (notes.md, Export
+  quirks). `/pages` flags them `fromCode`; the pane
+  always has the page list before making a picture (`ensurePages`), and draws
+  those pages from their Mermaid with Mermaid 11.17.2 (pinned) from jsDelivr,
+  with plain SVG labels so the canvas isn't tainted, capped to WebKit's canvas
+  limits. `mermaid.js` gives each shape at the end of a code subgraph's connectors
+  to the subgraph listing most of its connectors.
+- Captions: added after the picture is committed, so they can't cost an
+  insert. Caption style and SEQ Figure field where Word allows; Word on the web
+  refuses `styleBuiltIn = Caption`, so the fallback is hand formatting and a
+  number counted from the "Figure N:" captions above. Update only rewrites a
+  caption whose text is still "Figure N: <old title>".
 - Each picture records the Lucid document `version` it was exported from
   (`lucid-version:`); comparing it with `/info` is how the pane says a picture
   is out of date. The backend caches the last PNG per document keyed on that
   version (and DPI), which is what makes repeat inserts fast. Export DPI adapts so a picture has ~400 ppi at its width in Word (BASE_DPI/TARGET_PPI in server.js).
-- The editable embed also needs the user logged in to lucid.app in the same
-  browser (cookie session), on top of the OAuth token.
 - The pane also runs in a plain browser with the Word buttons disabled, which
   is how the Lucid side can be tested without Word.
 

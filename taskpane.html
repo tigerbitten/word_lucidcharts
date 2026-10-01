@@ -63,7 +63,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v25</span>
+  <span id="build">build v26</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -112,9 +112,11 @@ const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 // More pixels per inch than this, at the size the picture is shown, only makes
 // the file bigger; the backend aims for 400 (server.js).
 const MAX_PPI = 600;
-// Pictures drawn here (pages Lucid can't export) aim for the backend's numbers:
-// TARGET_PPI and MAX_WIDTH_PT in server.js.
-const DRAWN_PPI = 400, PAGE_WIDTH_PT = 468;
+// Pinned: pages drawn here must keep looking the same (mermaid.js output is
+// checked against Mermaid 11).
+const MERMAID_URL = "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+// Browsers refuse canvases past a size; WebKit (Word for Mac) is the strictest.
+const CANVAS_MAX_SIDE = 16384, CANVAS_MAX_PIXELS = 16.7e6;
 const $ = id => document.getElementById(id);
 
 let inWord = false;
@@ -199,11 +201,13 @@ function within(promise, ms, what) {
 
 const word = fn => within(Word.run(fn), 20000, "Word");
 
-// Every backend call a button depends on goes through here, so failures come back as something to act on.
+// Every backend call a button depends on goes through here, so failures come back
+// as something to act on. The timeout is generous: a big high-DPI export takes ~10s.
 async function backend(path) {
   let r;
-  try { r = await fetch(BACKEND + path); }
+  try { r = await fetch(BACKEND + path, { signal: AbortSignal.timeout(90000) }); }
   catch (e) {
+    if (e.name === "TimeoutError") throw new Error("The add-in's backend didn't answer in 90 seconds. Try again; if it keeps happening, restart node server.js.");
     showCard("Can't reach the add-in's backend at " + BACKEND + ". Start it with `node server.js` in the project folder. "
       + "If it is running, your browser may be blocking this page from reaching localhost: allow local network access "
       + "for tigerbitten.github.io in the browser's site settings.", { retry: true });
@@ -217,7 +221,7 @@ async function backend(path) {
 
 // Background lookups (freshness, prefetch) mustn't throw up cards over the editor.
 async function quietly(path) {
-  try { const r = await fetch(BACKEND + path); return r.ok ? r.json() : null; }
+  try { const r = await fetch(BACKEND + path, { signal: AbortSignal.timeout(20000) }); return r.ok ? r.json() : null; }
   catch { return null; }
 }
 
@@ -234,11 +238,9 @@ async function act(label, fn) {
   finally { busy = false; refreshButtons(); readSelection(); }
 }
 
-// `page` asks the editor to open on that page. Lucid documents no such option
-// for embeds (lucid.app's own editor URLs take ?page=), so it may be ignored.
-async function loadEditor(embedId, page) {
+async function loadEditor(embedId) {
   const { token } = await backend("/embed-token" + (embedId ? "?embedId=" + embedId : ""));
-  $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(token) + (page ? "&page=" + encodeURIComponent(page) : "");
+  $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(token);
   $("card").hidden = true;
   $("frame").hidden = false;
 }
@@ -251,13 +253,24 @@ function setCurrent(ids, title, page) {
   return syncPages();
 }
 
-// Fills the page chooser; it only shows for a document with more than one page.
+// Fills the page chooser in the background; it only shows for a document with more than one page.
 async function syncPages() {
   const c = current;
   const r = c && await quietly("/pages?doc=" + c.documentId);
-  if (!r || current !== c) return;
+  if (r && current === c) applyPages(c, r);
+}
+
+// Which pages are Mermaid code decides how a picture is made, so it's never
+// guessed: before making one, the page list is fetched if it hasn't arrived.
+async function ensurePages() {
+  const c = current;
+  if (!c.pages) applyPages(c, await backend("/pages?doc=" + c.documentId));
+}
+
+function applyPages(c, r) {
   c.pages = r.pages;
   if (!c.pages.some(p => p.id === c.page)) c.page = c.pages[0].id;
+  if (current !== c) return; // the editor moved on to another diagram meanwhile
   $("page").innerHTML = "";
   for (const p of c.pages) $("page").append(new Option(p.title + (p.empty ? " (empty)" : p.fromCode ? " (Mermaid code)" : ""), p.id, false, p.id === c.page));
   refreshButtons();
@@ -391,7 +404,47 @@ const exportPath = (documentId, page, shownPt) => `/export?doc=${documentId}&pag
 const mermaidPath = (documentId, page) => `/mermaid?doc=${documentId}&page=${page}`;
 
 async function exportDiagram(ids, page, shownPt) {
-  if (pageInfo(page) && pageInfo(page).fromCode) return drawFromCode(ids, page, shownPt);
+  await ensurePages();
+  const info = pageInfo(page);
+  if (!info) throw new Error("That page has been deleted from the Lucid document, so this picture can't be updated. Insert another page as a new picture instead.");
+  if (info.empty) throw new Error(`"${info.title}" is empty in Lucid. Pick another page under Page for Word.`);
+  if (info.fromCode) {
+    // A page drawn from Mermaid code in Lucid ("diagram as code") can't come from
+    // Lucid's export, which piles its shapes on top of each other. Lucid draws
+    // those pages with Mermaid itself, so the pane does the same with the page's
+    // Mermaid (mermaid.js) and turns the SVG into a PNG at the backend's ppi.
+    say("Drawing the diagram from its Mermaid...");
+    const [m, mermaid] = await Promise.all([backend(mermaidPath(ids.documentId, page)), loadMermaid()]);
+    const { svg } = await mermaid.render("lucidPage" + Date.now(), m.mermaid);
+    const root = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
+    const viewBox = root.getAttribute("viewBox");
+    if (!viewBox) throw new Error(`Mermaid couldn't draw "${m.title}" (its drawing has no size).`);
+    const [, , widthPx, heightPx] = viewBox.split(/[\s,]+/).map(Number);
+    const naturalPt = widthPx * 0.75; // SVG user units are CSS pixels, 96 to the inch
+    const widthPt = shownPt || Math.min(naturalPt, m.maxWidthPt);
+    // Very large pictures get fewer pixels per inch rather than a canvas the browser refuses.
+    const scale = Math.min(widthPt / 72 * m.targetPpi / widthPx,
+      CANVAS_MAX_SIDE / Math.max(widthPx, heightPx), Math.sqrt(CANVAS_MAX_PIXELS / (widthPx * heightPx)));
+    root.removeAttribute("style"); // Mermaid's max-width would let a host shrink the image before scaling it back up
+    root.setAttribute("width", widthPx * scale);
+    root.setAttribute("height", heightPx * scale);
+    const img = new Image();
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(new XMLSerializer().serializeToString(root))));
+    await img.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(widthPx * scale);
+    canvas.height = Math.round(heightPx * scale);
+    const g = canvas.getContext("2d");
+    g.fillStyle = "#fff";
+    g.fillRect(0, 0, canvas.width, canvas.height);
+    g.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const base64 = canvas.toDataURL("image/png").split(",")[1];
+    if (!base64) throw new Error(`The browser couldn't make a ${canvas.width}x${canvas.height} picture of "${m.title}".`);
+    console.log("drew", m.title, "v" + m.version, "from Mermaid at", canvas.width + "x" + canvas.height);
+    say("Placing in document...");
+    return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, naturalPt, shownPt: widthPt,
+      base64, width: canvas.width, height: canvas.height, drawnHere: true };
+  }
   say("Exporting from Lucid...");
   const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))]);
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
@@ -404,42 +457,21 @@ async function exportDiagram(ids, page, shownPt) {
 
 // The editor's page by id ("" = the first page), once the page list has arrived.
 const pageInfo = pageId => current && current.pages && current.pages.find(p => p.id === (pageId || current.pages[0].id));
+const isFromCode = pageId => !!(pageInfo(pageId) || {}).fromCode;
 
-// A page drawn from Mermaid code in Lucid ("diagram as code") can't come from
-// Lucid's export, which piles its shapes on top of each other. Lucid draws those
-// pages with Mermaid itself, so the pane does the same with the page's Mermaid
-// (from mermaid.js) and turns the SVG into a PNG at the usual ~400 ppi. Labels
-// are plain SVG text: HTML labels would stop the browser from making a PNG.
+// Mermaid is only needed for pages drawn from Mermaid code, so it loads on first
+// use (or when the pointer reaches the buttons for such a page). Plain SVG
+// labels: HTML labels would stop the browser from turning the SVG into a PNG.
 let mermaidLib = null;
-async function drawFromCode(ids, page, shownPt) {
-  say("Drawing the diagram from its Mermaid...");
-  const m = await backend(mermaidPath(ids.documentId, page));
+function loadMermaid() {
   if (!mermaidLib) {
-    mermaidLib = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
-    mermaidLib.initialize({ startOnLoad: false, htmlLabels: false, flowchart: { htmlLabels: false } });
+    mermaidLib = within(import(MERMAID_URL), 30000, "Loading Mermaid").then(({ default: mermaid }) => {
+      mermaid.initialize({ startOnLoad: false, htmlLabels: false, flowchart: { htmlLabels: false, useMaxWidth: false } });
+      return mermaid;
+    });
+    mermaidLib.catch(() => { mermaidLib = null; }); // try again next time
   }
-  const { svg } = await mermaidLib.render("lucidPage" + Date.now(), m.mermaid);
-  const root = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
-  const [, , widthPx, heightPx] = root.getAttribute("viewBox").split(/[\s,]+/).map(Number);
-  const naturalPt = widthPx * 0.75; // SVG user units are CSS pixels, 96 to the inch
-  const widthPt = shownPt || Math.min(naturalPt, PAGE_WIDTH_PT);
-  const scale = widthPt / 72 * DRAWN_PPI / widthPx;
-  root.setAttribute("width", widthPx * scale);
-  root.setAttribute("height", heightPx * scale);
-  const img = new Image();
-  img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(new XMLSerializer().serializeToString(root))));
-  await img.decode();
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(widthPx * scale);
-  canvas.height = Math.round(heightPx * scale);
-  const g = canvas.getContext("2d");
-  g.fillStyle = "#fff";
-  g.fillRect(0, 0, canvas.width, canvas.height);
-  g.drawImage(img, 0, 0, canvas.width, canvas.height);
-  console.log("drew", m.title, "v" + m.version, "from Mermaid at", canvas.width + "x" + canvas.height);
-  say("Placing in document...");
-  return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, naturalPt, shownPt: widthPt,
-    base64: canvas.toDataURL("image/png").split(",")[1], width: canvas.width, height: canvas.height, drawnHere: true };
+  return mermaidLib;
 }
 
 // "Figure 3: Login flow" under the picture. Where Word allows it, that's a real
@@ -517,18 +549,11 @@ async function plainPng(base64, maxWidthPx, key) {
   return plainCache.result;
 }
 
-// Refuses pages Lucid can't export properly, before anything touches the document.
-function checkExportable(pageId) {
-  const page = pageInfo(pageId);
-  if (page && page.empty) throw new Error(`"${page.title}" is empty in Lucid. Pick another page under Page for Word.`);
-}
-
 // Said after an insert or update of a page the pane drew itself.
 const drawnNote = d => d.drawnHere ? " (This page is Mermaid code in Lucid, which Lucid can't export, so the add-in drew it from that code.)" : "";
 
 $("insert").onclick = () => act("Inserting...", async () => {
   const ids = current;
-  checkExportable(current.page);
   const d = await exportDiagram(ids, current.page);
   const tag = newTag();
   await word(async ctx => {
@@ -553,7 +578,6 @@ $("replace").onclick = () => act("Updating...", async () => {
   // Updating a picture keeps the page it shows; replacing it with another
   // diagram uses the page chosen in the editor bar.
   const page = t && t.documentId === ids.documentId ? t.page : current.page;
-  checkExportable(page);
   const d = await exportDiagram(ids, page, t && t.width);
   let tag, outcome, oldTitle, widthPt;
   await word(async ctx => {
@@ -618,15 +642,18 @@ $("load").onclick = () => act("Loading...", async () => {
     if (tag !== s.pic.altTextTitle) { s.pic.altTextTitle = tag; await ctx.sync(); }
   });
   // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
-  await loadEditor(found.embedId, found.page);
-  await setCurrent(found, found.title, found.page);
+  await loadEditor(found.embedId);
   last = { kind: "ours", ...found, tag, width };
-  // The editor may well open on the first page whatever page the picture shows.
-  const page = pageInfo(found.page);
-  const later = page && current.pages.indexOf(page) > 0
-    ? ` It shows "${page.title}": if the editor opened on another page, click the "${page.title}" tab in it, or use Open in Lucid, which opens on "${page.title}".` : "";
-  say((found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
-    : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`) + later);
+  const msg = found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
+    : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`;
+  say(msg);
+  // Lucid's editor always opens on the first page (notes.md). Once the page list
+  // is in, say so if the picture shows another page and nothing else has been said since.
+  setCurrent(found, found.title, found.page).then(() => {
+    const page = found.embedId && pageInfo(found.page);
+    if (page && current.pages.indexOf(page) > 0 && $("status").textContent === msg)
+      say(msg + ` The picture shows "${page.title}", but Lucid's editor opens on the first page: click its "${page.title}" tab, or use Open in Lucid, which opens on "${page.title}".`);
+  });
 });
 
 function openInBrowser(url) {
@@ -667,7 +694,8 @@ $("actions").addEventListener("pointerenter", () => {
   if (current && !busy) {
     const same = t && t.documentId === current.documentId;
     const page = same ? t.page : current.page;
-    if (!(pageInfo(page) && pageInfo(page).fromCode)) quietly(exportPath(current.documentId, page, same ? t.width : null));
+    if (isFromCode(page)) loadMermaid().catch(() => {});
+    else quietly(exportPath(current.documentId, page, same ? t.width : null));
     quietly(mermaidPath(current.documentId, page));
   }
   syncLucid();

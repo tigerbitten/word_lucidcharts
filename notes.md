@@ -23,7 +23,7 @@ Docs: developer.lucid.co (mirror: lucid.readme.io). All REST calls: `https://api
 ## Documents
 - `GET /documents/{id}` (JSON) → title, `version` (bumps on every saved edit; viewing doesn't), pageCount, editUrl, viewUrl, canEdit, lastModified, owner…
 - Export: same path, `Accept: image/png;dpi=N` (or jpeg). Params `crop=content`, `page=<1-based>` or `pageId=<id>`. Caps around 10 MP; 600 dpi ≈ 5 s. No SVG (406). PDF 403 on our plan.
-- Contents: `GET /documents/{id}/contents` (~1–4 s, 100 req/5 s). Pages → shapes (class, textAreas, `contains`, image, linkUrl), lines (endpoint1/2 style + connectedTo), groups (members), layers, customData, linkedData. **No geometry or styles.** Output may vary over time.
+- Contents: `GET /documents/{id}/contents` (~1–4 s even for small docs, 100 req/5 s). Pages → shapes (class, textAreas, `contains`, image, linkUrl), lines (endpoint1/2 style + connectedTo), groups (members), layers, customData, linkedData. **No geometry or styles.** Output may vary over time.
 - Search: `POST /documents/search` {keywords, product[], lastModifiedAfter, documentIds…}. Paginated, 300 req/5 s. Scope `…document.content:readonly`. Could replace the picker / give a recent-diagrams list.
 - Create: `POST /documents` with a Standard Import `.lucid` zip (`document.json`: pages, shapes, lines, groups, layers, containers, **bounding boxes and styles**). 50 MB zip / 2 MB JSON. Only way to write diagrams via REST: a Mermaid → Lucid round trip would mean translating Mermaid to Standard Import ourselves. No REST update of an existing doc's content.
 
@@ -32,9 +32,7 @@ Docs: developer.lucid.co (mirror: lucid.readme.io). All REST calls: `https://api
 - **Lucid MCP server**: Lucid support's suggested route for creating diagrams from code (Mermaid).
 - AI ("Create with AI") does nothing inside the embed; works on lucid.app.
 
-## Gotchas we hit
-- lucid.app editor/login send `X-Frame-Options: SAMEORIGIN`; only `/embeds` frames.
-- OAuth redirect URI must be https (hence mkcert).
-- Export PNGs are palette + extra chunks; Word on the web rejects them → re-encode via canvas.
-- Pages built from Mermaid in Lucid (`LucidNativeMermaid*` classes) export with all shapes piled up; their subgraph shapes list only connectors. We draw those pages ourselves.
-- Word on the web refuses `styleBuiltIn = Caption`.
+## Export quirks
+- Export PNGs are palette PNGs with extra chunks, which Word on the web rejects (we re-encode them).
+- Pages built from Mermaid in Lucid (`LucidNativeMermaid*`) export with all shapes piled up, with or without crop; their subgraph shapes list only connectors, not shapes.
+- Framing, OAuth/mkcert and Word gotchas, and how the code handles each: CLAUDE.md.

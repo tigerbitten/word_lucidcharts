@@ -211,6 +211,7 @@ The backend console logs every Lucid API call.
 | `taskpane.html` | The whole pane: UI, Lucid embed, every Office.js call |
 | `server.js` | Local backend: OAuth, token refresh, embed tokens, PNG export, Lucid contents |
 | `mermaid.js` | Lucid page contents → Mermaid flowchart (used by `server.js`) |
+| `notes.md` | What Lucid's embed and REST APIs can and can't do, for planning features |
 | `manifest.xml` | Points Word at the pane on GitHub Pages |
 | `icon.svg` | The icon; `icon-32.png` / `icon-64.png` are it at manifest sizes |
 

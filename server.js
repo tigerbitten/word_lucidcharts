@@ -163,7 +163,10 @@ const routes = {
     const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
     const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
     if (!p) throw new Shown(404, `Lucid's diagram has no page "${page}" any more.`);
-    return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid: pageToMermaid(p) };
+    // The sizing numbers come along for pages the pane draws itself, so drawn and
+    // exported pictures follow the same rules.
+    return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid: pageToMermaid(p),
+      targetPpi: TARGET_PPI, maxWidthPt: MAX_WIDTH_PT };
   },
 };
 
@@ -201,7 +204,7 @@ async function fetchPng(id, page, dpi, signal) {
   return png;
 }
 
-// Shapes, connectors and containment for every page (~4s for a small diagram).
+// Shapes, connectors and containment for every page (~1-4s, even for a small diagram).
 async function fetchContents(id, signal) {
   return (await lucid(`/documents/${id}/contents`, { signal })).json();
 }
