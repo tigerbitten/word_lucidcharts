@@ -1,7 +1,8 @@
 // Prototype backend, one machine only: holds the Lucid client secret, does
 // OAuth, and mints embed session tokens. Run: node server.js
-// Needs a .env with LUCID_CLIENT_ID and LUCID_CLIENT_SECRET (gitignored).
-const http = require("http");
+// Needs localhost.pem + localhost-key.pem (mkcert localhost; Lucid requires an https redirect URI)
+// and a .env with LUCID_CLIENT_ID and LUCID_CLIENT_SECRET (gitignored).
+const https = require("https");
 const fs = require("fs");
 
 for (const line of fs.readFileSync(".env", "utf8").split(/\r?\n/)) {
@@ -12,14 +13,14 @@ const { LUCID_CLIENT_ID: ID, LUCID_CLIENT_SECRET: SECRET } = process.env;
 if (!ID || !SECRET) throw new Error("set LUCID_CLIENT_ID and LUCID_CLIENT_SECRET in .env");
 
 const PORT = 3000;
-const REDIRECT = `http://localhost:${PORT}/callback`;
+const REDIRECT = `https://localhost:${PORT}/callback`;
 const SCOPE = "lucidchart.document.app.picker.share.embed";
 const PANE_ORIGIN = "https://tigerbitten.github.io";
 
 let accessToken = null; // in memory: restart the server, sign in again
 
-http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://localhost:${PORT}`);
+https.createServer({ key: fs.readFileSync("localhost-key.pem"), cert: fs.readFileSync("localhost.pem") }, async (req, res) => {
+  const url = new URL(req.url, `https://localhost:${PORT}`);
   console.log(req.method, url.pathname);
   res.setHeader("Access-Control-Allow-Origin", PANE_ORIGIN);
   try {

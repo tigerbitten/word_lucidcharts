@@ -18,14 +18,14 @@
 <body>
 <div id="bar">
   <button id="load">Load editor</button>
-  <a id="login" href="http://localhost:3000/login" target="_blank" hidden>Sign in to Lucid</a>
+  <a id="login" href="https://localhost:3000/login" target="_blank" hidden>Sign in to Lucid</a>
   <span id="status"></span>
-  <span id="build">build v1</span>
+  <span id="build">build v2</span>
 </div>
 <iframe id="frame"></iframe>
 <script>
 // Hardcoded: the prototype backend runs on this machine only (see server.js).
-const BACKEND = "http://localhost:3000";
+const BACKEND = "https://localhost:3000";
 const $ = id => document.getElementById(id);
 
 $("load").onclick = async () => {
