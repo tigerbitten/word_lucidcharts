@@ -63,7 +63,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v23</span>
+  <span id="build">build v24</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -112,6 +112,9 @@ const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 // More pixels per inch than this, at the size the picture is shown, only makes
 // the file bigger; the backend aims for 400 (server.js).
 const MAX_PPI = 600;
+// Pictures drawn here (pages Lucid can't export) aim for the backend's numbers:
+// TARGET_PPI and MAX_WIDTH_PT in server.js.
+const DRAWN_PPI = 400, PAGE_WIDTH_PT = 468;
 const $ = id => document.getElementById(id);
 
 let inWord = false;
@@ -254,7 +257,7 @@ async function syncPages() {
   c.pages = r.pages;
   if (!c.pages.some(p => p.id === c.page)) c.page = c.pages[0].id;
   $("page").innerHTML = "";
-  for (const p of c.pages) $("page").append(new Option(p.title + (p.empty ? " (empty)" : p.fromCode ? " (from code: can't export)" : ""), p.id, false, p.id === c.page));
+  for (const p of c.pages) $("page").append(new Option(p.title + (p.empty ? " (empty)" : p.fromCode ? " (Mermaid code)" : ""), p.id, false, p.id === c.page));
   refreshButtons();
 }
 
@@ -386,6 +389,7 @@ const exportPath = (documentId, page, shownPt) => `/export?doc=${documentId}&pag
 const mermaidPath = (documentId, page) => `/mermaid?doc=${documentId}&page=${page}`;
 
 async function exportDiagram(ids, page, shownPt) {
+  if (pageInfo(page) && pageInfo(page).fromCode) return drawFromCode(ids, page, shownPt);
   say("Exporting from Lucid...");
   const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))]);
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
@@ -394,6 +398,46 @@ async function exportDiagram(ids, page, shownPt) {
   Object.assign(d, await plainPng(d.base64, maxWidthPx, ids.documentId + "@" + d.version + "@" + maxWidthPx));
   say("Placing in document...");
   return d;
+}
+
+// The editor's page by id ("" = the first page), once the page list has arrived.
+const pageInfo = pageId => current && current.pages && current.pages.find(p => p.id === (pageId || current.pages[0].id));
+
+// A page drawn from Mermaid code in Lucid ("diagram as code") can't come from
+// Lucid's export, which piles its shapes on top of each other. Lucid draws those
+// pages with Mermaid itself, so the pane does the same with the page's Mermaid
+// (from mermaid.js) and turns the SVG into a PNG at the usual ~400 ppi. Labels
+// are plain SVG text: HTML labels would stop the browser from making a PNG.
+let mermaidLib = null;
+async function drawFromCode(ids, page, shownPt) {
+  say("Drawing the diagram from its Mermaid...");
+  const m = await backend(mermaidPath(ids.documentId, page));
+  if (!mermaidLib) {
+    mermaidLib = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
+    mermaidLib.initialize({ startOnLoad: false, htmlLabels: false, flowchart: { htmlLabels: false } });
+  }
+  const { svg } = await mermaidLib.render("lucidPage" + Date.now(), m.mermaid);
+  const root = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
+  const [, , widthPx, heightPx] = root.getAttribute("viewBox").split(/[\s,]+/).map(Number);
+  const naturalPt = widthPx * 0.75; // SVG user units are CSS pixels, 96 to the inch
+  const widthPt = shownPt || Math.min(naturalPt, PAGE_WIDTH_PT);
+  const scale = widthPt / 72 * DRAWN_PPI / widthPx;
+  root.setAttribute("width", widthPx * scale);
+  root.setAttribute("height", heightPx * scale);
+  const img = new Image();
+  img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(new XMLSerializer().serializeToString(root))));
+  await img.decode();
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(widthPx * scale);
+  canvas.height = Math.round(heightPx * scale);
+  const g = canvas.getContext("2d");
+  g.fillStyle = "#fff";
+  g.fillRect(0, 0, canvas.width, canvas.height);
+  g.drawImage(img, 0, 0, canvas.width, canvas.height);
+  console.log("drew", m.title, "v" + m.version, "from Mermaid at", canvas.width + "x" + canvas.height);
+  say("Placing in document...");
+  return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, naturalPt, shownPt: widthPt,
+    base64: canvas.toDataURL("image/png").split(",")[1], width: canvas.width, height: canvas.height, drawnHere: true };
 }
 
 // "Figure 3: Login flow" under the picture. Where Word allows it, that's a real
@@ -473,11 +517,12 @@ async function plainPng(base64, maxWidthPx, key) {
 
 // Refuses pages Lucid can't export properly, before anything touches the document.
 function checkExportable(pageId) {
-  const page = current.pages && current.pages.find(p => p.id === (pageId || current.pages[0].id));
+  const page = pageInfo(pageId);
   if (page && page.empty) throw new Error(`"${page.title}" is empty in Lucid. Pick another page under Page for Word.`);
-  if (page && page.fromCode) throw new Error(`"${page.title}" was drawn from Mermaid code in Lucid ("diagram as code"), and Lucid's `
-    + "export piles those shapes on top of each other. Redraw it with regular Lucid shapes, or pick another page under Page for Word.");
 }
+
+// Said after an insert or update of a page the pane drew itself.
+const drawnNote = d => d.drawnHere ? " (This page is Mermaid code in Lucid, which Lucid can't export, so the add-in drew it from that code.)" : "";
 
 $("insert").onclick = () => act("Inserting...", async () => {
   const ids = current;
@@ -492,7 +537,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
     await addCaption(ctx, para, d.title);
   });
   last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: d.shownPt, page: d.page };
-  say(`Inserted "${d.title}".` + shrinkNote(d.shownPt, d));
+  say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(d.shownPt, d));
 });
 
 // Updates the selected diagram picture (or the one last inserted/loaded, when
@@ -556,7 +601,7 @@ $("replace").onclick = () => act("Updating...", async () => {
     : outcome === "mermaid" ? `Added Mermaid text for LLMs to "${d.title}" (and refreshed its image).`
     : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid.`
     : outcome === "updated" ? `Updated to the latest "${d.title}".`
-    : `Replaced "${oldTitle}" with "${d.title}".`) + shrinkNote(widthPt, d));
+    : `Replaced "${oldTitle}" with "${d.title}".`) + drawnNote(d) + shrinkNote(widthPt, d));
 });
 
 $("load").onclick = () => act("Loading...", async () => {
@@ -615,7 +660,7 @@ $("actions").addEventListener("pointerenter", () => {
   if (current && !busy) {
     const same = t && t.documentId === current.documentId;
     const page = same ? t.page : current.page;
-    quietly(exportPath(current.documentId, page, same ? t.width : null));
+    if (!(pageInfo(page) && pageInfo(page).fromCode)) quietly(exportPath(current.documentId, page, same ? t.width : null));
     quietly(mermaidPath(current.documentId, page));
   }
   syncLucid();

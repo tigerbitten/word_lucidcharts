@@ -145,7 +145,8 @@ const routes = {
   // The document's pages, for the pane's page chooser. An empty page exports as
   // a blank square. A page drawn from Mermaid code in Lucid ("diagram as code",
   // LucidNativeMermaid* shapes) exports with every shape piled in one spot:
-  // Lucid's export API doesn't lay those out, so the pane won't insert them.
+  // Lucid's export API doesn't lay those out, so the pane draws those pages
+  // itself from their Mermaid (/mermaid below) instead of using /export.
   "/pages": async url => {
     const id = docId(url);
     const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
@@ -162,7 +163,7 @@ const routes = {
     const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
     const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
     if (!p) throw new Shown(404, `Lucid's diagram has no page "${page}" any more.`);
-    return { version: doc.version, page: p.id, pageTitle: p.title, mermaid: pageToMermaid(p) };
+    return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid: pageToMermaid(p) };
   },
 };
 

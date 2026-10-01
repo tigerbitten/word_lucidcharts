@@ -27,15 +27,29 @@ function pageToMermaid(page) {
   const shapes = (page.items && page.items.shapes) || [];
   const lines = (page.items && page.items.lines) || [];
   const byId = new Map(shapes.map(s => [s.id, s]));
-  const isContainer = s => s.contains && (s.contains.shapes || []).length > 0;
+  const linesById = new Map(lines.map(l => [l.id, l]));
+  // A container's members: the shapes it lists. Lucid's Mermaid subgraphs
+  // ("diagram as code") list only their connectors, so for a container listing
+  // no shapes, its members are those connectors' ends.
+  const members = new Map();
+  for (const s of shapes) {
+    if (!s.contains) continue;
+    const ids = new Set(s.contains.shapes || []);
+    if (!ids.size) for (const lid of s.contains.lines || []) {
+      const l = linesById.get(lid);
+      if (l) for (const end of [l.endpoint1.connectedTo, l.endpoint2.connectedTo]) if (byId.has(end) && end !== s.id) ids.add(end);
+    }
+    if (ids.size) members.set(s.id, [...ids]);
+  }
+  const isContainer = s => members.has(s.id);
 
   // Each shape belongs to its innermost container: of the containers listing it,
   // the one listing the fewest shapes (Lucid lists nested members at every level).
   const parent = new Map();
-  for (const c of shapes.filter(isContainer)) {
-    for (const id of c.contains.shapes) {
+  for (const [cid, ids] of members) {
+    for (const id of ids) {
       const p = parent.get(id);
-      if (!p || byId.get(p).contains.shapes.length > c.contains.shapes.length) parent.set(id, c.id);
+      if (!p || members.get(p).length > ids.length) parent.set(id, cid);
     }
   }
 
