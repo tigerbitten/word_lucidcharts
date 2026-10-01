@@ -62,7 +62,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v19</span>
+  <span id="build">build v20</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -143,7 +143,9 @@ function refreshButtons() {
   const same = t && current && t.documentId === current.documentId;
   const changed = t && t.version != null && t.latest != null && t.version < t.latest;
   const renamed = t && t.latestTitle != null && t.latestTitle !== t.title;
-  const stale = changed || renamed;
+  // A picture from before stage 2 has no Mermaid for an LLM to read; Update adds it.
+  const noMermaid = t && t.mermaid === false;
+  const stale = changed || renamed || noMermaid;
   $("insert").disabled = !ready || !current;
   $("replace").disabled = !ready || !current || !t;
   $("replace").textContent = !t || !current || same ? "Update selected" : "Replace selected";
@@ -169,6 +171,7 @@ function refreshButtons() {
   if (changed) add(" It's out of date: the diagram changed in Lucid since this picture was made"
     + (renamed ? `, and was renamed "${t.latestTitle}".` : "."), "stale");
   else if (renamed) add(` It's out of date: the diagram was renamed "${t.latestTitle}" in Lucid.`, "stale");
+  else if (noMermaid) add(" It has no Mermaid text for LLMs yet (it was inserted by an older version): Update selected adds it.", "stale");
   else if (t.version != null && t.latest != null) add(" It's up to date with Lucid.", "fresh");
   if (current && !same) add(` It's a different diagram from the one in the editor: Load selected to edit it, or Replace selected to turn it into "${current.title}".`);
 }
@@ -313,7 +316,7 @@ function parseAlt(alt) {
   const page = alt.match(/lucid-page: (\S+)/);
   const title = alt.match(/^Lucidchart diagram: (.*)$/m);
   return { documentId: doc[1], embedId: embed ? embed[1] : null, version: version ? +version[1] : null,
-    page: page ? page[1] : "", title: title ? title[1] : "untitled" };
+    page: page ? page[1] : "", title: title ? title[1] : "untitled", mermaid: /^```mermaid$/m.test(alt) };
 }
 
 // Each picture carries a short random tag in its alt-text title, so "the picture
@@ -409,7 +412,7 @@ const captionTitle = text => text.replace(new RegExp("^\\s*" + CAPTION + "\\s*\\
 // resolution makes 3pt text readable at 100% zoom, so say so.
 function shrinkNote(widthPt, d) {
   const scale = widthPt / d.naturalPt;
-  return scale >= 0.6 ? "" : ` It's shown at ${Math.round(scale * 100)}% of its size in Lucid, so its text is that much smaller: `
+  return Math.round(scale * 100) >= 60 ? "" : ` It's shown at ${Math.round(scale * 100)}% of its size in Lucid, so its text is that much smaller: `
     + "zoom in to read fine print, or give the diagram more room (a landscape page, or split it up).";
 }
 

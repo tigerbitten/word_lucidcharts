@@ -3,11 +3,11 @@
 A Word add-in with Lucidchart's editor inside the task pane. Sign in to your
 Lucid account, draw, and insert the diagram into the document as a picture.
 Each picture's alt text links back to its Lucid diagram, so it can be reopened
-and updated later.
+and updated later, and carries the diagram as Mermaid, so an LLM reading the
+`.docx` understands the diagram instead of guessing from pixels. A Word figure
+caption ("Figure 3: Login flow") goes under each picture.
 
-Prototype, stage 1 of 2. Stage 2 will translate each diagram into Mermaid and
-store that in the alt text too, so an LLM reading the `.docx` understands the
-diagram instead of guessing from pixels.
+Prototype.
 
 Runs on one machine: a small local backend (`server.js`) holds the Lucid
 client secret. Moving that to Azure Functions / AWS Lambda comes later.
@@ -22,7 +22,7 @@ client secret. Moving that to Azure Functions / AWS Lambda comes later.
    doesn't touch Word yet.
 3. Draw. Lucid saves as you go.
 4. **Insert new** puts the diagram below the cursor, centred and scaled to fit
-   the page width.
+   the page width, with a figure caption under it.
 
 ### How editing works
 
@@ -40,7 +40,8 @@ The buttons at the bottom act on whatever is selected in Word, and the line
 above them says what that is and whether it's up to date with Lucid:
 
 - **Insert new** puts the editor's diagram below the cursor, centred and
-  scaled to fit the page width.
+  scaled to fit the page width, with a caption. For a document with several
+  pages, the page chooser in the bar picks which one.
 - **Update selected** brings the selected picture up to date with the editor's
   diagram. It turns blue when the picture is out of date. It keeps the
   picture's width, so resizing in Word sticks.
@@ -49,11 +50,17 @@ above them says what that is and whether it's up to date with Lucid:
 - With nothing selected, it targets the picture you last inserted or loaded,
   so load → edit → update needs no trip back to the document. It never touches
   a picture that isn't one of these diagrams.
-- **Load selected** opens the selected picture's diagram in the editor.
+- **Load selected** opens the selected picture's diagram in the editor, and
+  sets the page chooser to the page the picture shows. Updating a picture keeps
+  its page; replacing one with another diagram uses the chooser's page.
 
 Renaming a diagram in Lucid shows up in the bar within about 10 seconds (the
 pane asks Lucid; the embed doesn't announce renames). A picture made before the
-rename shows as out of date, and **Update selected** brings its name in line.
+rename shows as out of date, and **Update selected** brings its name in line,
+along with its caption, unless you've reworded the caption by hand: only a
+caption whose title still matches the old name changes. Update never adds or
+removes captions. A picture inserted before Mermaid support also shows as out
+of date, and Update adds the Mermaid.
 
 ### Image quality
 
@@ -72,21 +79,56 @@ at under 60% of its Lucid size.
 If the editor ever doesn't pick up which diagram you opened (Insert stays
 grey), open **Diagram not detected?** and paste the diagram's lucid.app URL.
 
-Only the first page of a multi-page Lucid document is exported. The export is
-cached per Lucid version and starts when the pointer reaches the buttons, so
+The export is cached per Lucid version and starts when the pointer reaches the buttons, so
 inserting an unchanged diagram is quick.
 
 ## Alt text
 
-```
-Lucidchart diagram: <title>
-https://lucid.app/lucidchart/<document id>/edit
-lucid-embed: <embed id>
-lucid-version: <Lucid version the picture shows>
-```
+    Lucidchart diagram: Spoof Hound
+    https://lucid.app/lucidchart/<document id>/edit
+    lucid-embed: <embed id>
+    lucid-version: 992
+    lucid-page: 0_0
+    ```mermaid
+    flowchart TD
+      subgraph g1["Spoof Hound"]
+        direction TB
+        n1["Waveform input (.fsdb or .trn)"]
+        n2["EDA converters (fsdb2vcd or simvisdbutils)"]
+        ...
+      end
+      n1 --> n2
+      ...
+    ```
 
 The embed id is what lets **Load selected** jump straight back into the
-editor; the version is how the pane tells a picture is out of date. It's missing if the diagram was inserted from a pasted URL. The alt
+editor (it's missing if the diagram was inserted from a pasted URL); the
+version is how the pane tells a picture is out of date; the page is which page
+of the Lucid document the picture shows.
+
+### The Mermaid
+
+`mermaid.js` translates the picture's Lucid page into a Mermaid flowchart:
+every shape with text becomes a node (decision, terminator, database and other
+shapes map to Mermaid's matching node shapes), every connector an arrow with
+its label and direction, and containers (frames, swimlanes) subgraphs.
+Free-standing text and connectors with a loose end become `%%` comments.
+Lucid's API gives no positions, so it's the structure that's preserved; nodes
+are listed in the order the arrows flow, and Mermaid lays them out itself.
+Custom shape data isn't included. Sequence and ER diagrams currently come out
+as flowcharts too (readable, not idiomatic); they get `sequenceDiagram` /
+`erDiagram` forms once there are real examples to build them from.
+
+### Pointing an LLM at the diagrams
+
+Plain text extraction from a `.docx` skips alt text (the captions do come
+through), so tell the LLM where to look:
+
+> Diagrams in this document are pictures whose alt text (`wp:docPr/@descr` in
+> `word/document.xml`) holds the diagram as Mermaid. Read those.
+
+With `python-docx`: `inline_shape._inline.docPr.get("descr")`. Alt text is
+dropped on PDF export, so keep the `.docx`. The alt
 text *title* holds a short tag (`Lucidchart diagram #k3x9a1`) so the add-in
 can find "the picture you last inserted or loaded". Alt text lands in
 `word/document.xml` as `wp:docPr/@descr`; it's dropped on PDF export.
@@ -165,7 +207,8 @@ The backend console logs every Lucid API call.
 | File | What's in it |
 |---|---|
 | `taskpane.html` | The whole pane: UI, Lucid embed, every Office.js call |
-| `server.js` | Local backend: OAuth, token refresh, embed tokens, PNG export |
+| `server.js` | Local backend: OAuth, token refresh, embed tokens, PNG export, Lucid contents |
+| `mermaid.js` | Lucid page contents → Mermaid flowchart (used by `server.js`) |
 | `manifest.xml` | Points Word at the pane on GitHub Pages |
 | `icon.svg` | The icon; `icon-32.png` / `icon-64.png` are it at manifest sizes |
 

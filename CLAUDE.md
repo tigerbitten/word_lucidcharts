@@ -26,13 +26,23 @@ Two stages:
   the same diagram.
 - `server.js` runs on localhost (https via mkcert, because Lucid requires an
   https redirect URI) and holds the client secret: OAuth with refresh tokens,
-  `POST /embeds/token`, and PNG export via `GET /documents/{id}` with
-  `Accept: image/png`. Single-machine prototype; it moves to Azure
+  `POST /embeds/token`, PNG export via `GET /documents/{id}` with
+  `Accept: image/png` (`pageId=` picks the page), and `/documents/{id}/contents`
+  for the Mermaid. Single-machine prototype; it moves to Azure
   Functions / AWS Lambda later.
 - Lucid's editor and login pages refuse to be framed (`X-Frame-Options:
   SAMEORIGIN`); only `/embeds` can be. Sign-in therefore opens a browser tab.
-- Alt text format is in README.md. Stage 2 adds Mermaid below those lines,
-  and existing lines must keep parsing (`parseAlt` in taskpane.html).
+- Alt text format is in README.md: link lines, then a fenced Mermaid block.
+  Pictures from older builds (no `lucid-page`, no Mermaid) must keep parsing
+  (`parseAlt` in taskpane.html).
+- `mermaid.js` (stage 2) turns one page of `GET /documents/{id}/contents` into
+  a Mermaid flowchart. Contents have shapes (class, textAreas, `contains` for
+  containers), lines (endpoint1/2 `connectedTo` + arrow `style`) but **no
+  positions**, so only structure survives. Output is checked against the real
+  Mermaid 11 parser. Sequence/ER forms are not built yet: no real examples of
+  Lucid's class names for them so far.
+- Captions are Word's (Caption style + SEQ Figure field, WordApi 1.5). Update
+  only rewrites a caption whose title part still equals the old title.
 - Each picture records the Lucid document `version` it was exported from
   (`lucid-version:`); comparing it with `/info` is how the pane says a picture
   is out of date. The backend caches the last PNG per document keyed on that
