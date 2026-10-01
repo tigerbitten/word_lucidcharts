@@ -62,7 +62,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v21</span>
+  <span id="build">build v22</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -391,22 +391,50 @@ async function exportDiagram(ids, page, shownPt) {
   return d;
 }
 
-// Captions are Word's own: "Figure 3: Login flow" in the Caption style, the
-// number a SEQ field so Word renumbers it and lists it in a Table of Figures.
-// Fields need WordApi 1.5; without it the caption is just the title.
+// "Figure 3: Login flow" under the picture. Where Word allows it, that's a real
+// Word caption: the Caption style, the number a SEQ field so Word renumbers it
+// and lists it in a Table of Figures. Word on the web refuses the Caption style
+// (it has no captions feature) and may refuse fields, so each part is tried in
+// its own sync, and what's refused falls back to a lookalike: centred small
+// italic text with the number counted from the captions above it. Called after
+// the picture is committed, so a caption problem can never cost the picture.
 const CAPTION = "Figure";
-function addCaption(para, title) {
-  const fields = Office.context.requirements.isSetSupported("WordApi", "1.5");
-  const cap = para.insertParagraph(fields ? CAPTION + " " : title, Word.InsertLocation.after);
-  cap.styleBuiltIn = Word.BuiltInStyleName.caption;
-  if (fields) {
+async function addCaption(ctx, para, title) {
+  const cap = para.insertParagraph("", Word.InsertLocation.after);
+  cap.alignment = Word.Alignment.centered;
+  await ctx.sync();
+  try {
+    cap.styleBuiltIn = Word.BuiltInStyleName.caption;
+    await ctx.sync();
+  } catch (e) {
+    console.warn("Caption style refused, formatting by hand:", e.debugInfo || e);
+    Object.assign(cap.font, { italic: true, size: 9, color: "#44546A" });
+    await ctx.sync();
+  }
+  try {
+    if (!Office.context.requirements.isSetSupported("WordApi", "1.5")) throw new Error("no WordApi 1.5");
+    cap.insertText(CAPTION + " ", Word.InsertLocation.start);
     cap.getRange(Word.RangeLocation.content).insertField(Word.InsertLocation.end, "Seq", CAPTION + " \\* ARABIC", true);
     cap.insertText(": " + title, Word.InsertLocation.end);
+    await ctx.sync();
+  } catch (e) {
+    console.warn("Caption number field refused, numbering by hand:", e.debugInfo || e);
+    // Count the captions above this one: everything from the start of the document to here.
+    const above = ctx.document.body.getRange(Word.RangeLocation.start).expandTo(cap.getRange(Word.RangeLocation.start)).paragraphs;
+    above.load("items/text");
+    await ctx.sync();
+    const n = 1 + above.items.filter(p => new RegExp("^\\s*" + CAPTION + "\\s+\\d+\\s*:").test(p.text)).length;
+    cap.insertText(`${CAPTION} ${n}: ${title}`, Word.InsertLocation.replace);
+    await ctx.sync();
   }
 }
 
-// The title part of a caption this add-in wrote ("Figure 3: Login flow" -> "Login flow").
-const captionTitle = text => text.replace(new RegExp("^\\s*" + CAPTION + "\\s*\\d*\\s*[:.\u2013-]\\s*"), "").trim();
+// The title part of a caption in this add-in's form ("Figure 3: Login flow" ->
+// "Login flow"); null for any other paragraph, which is never touched.
+const captionTitle = text => {
+  const m = text.match(new RegExp("^\\s*" + CAPTION + "\\s*\\d+\\s*:\\s*(.*?)\\s*$"));
+  return m ? m[1] : null;
+};
 
 // A diagram shown much smaller than in Lucid has much smaller text; no
 // resolution makes 3pt text readable at 100% zoom, so say so.
@@ -448,8 +476,8 @@ $("insert").onclick = () => act("Inserting...", async () => {
     const para = ctx.document.getSelection().paragraphs.getLast().insertParagraph("", Word.InsertLocation.after);
     para.alignment = Word.Alignment.centered;
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
-    addCaption(para, d.title);
     await ctx.sync();
+    await addCaption(ctx, para, d.title);
   });
   last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: d.shownPt, page: d.page };
   say(`Inserted "${d.title}".` + shrinkNote(d.shownPt, d));
@@ -497,16 +525,18 @@ $("replace").onclick = () => act("Updating...", async () => {
     // The caption under the picture follows a rename, unless it was reworded by
     // hand: only a caption whose title part is still the old title changes.
     const caption = pic.paragraph.getNextOrNullObject();
-    caption.load("text,styleBuiltIn");
+    caption.load("text");
     await ctx.sync();
     const target = viaRange ? s.range : pic;
     dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
       { documentId: ids.documentId, embedId }, tag, widthPt);
-    if (!caption.isNullObject && caption.styleBuiltIn === Word.BuiltInStyleName.caption && oldTitle && oldTitle !== d.title
-        && captionTitle(caption.text) === oldTitle && oldTitle.length <= 255) {
-      caption.search(oldTitle, { matchCase: true }).getFirst().insertText(d.title, Word.InsertLocation.replace);
-    }
     await ctx.sync();
+    if (!caption.isNullObject && oldTitle && oldTitle !== d.title && captionTitle(caption.text) === oldTitle && oldTitle.length <= 255) {
+      try {
+        caption.search(oldTitle, { matchCase: true }).getFirst().insertText(d.title, Word.InsertLocation.replace);
+        await ctx.sync();
+      } catch (e) { console.warn("caption rename failed:", e.debugInfo || e); }
+    }
   });
   last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
   say((outcome === "refreshed" ? `"${d.title}" was already up to date; refreshed it at full resolution for its size.`
