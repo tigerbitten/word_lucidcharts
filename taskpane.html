@@ -50,7 +50,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v11</span>
+  <span id="build">build v12</span>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -302,7 +302,11 @@ $("replace").onclick = () => act("Replacing...", async () => {
       all.load("items/altTextTitle,items/altTextDescription");
       await ctx.sync();
       pic = all.items.find(p => p.altTextTitle === last.tag);
-      if (!pic) throw new Error(`"${last.title}" isn't in the document any more. Select the diagram to replace.`);
+      if (!pic) {
+        const title = last.title;
+        last = null;
+        throw new Error(`"${title}" isn't in the document any more. Select the diagram to replace.`);
+      }
       found = parseAlt(pic.altTextDescription);
     }
     // The picture keeps its tag; a picture from before tags gets one now.
@@ -328,9 +332,9 @@ $("load").onclick = () => act("Loading...", async () => {
     if (!tag || !tag.startsWith(TAG_PREFIX)) { tag = newTag(); s.pic.altTextTitle = tag; await ctx.sync(); }
     last = { tag, title: found.title };
   });
-  current = { documentId: found.documentId, embedId: found.embedId };
   // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
   await loadEditor(found.embedId);
+  current = { documentId: found.documentId, embedId: found.embedId };
   say(found.embedId ? `Loaded "${found.title}". Edit it, then Replace selected.`
     : `Linked to "${found.title}". Pick it in the editor to edit, then Replace selected.`);
 });

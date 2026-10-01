@@ -21,15 +21,24 @@ client secret. Moving that to Azure Functions / AWS Lambda comes later.
    **Edit**, and click Lucid's **Insert**. That opens it in the editor. It
    doesn't touch Word yet.
 3. Draw. Lucid saves as you go.
-4. **Insert into document** puts the diagram below the cursor, centred and
-   scaled to fit the page width.
-5. Later: click the picture in Word, **Open selected** to reopen it in the
-   editor, edit, then **Update in document**. Update replaces every picture of
-   that diagram in the document.
+4. **Insert new** puts the diagram below the cursor, centred and scaled to fit
+   the page width.
 
-**New / other diagram** goes back to the picker. If the editor ever doesn't
-pick up which diagram you opened (the Insert buttons stay grey), open
-**Diagram not detected?** and paste the diagram's lucid.app URL.
+The buttons act on whatever is selected in Word, and the line above them says
+what that is:
+
+- **Load selected** opens the selected diagram picture in the editor.
+- **Replace selected** swaps the selected diagram picture for the diagram in
+  the editor. That's both "put my edit back" and "make this other diagram
+  match the one in my editor". With nothing selected, it targets the picture
+  you last inserted or loaded, so load → edit → replace needs no trip back to
+  the document. It never replaces a picture that isn't one of these diagrams.
+- **New / other diagram** goes back to Lucid's picker.
+- **Open in Lucid ↗** opens the editor's diagram on lucid.app for more room.
+  Edits there show up on the next Replace.
+
+If the editor ever doesn't pick up which diagram you opened (Insert stays
+grey), open **Diagram not detected?** and paste the diagram's lucid.app URL.
 
 Only the first page of a multi-page Lucid document is exported.
 
@@ -41,9 +50,11 @@ https://lucid.app/lucidchart/<document id>/edit
 lucid-embed: <embed id>
 ```
 
-The embed id is what lets **Open selected** jump straight back into the
-editor. It's missing if the diagram was inserted from a pasted URL. Alt text
-lands in `word/document.xml` as `wp:docPr/@descr`; it's dropped on PDF export.
+The embed id is what lets **Load selected** jump straight back into the
+editor. It's missing if the diagram was inserted from a pasted URL. The alt
+text *title* holds a short tag (`Lucidchart diagram #k3x9a1`) so the add-in
+can find "the picture you last inserted or loaded". Alt text lands in
+`word/document.xml` as `wp:docPr/@descr`; it's dropped on PDF export.
 
 ## One-time setup
 
