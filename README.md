@@ -53,8 +53,21 @@ above them says what that is and whether it's up to date with Lucid:
 
 Renaming a diagram in Lucid shows up in the bar within about 10 seconds (the
 pane asks Lucid; the embed doesn't announce renames). A picture made before the
-rename shows as out of date, and **Update selected** just relabels its alt text
-when the image itself is already current.
+rename shows as out of date, and **Update selected** brings its name in line.
+
+### Image quality
+
+Lucid only exports PNG (no SVG), so pictures are made sharp by pixel count:
+each export is sized for about 400 pixels per inch at the width the picture
+has in Word. That's a re-export at a higher DPI when needed, so the first
+export of a changed diagram can take a few seconds. Anything far sharper
+than 600 ppi is scaled down in the pane with high-quality resampling.
+**Update selected** always re-exports for the picture's current width, so
+after enlarging a picture in Word, Update makes it sharp again.
+
+A big diagram squeezed onto the page has physically small text, which no
+resolution fixes at 100% zoom; the status line says when a picture is shown
+at under 60% of its Lucid size.
 
 If the editor ever doesn't pick up which diagram you opened (Insert stays
 grey), open **Diagram not detected?** and paste the diagram's lucid.app URL.

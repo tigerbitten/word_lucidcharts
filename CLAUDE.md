@@ -36,7 +36,7 @@ Two stages:
 - Each picture records the Lucid document `version` it was exported from
   (`lucid-version:`); comparing it with `/info` is how the pane says a picture
   is out of date. The backend caches the last PNG per document keyed on that
-  version, which is what makes repeat inserts fast.
+  version (and DPI), which is what makes repeat inserts fast. Export DPI adapts so a picture has ~400 ppi at its width in Word (BASE_DPI/TARGET_PPI in server.js).
 - The editable embed also needs the user logged in to lucid.app in the same
   browser (cookie session), on top of the OAuth token.
 - The pane also runs in a plain browser with the Word buttons disabled, which
