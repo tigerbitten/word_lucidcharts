@@ -49,7 +49,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v7</span>
+  <span id="build">build v8</span>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -80,6 +80,7 @@ const $ = id => document.getElementById(id);
 let inWord = false;
 let current = null;  // { documentId, embedId } of the diagram open in the editor
 let busy = false;
+let signInTimer = null;
 
 function say(msg, isError) {
   $("status").textContent = msg;
@@ -122,7 +123,7 @@ async function backend(path) {
   }
   if (r.ok) return r.json();
   const msg = await r.text();
-  if (r.status === 401) showCard(msg + " Sign in, then come back here.", { signIn: true });
+  if (r.status === 401) showCard(msg, { signIn: true });
   throw new Error(msg);
 }
 
@@ -145,8 +146,10 @@ async function start() {
   say("Connecting...");
   try {
     if ((await backend("/status")).signedIn) {
-      await loadEditor();
-      say("Pick or create a document, choose Edit, then click Insert in the editor.");
+      // After a re-sign-in, come back to the diagram that was open.
+      const embedId = current && current.embedId;
+      await loadEditor(embedId);
+      say(embedId ? "Signed in. Carry on editing." : "Pick or create a document, choose Edit, then click Insert in the editor.");
     } else {
       showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });
       say("Not signed in.");
@@ -262,11 +265,12 @@ $("signIn").onclick = () => {
   say("Finish signing in in the tab that opened...");
   // Poll until the backend has a token, then carry on without another click.
   const until = Date.now() + 5 * 60000;
-  const timer = setInterval(async () => {
+  clearInterval(signInTimer);
+  signInTimer = setInterval(async () => {
     let s;
     try { s = await (await fetch(BACKEND + "/status")).json(); } catch { return; }
-    if (s.signedIn) { clearInterval(timer); start(); }
-    else if (Date.now() > until) { clearInterval(timer); say("Sign-in timed out. Click Sign in to try again.", true); }
+    if (s.signedIn) { clearInterval(signInTimer); start(); }
+    else if (Date.now() > until) { clearInterval(signInTimer); say("Sign-in timed out. Click Sign in to try again.", true); }
   }, 2000);
 };
 

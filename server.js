@@ -47,10 +47,14 @@ async function tokenRequest(body) {
   return tokens;
 }
 
-// Lucid access tokens last about an hour; refresh a minute early.
+// Lucid access tokens last about an hour; refresh a minute early. One refresh at
+// a time: refresh tokens are single-use, so a second concurrent refresh would fail.
+let refreshing = null;
 async function accessToken() {
   if (tokens && Date.now() > tokens.expires - 60000) {
-    if (!tokens.refresh || !(await tokenRequest({ grant_type: "refresh_token", refresh_token: tokens.refresh }))) signOut();
+    refreshing = refreshing || (tokens.refresh ? tokenRequest({ grant_type: "refresh_token", refresh_token: tokens.refresh })
+      : Promise.resolve(null)).finally(() => { refreshing = null; });
+    if (!(await refreshing)) signOut();
   }
   if (!tokens) throw new Shown(401, "Not signed in to Lucid.");
   return tokens.access;

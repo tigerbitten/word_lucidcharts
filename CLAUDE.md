@@ -16,6 +16,26 @@ Two stages:
    underneath. Sibling of the Mermaid Block Diagrams and Waveform Viewer
    add-ins (same alt-text trick).
 
+## How it fits together
+
+- `taskpane.html` (GitHub Pages) embeds Lucid with a **token-based editable
+  embed**: `https://lucid.app/embeds?token=<embed session token>`. Without an
+  embedId the iframe shows Lucid's document picker; when the user picks one,
+  the iframe posts `{type: "LucidEmbedEvent", event: "EmbedCreated",
+  documentId, embedId}` to the pane. Minting a token with that embedId reopens
+  the same diagram.
+- `server.js` runs on localhost (https via mkcert, because Lucid requires an
+  https redirect URI) and holds the client secret: OAuth with refresh tokens,
+  `POST /embeds/token`, and PNG export via `GET /documents/{id}` with
+  `Accept: image/png`. Single-machine prototype; it moves to Azure
+  Functions / AWS Lambda later.
+- Lucid's editor and login pages refuse to be framed (`X-Frame-Options:
+  SAMEORIGIN`); only `/embeds` can be. Sign-in therefore opens a browser tab.
+- Alt text format is in README.md. Stage 2 adds Mermaid below those lines,
+  and existing lines must keep parsing (`parseAlt` in taskpane.html).
+- The pane also runs in a plain browser with the Word buttons disabled, which
+  is how the Lucid side can be tested without Word.
+
 ## Style
 
 Goal: minimalistic, short, code that works. Not clever, not complete, not
