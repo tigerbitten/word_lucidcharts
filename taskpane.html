@@ -19,8 +19,10 @@
 <div id="bar">
   <button id="load">Load editor</button>
   <a id="login" href="https://localhost:3000/login" target="_blank" hidden>Sign in to Lucid</a>
+  <input id="docUrl" placeholder="paste Lucid document URL" size="28">
+  <button id="insert">Insert into Word</button>
   <span id="status"></span>
-  <span id="build">build v2</span>
+  <span id="build">build v3</span>
 </div>
 <iframe id="frame"></iframe>
 <script>
@@ -40,6 +42,22 @@ $("load").onclick = async () => {
   if (!r.ok) { $("status").textContent = "error " + r.status + ": " + body; return; }
   $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(body);
   $("status").textContent = "";
+};
+
+// Lucid's embed doesn't say which document you opened, so the URL is pasted.
+$("insert").onclick = async () => {
+  const id = ($("docUrl").value.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/) || [])[0];
+  if (!id) { $("status").textContent = "no document id in that URL"; return; }
+  $("status").textContent = "exporting...";
+  const r = await fetch(BACKEND + "/export?doc=" + id);
+  console.log("export", r.status);
+  if (r.status === 401) { $("status").textContent = "not signed in"; $("login").hidden = false; return; }
+  if (!r.ok) { $("status").textContent = "export error " + r.status + ": " + await r.text(); return; }
+  const bytes = new Uint8Array(await r.arrayBuffer());
+  let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
+  Office.context.document.setSelectedDataAsync(btoa(bin), { coercionType: Office.CoercionType.Image }, res => {
+    $("status").textContent = res.status === Office.AsyncResultStatus.Succeeded ? "inserted" : "insert failed: " + res.error.message;
+  });
 };
 
 // Embed iframe may postMessage; log everything until we know what it sends.

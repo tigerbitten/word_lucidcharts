@@ -14,7 +14,7 @@ if (!ID || !SECRET) throw new Error("set LUCID_CLIENT_ID and LUCID_CLIENT_SECRET
 
 const PORT = 3000;
 const REDIRECT = `https://localhost:${PORT}/callback`;
-const SCOPE = "lucidchart.document.app.picker.share.embed";
+const SCOPE = "lucidchart.document.app.picker.share.embed lucidchart.document.content:readonly";
 const PANE_ORIGIN = "https://tigerbitten.github.io";
 
 let accessToken = null; // in memory: restart the server, sign in again
@@ -53,6 +53,17 @@ https.createServer({ key: fs.readFileSync("localhost-key.pem"), cert: fs.readFil
       if (r.status === 401) accessToken = null; // expired: force re-login
       res.writeHead(r.status);
       return res.end(body);
+    }
+    if (url.pathname === "/export") {
+      if (!accessToken) { res.writeHead(401); return res.end("not signed in"); }
+      const id = url.searchParams.get("doc");
+      if (!/^[0-9a-f-]{36}$/.test(id)) { res.writeHead(400); return res.end("bad doc id"); }
+      const r = await fetch("https://api.lucid.co/documents/" + id + "?crop=content", {
+        headers: { Accept: "image/png;dpi=192", "Lucid-Api-Version": "1", Authorization: "Bearer " + accessToken } });
+      console.log("export", r.status);
+      if (r.status === 401) accessToken = null;
+      res.writeHead(r.status, { "Content-Type": r.headers.get("content-type") });
+      return res.end(Buffer.from(await r.arrayBuffer()));
     }
     res.writeHead(404); res.end();
   } catch (e) {
