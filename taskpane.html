@@ -63,7 +63,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v26</span>
+  <span id="build">build v27</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -260,15 +260,18 @@ async function syncPages() {
   if (r && current === c) applyPages(c, r);
 }
 
-// Which pages are Mermaid code decides how a picture is made, so it's never
-// guessed: before making one, the page list is fetched if it hasn't arrived.
-async function ensurePages() {
+// Which pages are empty or Mermaid code decides how a picture is made, and any
+// edit can change that (a new document starts empty), so the list is fetched
+// fresh before every picture. The backend caches it per Lucid version, so an
+// unchanged diagram costs one quick info call.
+async function freshPages() {
   const c = current;
-  if (!c.pages) applyPages(c, await backend("/pages?doc=" + c.documentId));
+  applyPages(c, await backend("/pages?doc=" + c.documentId));
 }
 
 function applyPages(c, r) {
   c.pages = r.pages;
+  c.pagesVersion = r.version;
   if (!c.pages.some(p => p.id === c.page)) c.page = c.pages[0].id;
   if (current !== c) return; // the editor moved on to another diagram meanwhile
   $("page").innerHTML = "";
@@ -289,7 +292,11 @@ async function syncLucid() {
   ids.forEach((id, i) => {
     const info = infos[i];
     if (!info) return;
-    if (current && current.documentId === id) current.title = info.title;
+    if (current && current.documentId === id) {
+      current.title = info.title;
+      // Pages may have been added, emptied or filled since the chooser was filled.
+      if (current.pages && current.pagesVersion !== info.version) syncPages();
+    }
     if (t && t.documentId === id && updateTarget() === t) { t.latest = info.version; t.latestTitle = info.title; }
   });
   refreshButtons();
@@ -404,7 +411,7 @@ const exportPath = (documentId, page, shownPt) => `/export?doc=${documentId}&pag
 const mermaidPath = (documentId, page) => `/mermaid?doc=${documentId}&page=${page}`;
 
 async function exportDiagram(ids, page, shownPt) {
-  await ensurePages();
+  await freshPages();
   const info = pageInfo(page);
   if (!info) throw new Error("That page has been deleted from the Lucid document, so this picture can't be updated. Insert another page as a new picture instead.");
   if (info.empty) throw new Error(`"${info.title}" is empty in Lucid. Pick another page under Page for Word.`);
@@ -697,6 +704,7 @@ $("actions").addEventListener("pointerenter", () => {
     if (isFromCode(page)) loadMermaid().catch(() => {});
     else quietly(exportPath(current.documentId, page, same ? t.width : null));
     quietly(mermaidPath(current.documentId, page));
+    quietly("/pages?doc=" + current.documentId);
   }
   syncLucid();
 });

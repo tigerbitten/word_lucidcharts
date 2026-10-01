@@ -45,7 +45,7 @@ Two stages:
   Lucid's class names for them so far.
 - Pages made from Mermaid code in Lucid can't be exported (notes.md, Export
   quirks). `/pages` flags them `fromCode`; the pane
-  always has the page list before making a picture (`ensurePages`), and draws
+  re-fetches the page list before every picture (`freshPages`; cached per version), and draws
   those pages from their Mermaid with Mermaid 11.17.2 (pinned) from jsDelivr,
   with plain SVG labels so the canvas isn't tainted, capped to WebKit's canvas
   limits. `mermaid.js` gives each shape at the end of a code subgraph's connectors
