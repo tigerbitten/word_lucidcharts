@@ -61,7 +61,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v16</span>
+  <span id="build">build v17</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -140,8 +140,8 @@ function refreshButtons() {
   const stale = changed || renamed;
   $("insert").disabled = !ready || !current;
   $("replace").disabled = !ready || !current || !t;
-  $("replace").textContent = !t || same ? "Update selected" : "Replace selected";
-  $("replace").title = !t || same ? "Bring the picture up to date with the diagram in the editor"
+  $("replace").textContent = !t || !current || same ? "Update selected" : "Replace selected";
+  $("replace").title = !t || !current || same ? "Bring the picture up to date with the diagram in the editor"
     : `Swap the picture for the diagram in the editor${current ? ` ("${current.title}")` : ""}`;
   $("replace").className = same && stale ? "primary" : "";
   $("load").disabled = !ready || selected.kind !== "ours";
