@@ -49,7 +49,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v8</span>
+  <span id="build">build v9</span>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -170,9 +170,9 @@ function onLucidMessage(data) {
 
 // Alt text links the picture back to its Lucid diagram so it can be reopened and
 // updated. Stage 2 adds the Mermaid translation below these lines.
-function altText(title) {
-  return `Lucidchart diagram: ${title}\nhttps://lucid.app/lucidchart/${current.documentId}/edit`
-    + (current.embedId ? `\nlucid-embed: ${current.embedId}` : "");
+function altText(title, ids) {
+  return `Lucidchart diagram: ${title}\nhttps://lucid.app/lucidchart/${ids.documentId}/edit`
+    + (ids.embedId ? `\nlucid-embed: ${ids.embedId}` : "");
 }
 
 function parseAlt(alt) {
@@ -181,36 +181,40 @@ function parseAlt(alt) {
   return doc && { documentId: doc[1], embedId: embed ? embed[1] : null };
 }
 
-function dress(pic, d) {
+function dress(pic, d, ids) {
   const widthPt = d.width * 72 / d.dpi, heightPt = d.height * 72 / d.dpi;
   const scale = Math.min(1, MAX_WIDTH_PT / widthPt);
   pic.width = widthPt * scale;
   pic.height = heightPt * scale;
   pic.altTextTitle = d.title;
-  pic.altTextDescription = altText(d.title);
+  pic.altTextDescription = altText(d.title, ids);
 }
 
-async function exportCurrent() {
+// Callers capture `current` up front: the embed can announce another diagram
+// while the export is in flight.
+async function exportDiagram(ids) {
   say("Exporting from Lucid...");
-  const d = await backend("/export?doc=" + current.documentId);
+  const d = await backend("/export?doc=" + ids.documentId);
   console.log("export", d.title, d.width + "x" + d.height, d.base64.length, "base64 chars");
   say("Placing in document...");
   return d;
 }
 
 $("insert").onclick = () => act("Inserting...", async () => {
-  const d = await exportCurrent();
+  const ids = current;
+  const d = await exportDiagram(ids);
   await word(async ctx => {
     const para = ctx.document.getSelection().paragraphs.getLast().insertParagraph("", Word.InsertLocation.after);
     para.alignment = Word.Alignment.centered;
-    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d);
+    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids);
     await ctx.sync();
   });
   say(`Inserted "${d.title}".`);
 });
 
 $("update").onclick = () => act("Updating...", async () => {
-  const d = await exportCurrent();
+  const ids = current;
+  const d = await exportDiagram(ids);
   let n = 0;
   await word(async ctx => {
     const pics = ctx.document.body.inlinePictures;
@@ -218,7 +222,11 @@ $("update").onclick = () => act("Updating...", async () => {
     await ctx.sync();
     for (const p of pics.items) {
       const found = parseAlt(p.altTextDescription);
-      if (found && found.documentId === current.documentId) { dress(p.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d); n++; }
+      if (!found || found.documentId !== ids.documentId) continue;
+      // Keep the picture's own embed id: a diagram linked by pasted URL has none to give it.
+      dress(p.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
+        { documentId: ids.documentId, embedId: found.embedId || ids.embedId });
+      n++;
     }
     await ctx.sync();
   });
