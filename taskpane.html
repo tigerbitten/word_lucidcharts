@@ -29,6 +29,7 @@
   button.primary { background: #2563eb; border-color: #1d4ed8; color: #fff; }
   button.primary:disabled { background: #9db5ef; border-color: #9db5ef; color: #fff; }
   button.small { padding: 0.15rem 0.5rem; font-size: 0.8rem; }
+  select.small { font: inherit; font-size: 0.8rem; padding: 0.1rem; max-width: 10rem; }
 
   #top { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.4rem 0.6rem;
     border-bottom: 1px solid #e0e0e0; flex: none; }
@@ -61,10 +62,11 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v18</span>
+  <span id="build">build v19</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
+  <select id="page" class="small" hidden title="The page of this diagram that Insert new puts in the document"></select>
   <button id="lucid" class="small" title="Open this diagram on lucid.app in a browser tab: more room, and Lucid features that don't work inside Word">Open in Lucid &#8599;</button>
   <button id="new" class="small" title="Back to Lucid's document picker">Switch diagram</button>
   <button id="helpToggle" class="small" title="How editing works">?</button>
@@ -108,7 +110,9 @@ const MAX_PPI = 600;
 const $ = id => document.getElementById(id);
 
 let inWord = false;
-// The diagram open in the editor: { documentId, embedId, title }.
+// The diagram open in the editor: { documentId, embedId, title, page, pages }.
+// `page` is the Lucid page id Insert uses ("" = the first page); `pages` the
+// document's pages, once fetched, for the page chooser.
 let current = null;
 // What's selected in Word: { kind: "none" | "other" } or, for one of our
 // pictures, { kind: "ours", documentId, title, version, latest, latestTitle }.
@@ -149,6 +153,7 @@ function refreshButtons() {
   $("load").disabled = !ready || selected.kind !== "ours";
   $("new").disabled = busy;
   $("lucid").disabled = !current;
+  $("page").hidden = !current || !current.pages || current.pages.length < 2;
   $("diagramName").innerHTML = "";
   $("diagramName").append(...(current
     ? ["In the editor: ", Object.assign(document.createElement("b"), { textContent: current.title })]
@@ -225,12 +230,27 @@ async function loadEditor(embedId) {
   $("frame").hidden = false;
 }
 
-// Sets the editor's diagram, then fills in its real title from Lucid.
-function setCurrent(ids, title) {
-  current = { documentId: ids.documentId, embedId: ids.embedId, title: title || "this diagram" };
+// Sets the editor's diagram, then fills in its real title and its pages from Lucid.
+function setCurrent(ids, title, page) {
+  current = { documentId: ids.documentId, embedId: ids.embedId, title: title || "this diagram", page: page || "", pages: null };
   refreshButtons();
   syncLucid();
+  syncPages();
 }
+
+// Fills the page chooser; it only shows for a document with more than one page.
+async function syncPages() {
+  const c = current;
+  const r = c && await quietly("/pages?doc=" + c.documentId);
+  if (!r || current !== c) return;
+  c.pages = r.pages;
+  if (!c.pages.some(p => p.id === c.page)) c.page = c.pages[0].id;
+  $("page").innerHTML = "";
+  for (const p of c.pages) $("page").append(new Option(p.title + (p.empty ? " (empty)" : ""), p.id, false, p.id === c.page));
+  refreshButtons();
+}
+
+$("page").onchange = () => { current.page = $("page").value; refreshButtons(); };
 
 // Lucid tells the page hosting the embed nothing about renames or edits, so the
 // pane asks for the title and version of the editor's diagram and of the target
@@ -276,11 +296,12 @@ function onLucidMessage(data) {
 }
 
 // Alt text links the picture back to its Lucid diagram so it can be reopened and
-// updated, and records which Lucid version it shows. Stage 2 adds the Mermaid
-// translation below these lines.
-function altText(title, ids, version) {
-  return `Lucidchart diagram: ${title}\nhttps://lucid.app/lucidchart/${ids.documentId}/edit`
-    + (ids.embedId ? `\nlucid-embed: ${ids.embedId}` : "") + `\nlucid-version: ${version}`;
+// updated, records which Lucid version and page it shows, and carries the page
+// as Mermaid: the part an LLM reading the document understands.
+function altText(d, ids) {
+  return [`Lucidchart diagram: ${d.title}`, `https://lucid.app/lucidchart/${ids.documentId}/edit`,
+    ids.embedId && `lucid-embed: ${ids.embedId}`, `lucid-version: ${d.version}`, `lucid-page: ${d.page}`,
+    "```mermaid", d.mermaid, "```"].filter(Boolean).join("\n");
 }
 
 function parseAlt(alt) {
@@ -289,8 +310,10 @@ function parseAlt(alt) {
   if (!doc) return null;
   const embed = alt.match(new RegExp("lucid-embed: (" + UUID + ")"));
   const version = alt.match(/lucid-version: (\d+)/);
+  const page = alt.match(/lucid-page: (\S+)/);
   const title = alt.match(/^Lucidchart diagram: (.*)$/m);
-  return { documentId: doc[1], embedId: embed ? embed[1] : null, version: version ? +version[1] : null, title: title ? title[1] : "untitled" };
+  return { documentId: doc[1], embedId: embed ? embed[1] : null, version: version ? +version[1] : null,
+    page: page ? page[1] : "", title: title ? title[1] : "untitled" };
 }
 
 // Each picture carries a short random tag in its alt-text title, so "the picture
@@ -306,7 +329,7 @@ function dress(pic, d, ids, tag, keepWidthPt) {
   pic.width = widthPt;
   pic.height = widthPt * d.height / d.width;
   pic.altTextTitle = tag;
-  pic.altTextDescription = altText(d.title, ids, d.version);
+  pic.altTextDescription = altText(d, ids);
 }
 
 // What the selection holds: no picture, someone else's picture, or one of our
@@ -350,17 +373,37 @@ function onSelectionChanged() {
 // while the export is in flight.
 // `shownPt`: the width the picture will have in Word, so the export has enough
 // pixels for it; left out for a new picture.
-const exportPath = (documentId, shownPt) => "/export?doc=" + documentId + (shownPt ? "&shownPt=" + Math.round(shownPt) : "");
+// `page`: a Lucid page id, "" for the first page.
+const exportPath = (documentId, page, shownPt) => `/export?doc=${documentId}&page=${page}` + (shownPt ? "&shownPt=" + Math.round(shownPt) : "");
+const mermaidPath = (documentId, page) => `/mermaid?doc=${documentId}&page=${page}`;
 
-async function exportDiagram(ids, shownPt) {
+async function exportDiagram(ids, page, shownPt) {
   say("Exporting from Lucid...");
-  const d = await backend(exportPath(ids.documentId, shownPt));
-  console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars");
+  const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))]);
+  console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
+  Object.assign(d, { mermaid: m.mermaid, page: m.page });
   const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
   Object.assign(d, await plainPng(d.base64, maxWidthPx, ids.documentId + "@" + d.version + "@" + maxWidthPx));
   say("Placing in document...");
   return d;
 }
+
+// Captions are Word's own: "Figure 3: Login flow" in the Caption style, the
+// number a SEQ field so Word renumbers it and lists it in a Table of Figures.
+// Fields need WordApi 1.5; without it the caption is just the title.
+const CAPTION = "Figure";
+function addCaption(para, title) {
+  const fields = Office.context.requirements.isSetSupported("WordApi", "1.5");
+  const cap = para.insertParagraph(fields ? CAPTION + " " : title, Word.InsertLocation.after);
+  cap.styleBuiltIn = Word.BuiltInStyleName.caption;
+  if (fields) {
+    cap.getRange(Word.RangeLocation.content).insertField(Word.InsertLocation.end, "Seq", CAPTION + " \\* ARABIC", true);
+    cap.insertText(": " + title, Word.InsertLocation.end);
+  }
+}
+
+// The title part of a caption this add-in wrote ("Figure 3: Login flow" -> "Login flow").
+const captionTitle = text => text.replace(new RegExp("^\\s*" + CAPTION + "\\s*\\d*\\s*[:.\u2013-]\\s*"), "").trim();
 
 // A diagram shown much smaller than in Lucid has much smaller text; no
 // resolution makes 3pt text readable at 100% zoom, so say so.
@@ -394,15 +437,18 @@ async function plainPng(base64, maxWidthPx, key) {
 
 $("insert").onclick = () => act("Inserting...", async () => {
   const ids = current;
-  const d = await exportDiagram(ids);
+  const page = current.pages && current.pages.find(p => p.id === current.page);
+  if (page && page.empty) throw new Error(`"${page.title}" is empty in Lucid. Pick another page.`);
+  const d = await exportDiagram(ids, current.page);
   const tag = newTag();
   await word(async ctx => {
     const para = ctx.document.getSelection().paragraphs.getLast().insertParagraph("", Word.InsertLocation.after);
     para.alignment = Word.Alignment.centered;
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
+    addCaption(para, d.title);
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: d.shownPt };
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: d.shownPt, page: d.page };
   say(`Inserted "${d.title}".` + shrinkNote(d.shownPt, d));
 });
 
@@ -414,7 +460,10 @@ $("insert").onclick = () => act("Inserting...", async () => {
 $("replace").onclick = () => act("Updating...", async () => {
   const ids = current;
   const t = updateTarget();
-  const d = await exportDiagram(ids, t && t.width);
+  // Updating a picture keeps the page it shows; replacing it with another
+  // diagram uses the page chosen in the editor bar.
+  const page = t && t.documentId === ids.documentId ? t.page : current.page;
+  const d = await exportDiagram(ids, page, t && t.width);
   let tag, outcome, oldTitle, widthPt;
   await word(async ctx => {
     const s = await inspectSelection(ctx, true);
@@ -442,12 +491,21 @@ $("replace").onclick = () => act("Updating...", async () => {
     const sameDiagram = found && found.documentId === ids.documentId;
     outcome = !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : "refreshed";
     widthPt = pic.width;
+    // The caption under the picture follows a rename, unless it was reworded by
+    // hand: only a caption whose title part is still the old title changes.
+    const caption = pic.paragraph.getNextOrNullObject();
+    caption.load("text,styleBuiltIn");
+    await ctx.sync();
     const target = viaRange ? s.range : pic;
     dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
       { documentId: ids.documentId, embedId }, tag, widthPt);
+    if (!caption.isNullObject && caption.styleBuiltIn === Word.BuiltInStyleName.caption && oldTitle && oldTitle !== d.title
+        && captionTitle(caption.text) === oldTitle && oldTitle.length <= 255) {
+      caption.search(oldTitle, { matchCase: true }).getFirst().insertText(d.title, Word.InsertLocation.replace);
+    }
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt };
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
   say((outcome === "refreshed" ? `"${d.title}" was already up to date; refreshed it at full resolution for its size.`
     : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid.`
     : outcome === "updated" ? `Updated to the latest "${d.title}".`
@@ -467,7 +525,7 @@ $("load").onclick = () => act("Loading...", async () => {
   });
   // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
   await loadEditor(found.embedId);
-  setCurrent(found, found.title);
+  setCurrent(found, found.title, found.page);
   last = { kind: "ours", ...found, tag, width };
   say(found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
     : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`);
@@ -507,7 +565,12 @@ $("actions").addEventListener("pointerenter", () => {
   // Warm the export the next click will most likely ask for: an update of the
   // target picture at its width, or else a new picture.
   const t = updateTarget();
-  if (current && !busy) quietly(exportPath(current.documentId, t && t.documentId === current.documentId ? t.width : null));
+  if (current && !busy) {
+    const same = t && t.documentId === current.documentId;
+    const page = same ? t.page : current.page;
+    quietly(exportPath(current.documentId, page, same ? t.width : null));
+    quietly(mermaidPath(current.documentId, page));
+  }
   syncLucid();
 });
 // Back from a lucid.app tab: edits made there may have made the picture stale.

@@ -6,6 +6,7 @@
 const https = require("https");
 const fs = require("fs");
 const crypto = require("crypto");
+const { pageToMermaid } = require("./mermaid.js");
 
 for (const line of fs.readFileSync(".env", "utf8").split(/\r?\n/)) {
   const m = line.match(/^\s*([A-Z_]+)\s*=\s*(.*?)\s*$/);
@@ -119,20 +120,13 @@ const routes = {
 
   // `shownPt` is the width the picture will have in Word (an updated picture
   // keeps its width); without it, a new picture's width: natural size capped to
-  // the page. Exports are cached per version, and the pane calls this when the
-  // pointer reaches its buttons, so by the click the PNG is usually ready.
+  // the page. `page` is a Lucid page id; without it, the first page. The pane
+  // calls this when the pointer reaches its buttons, so by the click the PNG is
+  // usually cached already.
   "/export": async url => {
-    const id = docId(url);
-    // The base export is the slow call (~1s), so it runs alongside the info call.
-    const abort = new AbortController();
-    const baseRequest = fetchPng(id, BASE_DPI, abort.signal);
-    baseRequest.catch(() => {}); // awaited below, or deliberately abandoned
-    let doc;
-    try { doc = await docInfo(id); } catch (e) { abort.abort(); throw e; }
-    let base = cachedPng(id, BASE_DPI, doc.version);
-    if (base) abort.abort();
-    else base = storePng(id, BASE_DPI, doc.version, await baseRequest);
-
+    const id = docId(url), page = pageId(url);
+    // The base export is the slow call (~1s), so it starts alongside the info call.
+    const { doc, value: base } = await withDoc(id, `png ${id} ${page} ${BASE_DPI}`, signal => fetchPng(id, page, BASE_DPI, signal));
     const naturalPt = base.readUInt32BE(16) * 72 / BASE_DPI;
     const shownPt = +url.searchParams.get("shownPt") || Math.min(naturalPt, MAX_WIDTH_PT);
     const basePpi = base.readUInt32BE(16) / (shownPt / 72);
@@ -140,33 +134,75 @@ const routes = {
     if (basePpi < TARGET_PPI) {
       // Rounded up to a multiple of 32 so nearby sizes share a cached export.
       dpi = Math.min(MAX_DPI, Math.ceil(BASE_DPI * TARGET_PPI / basePpi / 32) * 32);
-      png = cachedPng(id, dpi, doc.version) || storePng(id, dpi, doc.version, await fetchPng(id, dpi));
+      png = await versioned(`png ${id} ${page} ${dpi}`, doc.version, () => fetchPng(id, page, dpi));
     }
     // Pixel size from the IHDR chunk, so the pane can size the picture without decoding it.
     const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
     console.log(`   export ${width}x${height} at ${dpi}dpi, ${Math.round(width / (shownPt / 72))}ppi at ${Math.round(shownPt)}pt wide`);
     return { title: doc.title, version: doc.version, base64: png.toString("base64"), width, height, naturalPt, shownPt };
   },
+
+  // The document's pages, for the pane's page chooser. An empty page exports as a blank square.
+  "/pages": async url => {
+    const id = docId(url);
+    const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
+    return { version: doc.version, pages: contents.pages.map(p => ({ id: p.id, title: p.title,
+      empty: !((p.items || {}).shapes || []).length && !((p.items || {}).lines || []).length })) };
+  },
+
+  // The page as Mermaid (mermaid.js), for the picture's alt text.
+  "/mermaid": async url => {
+    const id = docId(url), page = pageId(url);
+    const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
+    const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
+    if (!p) throw new Shown(404, `Lucid's diagram has no page "${page}" any more.`);
+    return { version: doc.version, page: p.id, pageTitle: p.title, mermaid: pageToMermaid(p) };
+  },
 };
 
-// Exports by document and DPI, each remembered with the version it shows.
-const exportCache = new Map();
+// Lucid results that only change when the document does, cached with the version they came from.
+const cache = new Map();
 
-function cachedPng(id, dpi, version) {
-  const c = exportCache.get(id + "@" + dpi);
-  return c && version != null && c.version === version ? c.png : null;
+async function versioned(key, version, fetch) {
+  const c = cache.get(key);
+  if (c && version != null && c.version === version) return c.value;
+  const value = await fetch();
+  cache.set(key, { version, value });
+  return value;
 }
 
-function storePng(id, dpi, version, png) {
-  exportCache.set(id + "@" + dpi, { version, png });
-  return png;
+// A slow Lucid request whose freshness depends on the document's version: it
+// starts alongside the info call (which gives the version) and is abandoned
+// if the cache turns out to have it already.
+async function withDoc(id, key, slow) {
+  const abort = new AbortController();
+  const request = slow(abort.signal);
+  request.catch(() => {}); // awaited below, or deliberately abandoned
+  let doc;
+  try { doc = await docInfo(id); } catch (e) { abort.abort(); throw e; }
+  let used = false;
+  const value = await versioned(key, doc.version, () => { used = true; return request; });
+  if (!used) abort.abort();
+  return { doc, value };
 }
 
-async function fetchPng(id, dpi, signal) {
-  const r = await lucid("/documents/" + id + "?crop=content", { headers: { Accept: `image/png;dpi=${dpi}` }, signal });
+async function fetchPng(id, page, dpi, signal) {
+  const r = await lucid(`/documents/${id}?crop=content${page ? "&pageId=" + encodeURIComponent(page) : ""}`,
+    { headers: { Accept: `image/png;dpi=${dpi}` }, signal });
   const png = Buffer.from(await r.arrayBuffer());
   if (png.toString("latin1", 1, 4) !== "PNG") throw new Shown(502, "Lucid's export wasn't a PNG: " + png.toString("utf8", 0, 100));
   return png;
+}
+
+// Shapes, connectors and containment for every page (~4s for a small diagram).
+async function fetchContents(id, signal) {
+  return (await lucid(`/documents/${id}/contents`, { signal })).json();
+}
+
+function pageId(url) {
+  const page = url.searchParams.get("page");
+  if (page && !/^[\w~.-]+$/.test(page)) throw new Shown(400, "Bad page id: " + page);
+  return page || "";
 }
 
 function docId(url) {
