@@ -22,7 +22,7 @@
   <input id="docUrl" placeholder="paste Lucid document URL" size="28">
   <button id="insert">Insert into Word</button>
   <span id="status"></span>
-  <span id="build">build v5</span>
+  <span id="build">build v6</span>
 </div>
 <iframe id="frame"></iframe>
 <script>
@@ -57,12 +57,16 @@ $("insert").onclick = async () => {
     const bytes = new Uint8Array(await r.arrayBuffer());
     console.log("export bytes", bytes.length);
     let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
-    $("status").textContent = "inserting " + bytes.length + " bytes...";
-    await Office.onReady(); // Word.run throws cryptic errors before Office is initialized
-    await Word.run(async ctx => {
+    // Every Office call is raced against a timeout so a hang says where it hung.
+    const within = (p, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(what + " timed out")), 8000))]);
+    $("status").textContent = "v6: waiting for Office...";
+    const info = await within(Office.onReady(), "Office.onReady");
+    console.log("office info", info);
+    $("status").textContent = "v6: Word.run (" + (info && info.host) + "/" + (info && info.platform) + ")...";
+    await within(Word.run(async ctx => {
       ctx.document.getSelection().insertInlinePictureFromBase64(btoa(bin), Word.InsertLocation.replace);
       await ctx.sync();
-    });
+    }), "Word.run");
     $("status").textContent = "inserted";
   } catch (e) {
     console.error(e);
