@@ -28,12 +28,21 @@
   button:disabled { color: #aaa; cursor: default; }
   button.primary { background: #2563eb; border-color: #1d4ed8; color: #fff; }
   button.primary:disabled { background: #9db5ef; border-color: #9db5ef; color: #fff; }
+  button.small { padding: 0.15rem 0.5rem; font-size: 0.8rem; }
 
   #top { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.4rem 0.6rem;
     border-bottom: 1px solid #e0e0e0; flex: none; }
   #status { flex: 1; min-width: 0; color: #444; font-size: 0.85rem; }
   #status.err { color: #b42318; }
   #build { color: #999; font-size: 0.75rem; flex: none; }
+
+  #diagramBar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem;
+    background: #f6f8fc; border-bottom: 1px solid #e0e0e0; flex: none; font-size: 0.85rem; }
+  #diagramName { flex: 1; min-width: 8rem; }
+  #help { padding: 0.5rem 0.7rem; background: #fffbea; border-bottom: 1px solid #eadfa8;
+    font-size: 0.82rem; line-height: 1.45; flex: none; }
+  #help p { margin: 0 0 0.4rem; }
+  #help p:last-child { margin: 0; }
 
   #main { flex: 1; min-height: 0; position: relative; }
   #frame { width: 100%; height: 100%; border: 0; display: block; }
@@ -42,7 +51,9 @@
 
   #actions { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.6rem;
     border-top: 1px solid #e0e0e0; flex: none; }
-  #target { flex-basis: 100%; font-size: 0.8rem; color: #555; }
+  #target { flex-basis: 100%; font-size: 0.8rem; color: #555; line-height: 1.4; }
+  #target .stale { color: #b45309; font-weight: 600; }
+  #target .fresh { color: #15803d; }
   #fallback { flex-basis: 100%; font-size: 0.8rem; color: #666; }
   #fallback input { width: 100%; margin-top: 0.3rem; font: inherit; padding: 0.25rem; }
 </style>
@@ -50,7 +61,21 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v13</span>
+  <span id="build">build v14</span>
+</div>
+<div id="diagramBar">
+  <span id="diagramName"></span>
+  <button id="lucid" class="small" title="Open this diagram on lucid.app in a browser tab: more room, and Lucid features that don't work inside Word">Open in Lucid &#8599;</button>
+  <button id="new" class="small" title="Back to Lucid's document picker">Switch diagram</button>
+  <button id="helpToggle" class="small" title="How editing works">?</button>
+</div>
+<div id="help" hidden>
+  <p><b>There's one copy of each diagram, in your Lucid account.</b> This editor and lucid.app
+    are two windows onto that same diagram: edit in either, and every change saves to Lucid by itself.</p>
+  <p><b>Open in Lucid &#8599;</b> gives you more room and the Lucid features that don't work inside
+    Word, like Create with AI. Changes made there appear here too.</p>
+  <p><b>The pictures in Word are snapshots.</b> They only change when you click <b>Update selected</b>.
+    The line above the buttons says whether the selected picture is up to date.</p>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -62,11 +87,9 @@
 </div>
 <div id="actions">
   <div id="target"></div>
-  <button id="insert" class="primary" title="Insert the diagram open in the editor below the cursor">Insert new</button>
-  <button id="replace" title="Replace the selected diagram picture with the diagram open in the editor">Replace selected</button>
+  <button id="insert" class="primary" title="Insert the diagram in the editor below the cursor">Insert new</button>
+  <button id="replace">Update selected</button>
   <button id="load" title="Open the selected diagram picture in the editor">Load selected</button>
-  <button id="new" title="Back to Lucid's document picker">New / other diagram</button>
-  <button id="lucid" title="Open the editor's diagram on lucid.app in a browser tab, for more room">Open in Lucid &#8599;</button>
   <details id="fallback">
     <summary>Diagram not detected?</summary>
     Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
@@ -81,11 +104,15 @@ const MAX_WIDTH_PT = 468; // 6.5in: the text width of a Letter page with 1in mar
 const $ = id => document.getElementById(id);
 
 let inWord = false;
-let current = null;  // { documentId, embedId } of the diagram open in the editor
-// What's selected in Word: { kind: "ours" | "other" | "none", title }.
+// The diagram open in the editor: { documentId, embedId, title }.
+let current = null;
+// What's selected in Word: { kind: "none" | "other" } or, for one of our
+// pictures, { kind: "ours", documentId, title, version, latest }. `version` is
+// the Lucid version the picture was made from, `latest` Lucid's version now.
 let selected = { kind: "none" };
-// The picture last inserted or loaded, { tag, title }: Replace's target when
-// nothing is selected, so load-edit-replace needs no trip back to the document.
+// The picture last inserted or loaded, shaped like an "ours" selection plus its
+// tag: Update's target when nothing is selected, so load-edit-update needs no
+// trip back to the document.
 let last = null;
 let busy = false;
 let signInTimer = null;
@@ -96,18 +123,41 @@ function say(msg, isError) {
   (isError ? console.error : console.log)("status:", msg);
 }
 
+// The picture Update/Replace would act on.
+function updateTarget() {
+  return selected.kind === "ours" ? selected : selected.kind === "none" ? last : null;
+}
+
 function refreshButtons() {
   const ready = inWord && !busy;
+  const t = updateTarget();
+  const same = t && current && t.documentId === current.documentId;
+  const stale = t && t.version != null && t.latest != null && t.version < t.latest;
   $("insert").disabled = !ready || !current;
-  $("replace").disabled = !ready || !current || !(selected.kind === "ours" || (selected.kind === "none" && last));
+  $("replace").disabled = !ready || !current || !t;
+  $("replace").textContent = !t || same ? "Update selected" : "Replace selected";
+  $("replace").title = !t || same ? "Bring the picture up to date with the diagram in the editor"
+    : `Swap the picture for the diagram in the editor${current ? ` ("${current.title}")` : ""}`;
+  $("replace").className = same && stale ? "primary" : "";
   $("load").disabled = !ready || selected.kind !== "ours";
   $("new").disabled = busy;
   $("lucid").disabled = !current;
-  $("target").textContent = !inWord ? ""
-    : selected.kind === "ours" ? `Selected in document: "${selected.title}"`
-    : selected.kind === "other" ? "The selected picture isn't a Lucid diagram from this add-in."
-    : last ? `Nothing selected. Replace targets "${last.title}", the diagram you last inserted or loaded.`
-    : "Select a diagram in the document to load or replace it.";
+  $("diagramName").innerHTML = "";
+  $("diagramName").append(...(current
+    ? ["In the editor: ", Object.assign(document.createElement("b"), { textContent: current.title })]
+    : ["Pick or create a diagram in the editor below."]));
+
+  const line = $("target");
+  line.innerHTML = "";
+  if (!inWord) return;
+  const add = (text, cls) => line.append(Object.assign(document.createElement("span"), { textContent: text, className: cls || "" }));
+  if (selected.kind === "other") return add("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
+  if (!t) return add("Select a diagram picture in the document to load, update or replace it.");
+  add(selected.kind === "ours" ? `Selected: "${t.title}"` : `Nothing selected, so the buttons use "${t.title}", the picture you last inserted or loaded`);
+  if (stale) add(" is out of date: the diagram changed in Lucid since this picture was made.", "stale");
+  else if (t.version != null && t.latest != null) add(" is up to date with Lucid.", "fresh");
+  else add(".");
+  if (current && !same) add(` It's a different diagram from the one in the editor: Load selected to edit it, or Replace selected to turn it into "${current.title}".`);
 }
 
 function showCard(text, { signIn = false, retry = false } = {}) {
@@ -125,7 +175,7 @@ function within(promise, ms, what) {
 
 const word = fn => within(Word.run(fn), 20000, "Word");
 
-// Every backend call goes through here, so failures come back as something to act on.
+// Every backend call a button depends on goes through here, so failures come back as something to act on.
 async function backend(path) {
   let r;
   try { r = await fetch(BACKEND + path); }
@@ -139,6 +189,12 @@ async function backend(path) {
   const msg = await r.text();
   if (r.status === 401) showCard(msg, { signIn: true });
   throw new Error(msg);
+}
+
+// Background lookups (freshness, prefetch) mustn't throw up cards over the editor.
+async function quietly(path) {
+  try { const r = await fetch(BACKEND + path); return r.ok ? r.json() : null; }
+  catch { return null; }
 }
 
 // Runs one button's work: one thing at a time, and errors land in the status line.
@@ -161,6 +217,14 @@ async function loadEditor(embedId) {
   $("frame").hidden = false;
 }
 
+// Sets the editor's diagram, then fills in its real title from Lucid.
+async function setCurrent(ids, title) {
+  current = { documentId: ids.documentId, embedId: ids.embedId, title: title || "this diagram" };
+  refreshButtons();
+  const info = await quietly("/info?doc=" + ids.documentId);
+  if (info && current && current.documentId === ids.documentId) { current.title = info.title; refreshButtons(); }
+}
+
 async function start() {
   say("Connecting...");
   try {
@@ -168,7 +232,7 @@ async function start() {
       // After a re-sign-in, come back to the diagram that was open.
       const embedId = current && current.embedId;
       await loadEditor(embedId);
-      say(embedId ? "Signed in. Carry on editing." : "Pick or create a document, choose Edit, then click Insert in the editor.");
+      say(embedId ? "Signed in. Carry on editing." : "Pick or create a document, choose Edit, then click Lucid's Insert.");
     } else {
       showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });
       say("Not signed in.");
@@ -176,67 +240,88 @@ async function start() {
   } catch (e) { say(e.message, true); }
 }
 
-// The embed announces which document was picked; that's the diagram Insert/Replace use.
+// The embed announces which document was picked; that's the diagram the buttons use.
 function onLucidMessage(data) {
   if (typeof data === "string") { try { data = JSON.parse(data); } catch { return; } }
   console.log("lucid message", data);
   if (data && data.type === "LucidEmbedEvent" && data.event === "EmbedCreated") {
-    current = { documentId: data.documentId, embedId: data.embedId };
-    say(inWord ? "Ready. Edit the diagram, then Insert new or Replace selected." : "Diagram ready (open in Word to insert).");
-    refreshButtons();
+    setCurrent({ documentId: data.documentId, embedId: data.embedId });
+    say(inWord ? "Ready. Edit the diagram, then Insert new or Update selected." : "Diagram ready (open in Word to insert).");
   }
 }
 
 // Alt text links the picture back to its Lucid diagram so it can be reopened and
-// replaced. Stage 2 adds the Mermaid translation below these lines.
-function altText(title, ids) {
+// updated, and records which Lucid version it shows. Stage 2 adds the Mermaid
+// translation below these lines.
+function altText(title, ids, version) {
   return `Lucidchart diagram: ${title}\nhttps://lucid.app/lucidchart/${ids.documentId}/edit`
-    + (ids.embedId ? `\nlucid-embed: ${ids.embedId}` : "");
+    + (ids.embedId ? `\nlucid-embed: ${ids.embedId}` : "") + `\nlucid-version: ${version}`;
 }
 
 function parseAlt(alt) {
-  const doc = (alt || "").match(new RegExp("lucid\\.app/lucidchart/(" + UUID + ")"));
-  const embed = (alt || "").match(new RegExp("lucid-embed: (" + UUID + ")"));
-  const title = (alt || "").match(/^Lucidchart diagram: (.*)$/m);
-  return doc && { documentId: doc[1], embedId: embed ? embed[1] : null, title: title ? title[1] : "untitled" };
+  alt = alt || "";
+  const doc = alt.match(new RegExp("lucid\\.app/lucidchart/(" + UUID + ")"));
+  if (!doc) return null;
+  const embed = alt.match(new RegExp("lucid-embed: (" + UUID + ")"));
+  const version = alt.match(/lucid-version: (\d+)/);
+  const title = alt.match(/^Lucidchart diagram: (.*)$/m);
+  return { documentId: doc[1], embedId: embed ? embed[1] : null, version: version ? +version[1] : null, title: title ? title[1] : "untitled" };
 }
 
 // Each picture carries a short random tag in its alt-text title, so "the picture
 // last inserted or loaded" can be found again in a later Word.run.
 const TAG_PREFIX = "Lucidchart diagram #";
 const newTag = () => TAG_PREFIX + Math.random().toString(36).slice(2, 8);
+const tagOf = pic => pic.altTextTitle && pic.altTextTitle.startsWith(TAG_PREFIX) ? pic.altTextTitle : newTag();
 
-function dress(pic, d, ids, tag) {
-  const widthPt = d.width * 72 / d.dpi, heightPt = d.height * 72 / d.dpi;
-  const scale = Math.min(1, MAX_WIDTH_PT / widthPt);
-  pic.width = widthPt * scale;
-  pic.height = heightPt * scale;
+// New pictures come in at their natural size, capped to the page width. An
+// updated picture keeps the width it had in the document, so resizing sticks.
+function dress(pic, d, ids, tag, keepWidthPt) {
+  const naturalPt = d.width * 72 / d.dpi;
+  const widthPt = keepWidthPt || Math.min(naturalPt, MAX_WIDTH_PT);
+  pic.width = widthPt;
+  pic.height = widthPt * d.height / d.width;
   pic.altTextTitle = tag;
-  pic.altTextDescription = altText(d.title, ids);
+  pic.altTextDescription = altText(d.title, ids, d.version);
 }
 
 // What the selection holds: no picture, someone else's picture, or one of our
-// diagrams (with the Word objects needed to replace it).
-async function inspectSelection(ctx) {
+// diagrams (with the Word objects needed to replace it). The range's text is
+// only loaded when asked for: on a select-all it's the whole document.
+async function inspectSelection(ctx, withText) {
   const range = ctx.document.getSelection();
   const pics = range.inlinePictures;
-  pics.load("items/altTextDescription,items/altTextTitle");
-  range.load("text");
+  pics.load("items/altTextDescription,items/altTextTitle,items/width");
+  if (withText) range.load("text");
   await ctx.sync();
   if (!pics.items.length) return { kind: "none" };
   const pic = pics.items.find(p => parseAlt(p.altTextDescription));
   if (!pic) return { kind: "other" };
-  const found = parseAlt(pic.altTextDescription);
   // Replacing through the range is what the sibling add-in found swaps a picture
   // cleanly in place, but it replaces everything selected, so only when the picture is all there is.
-  return { kind: "ours", title: found.title, found, pic, range, alone: pics.items.length === 1 && range.text.trim().length <= 1 };
+  const alone = withText && pics.items.length === 1 && range.text.trim().length <= 1;
+  return { kind: "ours", found: parseAlt(pic.altTextDescription), pic, range, alone };
 }
 
 async function readSelection() {
-  if (!inWord) return;
-  try { await word(async ctx => { const s = await inspectSelection(ctx); selected = { kind: s.kind, title: s.title }; }); }
-  catch (e) { console.warn("reading selection:", e); selected = { kind: "none" }; }
+  if (inWord) {
+    try {
+      await word(async ctx => {
+        const s = await inspectSelection(ctx, false);
+        selected = s.kind === "ours" ? { kind: "ours", ...s.found } : { kind: s.kind };
+      });
+    } catch (e) { console.warn("reading selection:", e); selected = { kind: "none" }; }
+  }
   refreshButtons();
+  refreshFreshness();
+}
+
+// Asks Lucid for the target diagram's current version, to say whether the picture is out of date.
+async function refreshFreshness() {
+  const t = updateTarget();
+  if (!t || t.version == null) return;
+  const info = await quietly("/info?doc=" + t.documentId);
+  if (info && updateTarget() === t) { t.latest = info.version; refreshButtons(); }
 }
 
 let selectionTimer = null;
@@ -250,8 +335,8 @@ function onSelectionChanged() {
 async function exportDiagram(ids) {
   say("Exporting from Lucid...");
   const d = await backend("/export?doc=" + ids.documentId);
-  console.log("export", d.title, d.width + "x" + d.height, d.base64.length, "base64 chars");
-  d.base64 = await plainPng(d.base64);
+  console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars");
+  d.base64 = await plainPng(d.base64, ids.documentId + "@" + d.version);
   say("Placing in document...");
   return d;
 }
@@ -259,7 +344,9 @@ async function exportDiagram(ids) {
 // Word on the web refused Lucid's PNG ("unable to insert the picture"): it's a
 // palette PNG with colour-profile and text chunks. Redrawn through a canvas it
 // becomes a plain RGBA PNG, the kind the sibling add-ins insert without trouble.
-async function plainPng(base64) {
+let plainCache = { key: null, base64: null };
+async function plainPng(base64, key) {
+  if (plainCache.key === key) return plainCache.base64;
   const img = new Image();
   img.src = "data:image/png;base64," + base64;
   await img.decode();
@@ -267,7 +354,8 @@ async function plainPng(base64) {
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
   canvas.getContext("2d").drawImage(img, 0, 0);
-  return canvas.toDataURL("image/png").split(",")[1];
+  plainCache = { key, base64: canvas.toDataURL("image/png").split(",")[1] };
+  return plainCache.base64;
 }
 
 $("insert").onclick = () => act("Inserting...", async () => {
@@ -280,90 +368,106 @@ $("insert").onclick = () => act("Inserting...", async () => {
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
     await ctx.sync();
   });
-  last = { tag, title: d.title };
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, tag };
   say(`Inserted "${d.title}".`);
 });
 
-// Replaces the selected diagram picture, or the one last inserted/loaded when
-// nothing is selected, with whatever diagram the editor has open.
-$("replace").onclick = () => act("Replacing...", async () => {
+// Updates the selected diagram picture (or the one last inserted/loaded, when
+// nothing is selected) to the diagram in the editor. If the picture shows a
+// different diagram, this replaces it with the editor's.
+$("replace").onclick = () => act("Updating...", async () => {
   const ids = current;
   const d = await exportDiagram(ids);
   let tag;
   await word(async ctx => {
-    const s = await inspectSelection(ctx);
+    const s = await inspectSelection(ctx, true);
     if (s.kind === "other") throw new Error("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
     let pic, found, viaRange = false;
     if (s.kind === "ours") {
       pic = s.pic; found = s.found; viaRange = s.alone;
     } else {
-      if (!last) throw new Error("Select the diagram picture to replace in the document first.");
+      if (!last) throw new Error("Select the diagram picture to update in the document first.");
       const all = ctx.document.body.inlinePictures;
-      all.load("items/altTextTitle,items/altTextDescription");
+      all.load("items/altTextTitle,items/altTextDescription,items/width");
       await ctx.sync();
       pic = all.items.find(p => p.altTextTitle === last.tag);
       if (!pic) {
         const title = last.title;
         last = null;
-        throw new Error(`"${title}" isn't in the document any more. Select the diagram to replace.`);
+        throw new Error(`"${title}" isn't in the document any more. Select the diagram to update.`);
       }
       found = parseAlt(pic.altTextDescription);
     }
-    // The picture keeps its tag; a picture from before tags gets one now.
-    tag = pic.altTextTitle && pic.altTextTitle.startsWith(TAG_PREFIX) ? pic.altTextTitle : newTag();
+    tag = tagOf(pic); // a picture from before tags gets one now
     // A diagram linked by pasted URL has no embed id; keep the picture's own if it's the same diagram.
     const embedId = ids.embedId || (found && found.documentId === ids.documentId ? found.embedId : null);
     const target = viaRange ? s.range : pic;
-    dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d, { documentId: ids.documentId, embedId }, tag);
+    dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
+      { documentId: ids.documentId, embedId }, tag, pic.width);
     await ctx.sync();
   });
-  last = { tag, title: d.title };
-  say(`Replaced with "${d.title}".`);
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, tag };
+  say(`Updated to the latest "${d.title}".`);
 });
 
 $("load").onclick = () => act("Loading...", async () => {
   let found, tag;
   await word(async ctx => {
-    const s = await inspectSelection(ctx);
+    const s = await inspectSelection(ctx, false);
     if (s.kind !== "ours") throw new Error("Select a diagram picture from this add-in in the document first.");
     found = s.found;
-    // Tag it so Replace can find it again once the selection moves on.
-    tag = s.pic.altTextTitle;
-    if (!tag || !tag.startsWith(TAG_PREFIX)) { tag = newTag(); s.pic.altTextTitle = tag; await ctx.sync(); }
+    // Tag it so Update can find it again once the selection moves on.
+    tag = tagOf(s.pic);
+    if (tag !== s.pic.altTextTitle) { s.pic.altTextTitle = tag; await ctx.sync(); }
   });
   // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
   await loadEditor(found.embedId);
-  current = { documentId: found.documentId, embedId: found.embedId };
-  last = { tag, title: found.title };
-  say(found.embedId ? `Loaded "${found.title}". Edit it, then Replace selected.`
-    : `Linked to "${found.title}". Pick it in the editor to edit, then Replace selected.`);
+  setCurrent(found, found.title);
+  last = { kind: "ours", ...found, tag };
+  say(found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
+    : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`);
 });
 
-$("lucid").onclick = () => {
-  const url = `https://lucid.app/lucidchart/${current.documentId}/edit`;
+function openInBrowser(url) {
   if (inWord && Office.context.requirements.isSetSupported("OpenBrowserWindowApi", "1.1")) Office.context.ui.openBrowserWindow(url);
   else window.open(url, "_blank");
-  say("Opened in Lucid. Edits there show up here on the next Replace.");
+}
+
+$("lucid").onclick = () => {
+  openInBrowser(`https://lucid.app/lucidchart/${current.documentId}/edit`);
+  say(`"${current.title}" opened in Lucid. It's the same diagram: changes there appear here, and Update selected puts them in Word.`);
 };
 
 $("new").onclick = () => act("Loading...", async () => {
   current = null;
   await loadEditor();
-  say("Pick or create a document, choose Edit, then click Insert in the editor.");
+  say("Pick or create a document, choose Edit, then click Lucid's Insert.");
 });
+
+$("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };
 
 $("docUrl").oninput = () => {
   const m = $("docUrl").value.match(new RegExp(UUID));
   if (!m) return;
-  current = { documentId: m[0], embedId: null };
+  setCurrent({ documentId: m[0], embedId: null });
   say("Using the pasted document.");
-  refreshButtons();
 };
+
+// The moment before a click: warm the backend's export cache, and re-check
+// whether the target picture is still up to date (it may have been edited since).
+let lastPrefetch = 0;
+$("actions").addEventListener("pointerenter", () => {
+  if (Date.now() - lastPrefetch < 2000) return;
+  lastPrefetch = Date.now();
+  if (current && !busy) quietly("/export?doc=" + current.documentId);
+  refreshFreshness();
+});
+// Back from a lucid.app tab: edits made there may have made the picture stale.
+window.addEventListener("focus", onSelectionChanged);
 
 $("signIn").onclick = () => {
   // Lucid's sign-in page refuses to load in a frame, so it gets a real browser tab.
-  if (inWord && Office.context.requirements.isSetSupported("OpenBrowserWindowApi", "1.1")) Office.context.ui.openBrowserWindow(BACKEND + "/login");
-  else window.open(BACKEND + "/login", "_blank");
+  openInBrowser(BACKEND + "/login");
   say("Finish signing in in the tab that opened...");
   // Poll until the backend has a token, then carry on without another click.
   const until = Date.now() + 5 * 60000;
@@ -389,9 +493,8 @@ $("retry").onclick = start;
   if (inWord) {
     Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, onSelectionChanged,
       r => console.log("selection handler:", r.status, r.error && r.error.message));
-    readSelection();
-  } else console.warn("not running inside Word: Insert/Replace/Load are disabled");
-  refreshButtons();
+  } else console.warn("not running inside Word: Insert/Update/Load are disabled");
+  readSelection();
   await start();
 })();
 </script>

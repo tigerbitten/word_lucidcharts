@@ -68,8 +68,8 @@ async function lucid(path, init = {}) {
   const body = await r.text();
   console.log("  ", body.slice(0, 300));
   if (r.status === 401) { signOut(); throw new Shown(401, "Your Lucid sign-in expired. Sign in again."); }
-  if (r.status === 403) throw new Shown(403, "Lucid refused the request (403). Check that your Lucid OAuth client allows the scopes "
-    + SCOPES.join(", ") + ", then sign in again. Lucid said: " + body.slice(0, 200));
+  if (r.status === 403) throw new Shown(403, "Lucid refused the request (403): either your account can't open this diagram, "
+    + "or the Lucid OAuth client is missing one of the scopes " + SCOPES.join(", ") + " (add it, then sign in again). Lucid said: " + body.slice(0, 200));
   if (r.status === 404) throw new Shown(404, "Lucid couldn't find that diagram, or your account can't open it.");
   throw new Shown(502, `Lucid returned ${r.status}: ${body.slice(0, 200)}`);
 }
@@ -104,17 +104,51 @@ const routes = {
     return { token: await r.text() };
   },
 
+  // Title and version (bumped on every saved edit), so the pane can tell whether a picture is out of date.
+  "/info": async url => {
+    const doc = await docInfo(docId(url));
+    return { title: doc.title, version: doc.version };
+  },
+
+  // The PNG export is the slow call (~1s), so it runs alongside the info call, and
+  // a diagram whose version hasn't moved since the last export reuses that PNG.
+  // The pane calls this when the pointer reaches its buttons, so by the click
+  // the PNG is usually cached already.
   "/export": async url => {
-    const id = url.searchParams.get("doc");
-    if (!/^[0-9a-f-]{36}$/.test(id || "")) throw new Shown(400, "Bad document id: " + id);
-    const doc = await (await lucid("/documents/" + id, { headers: { Accept: "application/json" } })).json();
-    const png = Buffer.from(await (await lucid("/documents/" + id + "?crop=content", {
-      headers: { Accept: `image/png;dpi=${DPI}` } })).arrayBuffer());
+    const id = docId(url);
+    const abort = new AbortController();
+    const pngRequest = lucid("/documents/" + id + "?crop=content", {
+      headers: { Accept: `image/png;dpi=${DPI}` }, signal: abort.signal }).then(r => r.arrayBuffer());
+    pngRequest.catch(() => {}); // awaited below, or deliberately abandoned
+    let doc;
+    try { doc = await docInfo(id); } catch (e) { abort.abort(); throw e; }
+    const cached = exportCache.get(id);
+    if (cached && doc.version != null && cached.version === doc.version) {
+      abort.abort();
+      console.log("   export cache hit, version", doc.version);
+      return { ...cached, title: doc.title };
+    }
+    const png = Buffer.from(await pngRequest);
     if (png.toString("latin1", 1, 4) !== "PNG") throw new Shown(502, "Lucid's export wasn't a PNG: " + png.toString("utf8", 0, 100));
     // Pixel size from the IHDR chunk, so the pane can size the picture without decoding it.
-    return { title: doc.title, base64: png.toString("base64"), width: png.readUInt32BE(16), height: png.readUInt32BE(20), dpi: DPI };
+    const result = { title: doc.title, version: doc.version, base64: png.toString("base64"),
+      width: png.readUInt32BE(16), height: png.readUInt32BE(20), dpi: DPI };
+    exportCache.set(id, result);
+    return result;
   },
 };
+
+const exportCache = new Map(); // document id -> last export, keyed on its version
+
+function docId(url) {
+  const id = url.searchParams.get("doc");
+  if (!/^[0-9a-f-]{36}$/.test(id || "")) throw new Shown(400, "Bad document id: " + id);
+  return id;
+}
+
+async function docInfo(id) {
+  return (await lucid("/documents/" + id, { headers: { Accept: "application/json" } })).json();
+}
 
 https.createServer({ key: fs.readFileSync("localhost-key.pem"), cert: fs.readFileSync("localhost.pem") }, async (req, res) => {
   const url = new URL(req.url, `https://localhost:${PORT}`);
