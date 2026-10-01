@@ -24,23 +24,39 @@ client secret. Moving that to Azure Functions / AWS Lambda comes later.
 4. **Insert new** puts the diagram below the cursor, centred and scaled to fit
    the page width.
 
-The buttons act on whatever is selected in Word, and the line above them says
-what that is:
+### How editing works
 
-- **Load selected** opens the selected diagram picture in the editor.
-- **Replace selected** swaps the selected diagram picture for the diagram in
-  the editor. That's both "put my edit back" and "make this other diagram
-  match the one in my editor". With nothing selected, it targets the picture
-  you last inserted or loaded, so load → edit → replace needs no trip back to
-  the document. It never replaces a picture that isn't one of these diagrams.
-- **New / other diagram** goes back to Lucid's picker.
-- **Open in Lucid ↗** opens the editor's diagram on lucid.app for more room.
-  Edits there show up on the next Replace.
+There's one copy of each diagram, in your Lucid account. The editor in the
+pane and lucid.app are two windows onto that same diagram, and every edit in
+either saves to Lucid by itself. The pictures in Word are snapshots: each
+records the Lucid version it was made from, and changes only when you update
+it.
+
+The bar above the editor names the diagram in it, with **Open in Lucid ↗**
+(more room, and Lucid features that don't work inside Word, like Create with
+AI), **Switch diagram** (back to Lucid's picker) and **?** (this explanation).
+
+The buttons at the bottom act on whatever is selected in Word, and the line
+above them says what that is and whether it's up to date with Lucid:
+
+- **Insert new** puts the editor's diagram below the cursor, centred and
+  scaled to fit the page width.
+- **Update selected** brings the selected picture up to date with the editor's
+  diagram. It turns blue when the picture is out of date. It keeps the
+  picture's width, so resizing in Word sticks.
+- When the selected picture is a *different* diagram, the same button reads
+  **Replace selected** and turns that picture into the editor's diagram.
+- With nothing selected, it targets the picture you last inserted or loaded,
+  so load → edit → update needs no trip back to the document. It never touches
+  a picture that isn't one of these diagrams.
+- **Load selected** opens the selected picture's diagram in the editor.
 
 If the editor ever doesn't pick up which diagram you opened (Insert stays
 grey), open **Diagram not detected?** and paste the diagram's lucid.app URL.
 
-Only the first page of a multi-page Lucid document is exported.
+Only the first page of a multi-page Lucid document is exported. The export is
+cached per Lucid version and starts when the pointer reaches the buttons, so
+inserting an unchanged diagram is quick.
 
 ## Alt text
 
@@ -48,10 +64,11 @@ Only the first page of a multi-page Lucid document is exported.
 Lucidchart diagram: <title>
 https://lucid.app/lucidchart/<document id>/edit
 lucid-embed: <embed id>
+lucid-version: <Lucid version the picture shows>
 ```
 
 The embed id is what lets **Load selected** jump straight back into the
-editor. It's missing if the diagram was inserted from a pasted URL. The alt
+editor; the version is how the pane tells a picture is out of date. It's missing if the diagram was inserted from a pasted URL. The alt
 text *title* holds a short tag (`Lucidchart diagram #k3x9a1`) so the add-in
 can find "the picture you last inserted or loaded". Alt text lands in
 `word/document.xml` as `wp:docPr/@descr`; it's dropped on PDF export.
@@ -115,7 +132,10 @@ Page As).
 | The pane says | Do this |
 |---|---|
 | Can't reach the add-in's backend | Start `node server.js`. If it's running, allow local network access for tigerbitten.github.io in the browser's site settings. |
-| Lucid refused the request (403) | A scope is missing on the OAuth client. Add it, then sign in again. |
+| Lucid refused the request (403) | Either your account can't open that diagram, or a scope is missing on the OAuth client (add it, then sign in again). |
+| The editor says "only signed in users… can access" | Log in to lucid.app in a browser tab (the embed uses that session), then **Switch diagram**. |
+| A Lucid button in the editor does nothing (e.g. Create with AI) | Use **Open in Lucid ↗**; the full editor has everything. Same diagram, so **Update selected** picks the result up. |
+| Update put in an older version | Lucid saves edits a second or two after you make them. Wait a moment and update again; the status line shows when a picture is out of date. |
 | Word didn't respond | Retry. If it repeats, reload the add-in. In Word on the web, this one is still being chased. |
 | The build marker isn't the latest | Word cached the old pane. Re-download and re-upload the manifest, or use a private window. |
 

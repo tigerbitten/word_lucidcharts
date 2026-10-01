@@ -33,6 +33,12 @@ Two stages:
   SAMEORIGIN`); only `/embeds` can be. Sign-in therefore opens a browser tab.
 - Alt text format is in README.md. Stage 2 adds Mermaid below those lines,
   and existing lines must keep parsing (`parseAlt` in taskpane.html).
+- Each picture records the Lucid document `version` it was exported from
+  (`lucid-version:`); comparing it with `/info` is how the pane says a picture
+  is out of date. The backend caches the last PNG per document keyed on that
+  version, which is what makes repeat inserts fast.
+- The editable embed also needs the user logged in to lucid.app in the same
+  browser (cookie session), on top of the OAuth token.
 - The pane also runs in a plain browser with the Word buttons disabled, which
   is how the Lucid side can be tested without Word.
 

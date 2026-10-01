@@ -61,7 +61,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v14</span>
+  <span id="build">build v15</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -76,6 +76,8 @@
     Word, like Create with AI. Changes made there appear here too.</p>
   <p><b>The pictures in Word are snapshots.</b> They only change when you click <b>Update selected</b>.
     The line above the buttons says whether the selected picture is up to date.</p>
+  <p>If the editor asks you to log in, log in to lucid.app in a browser tab (it can't be done
+    inside Word), then click <b>Switch diagram</b>.</p>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -153,10 +155,9 @@ function refreshButtons() {
   const add = (text, cls) => line.append(Object.assign(document.createElement("span"), { textContent: text, className: cls || "" }));
   if (selected.kind === "other") return add("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
   if (!t) return add("Select a diagram picture in the document to load, update or replace it.");
-  add(selected.kind === "ours" ? `Selected: "${t.title}"` : `Nothing selected, so the buttons use "${t.title}", the picture you last inserted or loaded`);
-  if (stale) add(" is out of date: the diagram changed in Lucid since this picture was made.", "stale");
-  else if (t.version != null && t.latest != null) add(" is up to date with Lucid.", "fresh");
-  else add(".");
+  add(selected.kind === "ours" ? `Selected: "${t.title}".` : `Nothing selected, so the buttons use the picture you last inserted or loaded: "${t.title}".`);
+  if (stale) add(" It's out of date: the diagram changed in Lucid since this picture was made.", "stale");
+  else if (t.version != null && t.latest != null) add(" It's up to date with Lucid.", "fresh");
   if (current && !same) add(` It's a different diagram from the one in the editor: Load selected to edit it, or Replace selected to turn it into "${current.title}".`);
 }
 
