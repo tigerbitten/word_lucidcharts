@@ -72,6 +72,8 @@ than 600 ppi is scaled down in the pane with high-quality resampling.
 **Update selected** always re-exports for the picture's current width, so
 after enlarging a picture in Word, Update makes it sharp again.
 
+**Pages made from Mermaid code in Lucid** ("diagram as code") are the exception: Lucid's export piles their shapes on top of each other, so the add-in draws those pages itself from their Mermaid, at the same ~400 ppi, in Mermaid's own style (which is how Lucid draws them too). The page chooser marks them "(Mermaid code)".
+
 A big diagram squeezed onto the page has physically small text, which no
 resolution fixes at 100% zoom; the status line says when a picture is shown
 at under 60% of its Lucid size.

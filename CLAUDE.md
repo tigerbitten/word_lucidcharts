@@ -41,6 +41,7 @@ Two stages:
   positions**, so only structure survives. Output is checked against the real
   Mermaid 11 parser. Sequence/ER forms are not built yet: no real examples of
   Lucid's class names for them so far.
+- Pages made from Mermaid code in Lucid (`LucidNativeMermaid*` shapes) export with every shape piled in one spot (Lucid bug, with or without crop). `/pages` flags them `fromCode`; the pane renders the page's Mermaid with mermaid@11 from jsDelivr (plain SVG labels, so the canvas isn't tainted) instead of calling `/export`. Their subgraph shapes list only connectors, so `mermaid.js` infers members from connector ends.
 - Captions are Word's (Caption style + SEQ Figure field, WordApi 1.5). Update
   only rewrites a caption whose title part still equals the old title.
 - Each picture records the Lucid document `version` it was exported from
