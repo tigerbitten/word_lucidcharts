@@ -18,6 +18,9 @@ Two stages:
 
 ## How it fits together
 
+Lucid API facts and limits for new features: `notes.md`.
+
+
 - `taskpane.html` (GitHub Pages) embeds Lucid with a **token-based editable
   embed**: `https://lucid.app/embeds?token=<embed session token>`. Without an
   embedId the iframe shows Lucid's document picker; when the user picks one,
