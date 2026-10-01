@@ -142,12 +142,18 @@ const routes = {
     return { title: doc.title, version: doc.version, base64: png.toString("base64"), width, height, naturalPt, shownPt };
   },
 
-  // The document's pages, for the pane's page chooser. An empty page exports as a blank square.
+  // The document's pages, for the pane's page chooser. An empty page exports as
+  // a blank square. A page drawn from Mermaid code in Lucid ("diagram as code",
+  // LucidNativeMermaid* shapes) exports with every shape piled in one spot:
+  // Lucid's export API doesn't lay those out, so the pane won't insert them.
   "/pages": async url => {
     const id = docId(url);
     const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
-    return { version: doc.version, pages: contents.pages.map(p => ({ id: p.id, title: p.title,
-      empty: !((p.items || {}).shapes || []).length && !((p.items || {}).lines || []).length })) };
+    return { version: doc.version, pages: contents.pages.map(p => {
+      const shapes = (p.items || {}).shapes || [], lines = (p.items || {}).lines || [];
+      return { id: p.id, title: p.title, empty: !shapes.length && !lines.length,
+        fromCode: shapes.some(s => /^LucidNativeMermaid/.test(s.class)) };
+    }) };
   },
 
   // The page as Mermaid (mermaid.js), for the picture's alt text.

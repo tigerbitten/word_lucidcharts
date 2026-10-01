@@ -52,9 +52,11 @@ function pageToMermaid(page) {
     connected.add(a); connected.add(b);
   }
 
-  // Unconnected plain text (titles, notes) is a comment, not a box pretending to be a step.
+  // Unconnected plain text (titles, notes) is a comment, not a box pretending to
+  // be a step; so is a group that doesn't say what's in it (Lucid's Mermaid
+  // subgraph shapes don't).
   const notes = [];
-  const isNode = s => !isContainer(s) && (connected.has(s.id) || (textOf(s) && !/text/i.test(s.class)));
+  const isNode = s => !isContainer(s) && (connected.has(s.id) || (textOf(s) && !/text|subgraph/i.test(s.class)));
   for (const s of shapes) if (!isContainer(s) && !isNode(s) && textOf(s)) notes.push(textOf(s));
 
   // Reading order: follow the arrows from the sources (topological order),
