@@ -34,7 +34,9 @@ it.
 
 The bar above the editor names the diagram in it, with **Open in Lucid ↗**
 (more room, and Lucid features that don't work inside Word, like Create with
-AI), **Switch diagram** (back to Lucid's picker) and **?** (this explanation).
+AI), **↻ Reload** (reloads the editor so it shows changes made elsewhere, e.g.
+on lucid.app; the pane also says when the diagram changed there),
+**Switch diagram** (back to Lucid's picker) and **?** (this explanation).
 
 The buttons at the bottom act on whatever is selected in Word, and the line
 above them says what that is and whether it's up to date with Lucid:
