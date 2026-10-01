@@ -49,7 +49,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v9</span>
+  <span id="build">build v10</span>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -131,7 +131,12 @@ async function backend(path) {
 async function act(label, fn) {
   busy = true; refreshButtons(); say(label);
   try { await fn(); }
-  catch (e) { console.error(e); say(e.message, true); }
+  catch (e) {
+    // Office.js errors often carry the useful part in .code/.debugInfo, not .message.
+    console.error(e, e && e.debugInfo);
+    say(e instanceof Error && !e.code ? e.message
+      : "Word error: " + [e && e.code, e && e.message, e && e.debugInfo && JSON.stringify(e.debugInfo)].filter(Boolean).join(" | "), true);
+  }
   finally { busy = false; refreshButtons(); }
 }
 
@@ -196,8 +201,23 @@ async function exportDiagram(ids) {
   say("Exporting from Lucid...");
   const d = await backend("/export?doc=" + ids.documentId);
   console.log("export", d.title, d.width + "x" + d.height, d.base64.length, "base64 chars");
+  d.base64 = await plainPng(d.base64);
   say("Placing in document...");
   return d;
+}
+
+// Word on the web refused Lucid's PNG ("unable to insert the picture"): it's a
+// palette PNG with colour-profile and text chunks. Redrawn through a canvas it
+// becomes a plain RGBA PNG, the kind the sibling add-ins insert without trouble.
+async function plainPng(base64) {
+  const img = new Image();
+  img.src = "data:image/png;base64," + base64;
+  await img.decode();
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  canvas.getContext("2d").drawImage(img, 0, 0);
+  return canvas.toDataURL("image/png").split(",")[1];
 }
 
 $("insert").onclick = () => act("Inserting...", async () => {
