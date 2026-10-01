@@ -50,7 +50,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v12</span>
+  <span id="build">build v13</span>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -322,19 +322,19 @@ $("replace").onclick = () => act("Replacing...", async () => {
 });
 
 $("load").onclick = () => act("Loading...", async () => {
-  let found;
+  let found, tag;
   await word(async ctx => {
     const s = await inspectSelection(ctx);
     if (s.kind !== "ours") throw new Error("Select a diagram picture from this add-in in the document first.");
     found = s.found;
     // Tag it so Replace can find it again once the selection moves on.
-    let tag = s.pic.altTextTitle;
+    tag = s.pic.altTextTitle;
     if (!tag || !tag.startsWith(TAG_PREFIX)) { tag = newTag(); s.pic.altTextTitle = tag; await ctx.sync(); }
-    last = { tag, title: found.title };
   });
   // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
   await loadEditor(found.embedId);
   current = { documentId: found.documentId, embedId: found.embedId };
+  last = { tag, title: found.title };
   say(found.embedId ? `Loaded "${found.title}". Edit it, then Replace selected.`
     : `Linked to "${found.title}". Pick it in the editor to edit, then Replace selected.`);
 });
