@@ -63,13 +63,14 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v27</span>
+  <span id="build">build v28</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
   <label id="pageLabel" hidden>Page for Word:
     <select id="page" class="small" title="Which page of this diagram Insert new puts in the document. Lucid's editor doesn't tell the add-in which page you're viewing, so it's chosen here."></select></label>
   <button id="lucid" class="small" title="Open this diagram on lucid.app in a browser tab: more room, and Lucid features that don't work inside Word">Open in Lucid &#8599;</button>
+  <button id="reload" class="small" title="Reload the editor so it shows the latest version, e.g. after editing on lucid.app">&#8635; Reload</button>
   <button id="new" class="small" title="Back to Lucid's document picker">Switch diagram</button>
   <button id="helpToggle" class="small" title="How editing works">?</button>
 </div>
@@ -77,7 +78,8 @@
   <p><b>There's one copy of each diagram, in your Lucid account.</b> This editor and lucid.app
     are two windows onto that same diagram: edit in either, and every change saves to Lucid by itself.</p>
   <p><b>Open in Lucid &#8599;</b> gives you more room and the Lucid features that don't work inside
-    Word, like Create with AI. Changes made there appear here too.</p>
+    Word, like Create with AI. It's the same diagram, so <b>Update selected</b> always puts the latest
+    into Word. If the editor here doesn't show changes made there, click <b>&#8635; Reload</b>.</p>
   <p><b>The pictures in Word are snapshots.</b> They only change when you click <b>Update selected</b>.
     The line above the buttons says whether the selected picture is up to date.</p>
   <p>If the editor asks you to log in, log in to lucid.app in a browser tab (it can't be done
@@ -165,6 +167,8 @@ function refreshButtons() {
   $("load").disabled = !ready || selected.kind !== "ours";
   $("new").disabled = busy;
   $("lucid").disabled = !current;
+  // Reloading needs an embed to reopen; without one (pasted URL) it would show the picker.
+  $("reload").disabled = busy || !current || !current.embedId;
   $("pageLabel").hidden = !current || !current.pages || current.pages.length < 2;
   $("diagramName").innerHTML = "";
   $("diagramName").append(...(current
@@ -294,6 +298,12 @@ async function syncLucid() {
     if (!info) return;
     if (current && current.documentId === id) {
       current.title = info.title;
+      current.version = info.version;
+      // Back from editing on lucid.app: the diagram changed there, so say how to bring it here and into Word.
+      if (current.lucidVersion != null && info.version !== current.lucidVersion && !busy) {
+        current.lucidVersion = null;
+        say(`"${info.title}" was changed in Lucid. If the editor here doesn't show it yet, click ↻ Reload; Update selected puts it in Word.`);
+      }
       // Pages may have been added, emptied or filled since the chooser was filled.
       if (current.pages && current.pagesVersion !== info.version) syncPages();
     }
@@ -671,8 +681,15 @@ function openInBrowser(url) {
 $("lucid").onclick = () => {
   // lucid.app's editor takes ?page=, so this opens on the page chosen under Page for Word.
   openInBrowser(`https://lucid.app/lucidchart/${current.documentId}/edit` + (current.page ? `?page=${encodeURIComponent(current.page)}` : ""));
-  say(`"${current.title}" opened in Lucid. It's the same diagram: changes there appear here, and Update selected puts them in Word.`);
+  current.lucidVersion = current.version; // syncLucid notices when it moves
+  say(`"${current.title}" opened in Lucid. It's the same diagram: Update selected puts your changes there into Word.`);
 };
+
+$("reload").onclick = () => act("Reloading the editor...", async () => {
+  await loadEditor(current.embedId);
+  current.lucidVersion = null;
+  say(`Editor reloaded with the latest "${current.title}".`);
+});
 
 $("new").onclick = () => act("Loading...", async () => {
   current = null;
