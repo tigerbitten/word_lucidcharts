@@ -42,6 +42,7 @@
 
   #actions { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.6rem;
     border-top: 1px solid #e0e0e0; flex: none; }
+  #target { flex-basis: 100%; font-size: 0.8rem; color: #555; }
   #fallback { flex-basis: 100%; font-size: 0.8rem; color: #666; }
   #fallback input { width: 100%; margin-top: 0.3rem; font: inherit; padding: 0.25rem; }
 </style>
@@ -49,7 +50,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v10</span>
+  <span id="build">build v11</span>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -60,10 +61,12 @@
   </div>
 </div>
 <div id="actions">
-  <button id="insert" class="primary" title="Insert the diagram open in the editor below the cursor">Insert into document</button>
-  <button id="update" title="Replace every picture of this diagram in the document with its latest version">Update in document</button>
-  <button id="open" title="Open the diagram picture selected in the document in the editor">Open selected</button>
+  <div id="target"></div>
+  <button id="insert" class="primary" title="Insert the diagram open in the editor below the cursor">Insert new</button>
+  <button id="replace" title="Replace the selected diagram picture with the diagram open in the editor">Replace selected</button>
+  <button id="load" title="Open the selected diagram picture in the editor">Load selected</button>
   <button id="new" title="Back to Lucid's document picker">New / other diagram</button>
+  <button id="lucid" title="Open the editor's diagram on lucid.app in a browser tab, for more room">Open in Lucid &#8599;</button>
   <details id="fallback">
     <summary>Diagram not detected?</summary>
     Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
@@ -79,6 +82,11 @@ const $ = id => document.getElementById(id);
 
 let inWord = false;
 let current = null;  // { documentId, embedId } of the diagram open in the editor
+// What's selected in Word: { kind: "ours" | "other" | "none", title }.
+let selected = { kind: "none" };
+// The picture last inserted or loaded, { tag, title }: Replace's target when
+// nothing is selected, so load-edit-replace needs no trip back to the document.
+let last = null;
 let busy = false;
 let signInTimer = null;
 
@@ -91,9 +99,15 @@ function say(msg, isError) {
 function refreshButtons() {
   const ready = inWord && !busy;
   $("insert").disabled = !ready || !current;
-  $("update").disabled = !ready || !current;
-  $("open").disabled = !ready;
+  $("replace").disabled = !ready || !current || !(selected.kind === "ours" || (selected.kind === "none" && last));
+  $("load").disabled = !ready || selected.kind !== "ours";
   $("new").disabled = busy;
+  $("lucid").disabled = !current;
+  $("target").textContent = !inWord ? ""
+    : selected.kind === "ours" ? `Selected in document: "${selected.title}"`
+    : selected.kind === "other" ? "The selected picture isn't a Lucid diagram from this add-in."
+    : last ? `Nothing selected. Replace targets "${last.title}", the diagram you last inserted or loaded.`
+    : "Select a diagram in the document to load or replace it.";
 }
 
 function showCard(text, { signIn = false, retry = false } = {}) {
@@ -137,7 +151,7 @@ async function act(label, fn) {
     say(e instanceof Error && !e.code ? e.message
       : "Word error: " + [e && e.code, e && e.message, e && e.debugInfo && JSON.stringify(e.debugInfo)].filter(Boolean).join(" | "), true);
   }
-  finally { busy = false; refreshButtons(); }
+  finally { busy = false; refreshButtons(); readSelection(); }
 }
 
 async function loadEditor(embedId) {
@@ -162,19 +176,19 @@ async function start() {
   } catch (e) { say(e.message, true); }
 }
 
-// The embed announces which document was picked; that's the diagram Insert/Update use.
+// The embed announces which document was picked; that's the diagram Insert/Replace use.
 function onLucidMessage(data) {
   if (typeof data === "string") { try { data = JSON.parse(data); } catch { return; } }
   console.log("lucid message", data);
   if (data && data.type === "LucidEmbedEvent" && data.event === "EmbedCreated") {
     current = { documentId: data.documentId, embedId: data.embedId };
-    say(inWord ? "Ready. Edit the diagram, then Insert into document." : "Diagram ready (open in Word to insert).");
+    say(inWord ? "Ready. Edit the diagram, then Insert new or Replace selected." : "Diagram ready (open in Word to insert).");
     refreshButtons();
   }
 }
 
 // Alt text links the picture back to its Lucid diagram so it can be reopened and
-// updated. Stage 2 adds the Mermaid translation below these lines.
+// replaced. Stage 2 adds the Mermaid translation below these lines.
 function altText(title, ids) {
   return `Lucidchart diagram: ${title}\nhttps://lucid.app/lucidchart/${ids.documentId}/edit`
     + (ids.embedId ? `\nlucid-embed: ${ids.embedId}` : "");
@@ -183,16 +197,52 @@ function altText(title, ids) {
 function parseAlt(alt) {
   const doc = (alt || "").match(new RegExp("lucid\\.app/lucidchart/(" + UUID + ")"));
   const embed = (alt || "").match(new RegExp("lucid-embed: (" + UUID + ")"));
-  return doc && { documentId: doc[1], embedId: embed ? embed[1] : null };
+  const title = (alt || "").match(/^Lucidchart diagram: (.*)$/m);
+  return doc && { documentId: doc[1], embedId: embed ? embed[1] : null, title: title ? title[1] : "untitled" };
 }
 
-function dress(pic, d, ids) {
+// Each picture carries a short random tag in its alt-text title, so "the picture
+// last inserted or loaded" can be found again in a later Word.run.
+const TAG_PREFIX = "Lucidchart diagram #";
+const newTag = () => TAG_PREFIX + Math.random().toString(36).slice(2, 8);
+
+function dress(pic, d, ids, tag) {
   const widthPt = d.width * 72 / d.dpi, heightPt = d.height * 72 / d.dpi;
   const scale = Math.min(1, MAX_WIDTH_PT / widthPt);
   pic.width = widthPt * scale;
   pic.height = heightPt * scale;
-  pic.altTextTitle = d.title;
+  pic.altTextTitle = tag;
   pic.altTextDescription = altText(d.title, ids);
+}
+
+// What the selection holds: no picture, someone else's picture, or one of our
+// diagrams (with the Word objects needed to replace it).
+async function inspectSelection(ctx) {
+  const range = ctx.document.getSelection();
+  const pics = range.inlinePictures;
+  pics.load("items/altTextDescription,items/altTextTitle");
+  range.load("text");
+  await ctx.sync();
+  if (!pics.items.length) return { kind: "none" };
+  const pic = pics.items.find(p => parseAlt(p.altTextDescription));
+  if (!pic) return { kind: "other" };
+  const found = parseAlt(pic.altTextDescription);
+  // Replacing through the range is what the sibling add-in found swaps a picture
+  // cleanly in place, but it replaces everything selected, so only when the picture is all there is.
+  return { kind: "ours", title: found.title, found, pic, range, alone: pics.items.length === 1 && range.text.trim().length <= 1 };
+}
+
+async function readSelection() {
+  if (!inWord) return;
+  try { await word(async ctx => { const s = await inspectSelection(ctx); selected = { kind: s.kind, title: s.title }; }); }
+  catch (e) { console.warn("reading selection:", e); selected = { kind: "none" }; }
+  refreshButtons();
+}
+
+let selectionTimer = null;
+function onSelectionChanged() {
+  clearTimeout(selectionTimer);
+  selectionTimer = setTimeout(readSelection, 250); // selection events arrive in bursts while typing
 }
 
 // Callers capture `current` up front: the embed can announce another diagram
@@ -223,54 +273,74 @@ async function plainPng(base64) {
 $("insert").onclick = () => act("Inserting...", async () => {
   const ids = current;
   const d = await exportDiagram(ids);
+  const tag = newTag();
   await word(async ctx => {
     const para = ctx.document.getSelection().paragraphs.getLast().insertParagraph("", Word.InsertLocation.after);
     para.alignment = Word.Alignment.centered;
-    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids);
+    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
     await ctx.sync();
   });
+  last = { tag, title: d.title };
   say(`Inserted "${d.title}".`);
 });
 
-$("update").onclick = () => act("Updating...", async () => {
+// Replaces the selected diagram picture, or the one last inserted/loaded when
+// nothing is selected, with whatever diagram the editor has open.
+$("replace").onclick = () => act("Replacing...", async () => {
   const ids = current;
   const d = await exportDiagram(ids);
-  let n = 0;
+  let tag;
   await word(async ctx => {
-    const pics = ctx.document.body.inlinePictures;
-    pics.load("items/altTextDescription");
-    await ctx.sync();
-    for (const p of pics.items) {
-      const found = parseAlt(p.altTextDescription);
-      if (!found || found.documentId !== ids.documentId) continue;
-      // Keep the picture's own embed id: a diagram linked by pasted URL has none to give it.
-      dress(p.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
-        { documentId: ids.documentId, embedId: found.embedId || ids.embedId });
-      n++;
+    const s = await inspectSelection(ctx);
+    if (s.kind === "other") throw new Error("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
+    let pic, found, viaRange = false;
+    if (s.kind === "ours") {
+      pic = s.pic; found = s.found; viaRange = s.alone;
+    } else {
+      if (!last) throw new Error("Select the diagram picture to replace in the document first.");
+      const all = ctx.document.body.inlinePictures;
+      all.load("items/altTextTitle,items/altTextDescription");
+      await ctx.sync();
+      pic = all.items.find(p => p.altTextTitle === last.tag);
+      if (!pic) throw new Error(`"${last.title}" isn't in the document any more. Select the diagram to replace.`);
+      found = parseAlt(pic.altTextDescription);
     }
+    // The picture keeps its tag; a picture from before tags gets one now.
+    tag = pic.altTextTitle && pic.altTextTitle.startsWith(TAG_PREFIX) ? pic.altTextTitle : newTag();
+    // A diagram linked by pasted URL has no embed id; keep the picture's own if it's the same diagram.
+    const embedId = ids.embedId || (found && found.documentId === ids.documentId ? found.embedId : null);
+    const target = viaRange ? s.range : pic;
+    dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d, { documentId: ids.documentId, embedId }, tag);
     await ctx.sync();
   });
-  if (!n) throw new Error("No picture of this diagram in the document, so nothing to update. Use Insert instead. "
-    + "(Pictures set to wrap with text aren't found; set them back to In Line with Text.)");
-  say(`Updated ${n} picture${n > 1 ? "s" : ""} of "${d.title}".`);
+  last = { tag, title: d.title };
+  say(`Replaced with "${d.title}".`);
 });
 
-$("open").onclick = () => act("Opening...", async () => {
-  let alt;
+$("load").onclick = () => act("Loading...", async () => {
+  let found;
   await word(async ctx => {
-    const pics = ctx.document.getSelection().inlinePictures;
-    pics.load("items/altTextDescription");
-    await ctx.sync();
-    if (!pics.items.length) throw new Error("Click a diagram picture in the document first, then Open selected.");
-    alt = pics.items[0].altTextDescription;
+    const s = await inspectSelection(ctx);
+    if (s.kind !== "ours") throw new Error("Select a diagram picture from this add-in in the document first.");
+    found = s.found;
+    // Tag it so Replace can find it again once the selection moves on.
+    let tag = s.pic.altTextTitle;
+    if (!tag || !tag.startsWith(TAG_PREFIX)) { tag = newTag(); s.pic.altTextTitle = tag; await ctx.sync(); }
+    last = { tag, title: found.title };
   });
-  const found = parseAlt(alt);
-  if (!found) throw new Error("That picture wasn't inserted by this add-in: its alt text has no Lucid link.");
-  current = found;
-  // Without an embed id (inserted via a pasted URL) the editor can't jump to it; Update still works.
+  current = { documentId: found.documentId, embedId: found.embedId };
+  // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
   await loadEditor(found.embedId);
-  say(found.embedId ? "Opened. Edit, then Update in document." : "Linked to that diagram. Pick it in the editor to edit, then Update in document.");
+  say(found.embedId ? `Loaded "${found.title}". Edit it, then Replace selected.`
+    : `Linked to "${found.title}". Pick it in the editor to edit, then Replace selected.`);
 });
+
+$("lucid").onclick = () => {
+  const url = `https://lucid.app/lucidchart/${current.documentId}/edit`;
+  if (inWord && Office.context.requirements.isSetSupported("OpenBrowserWindowApi", "1.1")) Office.context.ui.openBrowserWindow(url);
+  else window.open(url, "_blank");
+  say("Opened in Lucid. Edits there show up here on the next Replace.");
+};
 
 $("new").onclick = () => act("Loading...", async () => {
   current = null;
@@ -312,7 +382,11 @@ $("retry").onclick = start;
     const info = await within(Office.onReady(), 5000, "Office");
     inWord = info.host === Office.HostType.Word;
   } catch (e) { console.warn(e.message); }
-  if (!inWord) console.warn("not running inside Word: Insert/Update/Open are disabled");
+  if (inWord) {
+    Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, onSelectionChanged,
+      r => console.log("selection handler:", r.status, r.error && r.error.message));
+    readSelection();
+  } else console.warn("not running inside Word: Insert/Replace/Load are disabled");
   refreshButtons();
   await start();
 })();
