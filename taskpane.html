@@ -61,7 +61,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v15</span>
+  <span id="build">build v16</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -109,8 +109,9 @@ let inWord = false;
 // The diagram open in the editor: { documentId, embedId, title }.
 let current = null;
 // What's selected in Word: { kind: "none" | "other" } or, for one of our
-// pictures, { kind: "ours", documentId, title, version, latest }. `version` is
-// the Lucid version the picture was made from, `latest` Lucid's version now.
+// pictures, { kind: "ours", documentId, title, version, latest, latestTitle }.
+// `title`/`version` are what the picture was made from; `latest`/`latestTitle`
+// are what Lucid says now, once asked.
 let selected = { kind: "none" };
 // The picture last inserted or loaded, shaped like an "ours" selection plus its
 // tag: Update's target when nothing is selected, so load-edit-update needs no
@@ -134,7 +135,9 @@ function refreshButtons() {
   const ready = inWord && !busy;
   const t = updateTarget();
   const same = t && current && t.documentId === current.documentId;
-  const stale = t && t.version != null && t.latest != null && t.version < t.latest;
+  const changed = t && t.version != null && t.latest != null && t.version < t.latest;
+  const renamed = t && t.latestTitle != null && t.latestTitle !== t.title;
+  const stale = changed || renamed;
   $("insert").disabled = !ready || !current;
   $("replace").disabled = !ready || !current || !t;
   $("replace").textContent = !t || same ? "Update selected" : "Replace selected";
@@ -147,7 +150,7 @@ function refreshButtons() {
   $("diagramName").innerHTML = "";
   $("diagramName").append(...(current
     ? ["In the editor: ", Object.assign(document.createElement("b"), { textContent: current.title })]
-    : ["Pick or create a diagram in the editor below."]));
+    : ["No diagram open. Pick or create one below, choose Edit, then click Lucid's Insert."]));
 
   const line = $("target");
   line.innerHTML = "";
@@ -156,7 +159,9 @@ function refreshButtons() {
   if (selected.kind === "other") return add("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
   if (!t) return add("Select a diagram picture in the document to load, update or replace it.");
   add(selected.kind === "ours" ? `Selected: "${t.title}".` : `Nothing selected, so the buttons use the picture you last inserted or loaded: "${t.title}".`);
-  if (stale) add(" It's out of date: the diagram changed in Lucid since this picture was made.", "stale");
+  if (changed) add(" It's out of date: the diagram changed in Lucid since this picture was made"
+    + (renamed ? `, and was renamed "${t.latestTitle}".` : "."), "stale");
+  else if (renamed) add(` It's out of date: the diagram was renamed "${t.latestTitle}" in Lucid.`, "stale");
   else if (t.version != null && t.latest != null) add(" It's up to date with Lucid.", "fresh");
   if (current && !same) add(` It's a different diagram from the one in the editor: Load selected to edit it, or Replace selected to turn it into "${current.title}".`);
 }
@@ -219,12 +224,29 @@ async function loadEditor(embedId) {
 }
 
 // Sets the editor's diagram, then fills in its real title from Lucid.
-async function setCurrent(ids, title) {
+function setCurrent(ids, title) {
   current = { documentId: ids.documentId, embedId: ids.embedId, title: title || "this diagram" };
   refreshButtons();
-  const info = await quietly("/info?doc=" + ids.documentId);
-  if (info && current && current.documentId === ids.documentId) { current.title = info.title; refreshButtons(); }
+  syncLucid();
 }
+
+// Lucid tells the page hosting the embed nothing about renames or edits, so the
+// pane asks for the title and version of the editor's diagram and of the target
+// picture's: when the selection changes, when the pointer reaches the buttons,
+// on coming back to the pane, and every 10 seconds while it's visible.
+async function syncLucid() {
+  const t = updateTarget();
+  const ids = [...new Set([current && current.documentId, t && t.documentId].filter(Boolean))];
+  const infos = await Promise.all(ids.map(id => quietly("/info?doc=" + id)));
+  ids.forEach((id, i) => {
+    const info = infos[i];
+    if (!info) return;
+    if (current && current.documentId === id) current.title = info.title;
+    if (t && t.documentId === id && updateTarget() === t) { t.latest = info.version; t.latestTitle = info.title; }
+  });
+  refreshButtons();
+}
+setInterval(() => { if (document.visibilityState === "visible" && !busy) syncLucid(); }, 10000);
 
 async function start() {
   say("Connecting...");
@@ -233,7 +255,7 @@ async function start() {
       // After a re-sign-in, come back to the diagram that was open.
       const embedId = current && current.embedId;
       await loadEditor(embedId);
-      say(embedId ? "Signed in. Carry on editing." : "Pick or create a document, choose Edit, then click Lucid's Insert.");
+      say(embedId ? "Signed in. Carry on editing." : "");
     } else {
       showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });
       say("Not signed in.");
@@ -314,15 +336,7 @@ async function readSelection() {
     } catch (e) { console.warn("reading selection:", e); selected = { kind: "none" }; }
   }
   refreshButtons();
-  refreshFreshness();
-}
-
-// Asks Lucid for the target diagram's current version, to say whether the picture is out of date.
-async function refreshFreshness() {
-  const t = updateTarget();
-  if (!t || t.version == null) return;
-  const info = await quietly("/info?doc=" + t.documentId);
-  if (info && updateTarget() === t) { t.latest = info.version; refreshButtons(); }
+  syncLucid();
 }
 
 let selectionTimer = null;
@@ -369,7 +383,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, tag };
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag };
   say(`Inserted "${d.title}".`);
 });
 
@@ -379,7 +393,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
 $("replace").onclick = () => act("Updating...", async () => {
   const ids = current;
   const d = await exportDiagram(ids);
-  let tag;
+  let tag, outcome, oldTitle;
   await word(async ctx => {
     const s = await inspectSelection(ctx, true);
     if (s.kind === "other") throw new Error("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
@@ -402,13 +416,26 @@ $("replace").onclick = () => act("Updating...", async () => {
     tag = tagOf(pic); // a picture from before tags gets one now
     // A diagram linked by pasted URL has no embed id; keep the picture's own if it's the same diagram.
     const embedId = ids.embedId || (found && found.documentId === ids.documentId ? found.embedId : null);
-    const target = viaRange ? s.range : pic;
-    dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
-      { documentId: ids.documentId, embedId }, tag, pic.width);
+    oldTitle = found && found.title;
+    if (found && found.documentId === ids.documentId && found.version === d.version) {
+      // The picture already shows this version: only its alt text can be behind
+      // (a rename in Lucid), so rewrite that and leave the image alone.
+      outcome = found.title === d.title ? "current" : "renamed";
+      pic.altTextTitle = tag;
+      pic.altTextDescription = altText(d.title, { documentId: ids.documentId, embedId }, d.version);
+    } else {
+      outcome = found && found.documentId === ids.documentId ? "updated" : "replaced";
+      const target = viaRange ? s.range : pic;
+      dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
+        { documentId: ids.documentId, embedId }, tag, pic.width);
+    }
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, tag };
-  say(`Updated to the latest "${d.title}".`);
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag };
+  say(outcome === "current" ? `"${d.title}" is already up to date.`
+    : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid. The image was already current.`
+    : outcome === "updated" ? `Updated to the latest "${d.title}".`
+    : `Replaced "${oldTitle}" with "${d.title}".`);
 });
 
 $("load").onclick = () => act("Loading...", async () => {
@@ -442,7 +469,7 @@ $("lucid").onclick = () => {
 $("new").onclick = () => act("Loading...", async () => {
   current = null;
   await loadEditor();
-  say("Pick or create a document, choose Edit, then click Lucid's Insert.");
+  say("");
 });
 
 $("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };
@@ -461,7 +488,7 @@ $("actions").addEventListener("pointerenter", () => {
   if (Date.now() - lastPrefetch < 2000) return;
   lastPrefetch = Date.now();
   if (current && !busy) quietly("/export?doc=" + current.documentId);
-  refreshFreshness();
+  syncLucid();
 });
 // Back from a lucid.app tab: edits made there may have made the picture stale.
 window.addEventListener("focus", onSelectionChanged);

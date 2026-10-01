@@ -51,6 +51,11 @@ above them says what that is and whether it's up to date with Lucid:
   a picture that isn't one of these diagrams.
 - **Load selected** opens the selected picture's diagram in the editor.
 
+Renaming a diagram in Lucid shows up in the bar within about 10 seconds (the
+pane asks Lucid; the embed doesn't announce renames). A picture made before the
+rename shows as out of date, and **Update selected** just relabels its alt text
+when the image itself is already current.
+
 If the editor ever doesn't pick up which diagram you opened (Insert stays
 grey), open **Diagram not detected?** and paste the diagram's lucid.app URL.
 
