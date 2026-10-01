@@ -62,7 +62,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v20</span>
+  <span id="build">build v21</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -492,7 +492,7 @@ $("replace").onclick = () => act("Updating...", async () => {
     const embedId = ids.embedId || (found && found.documentId === ids.documentId ? found.embedId : null);
     oldTitle = found && found.title;
     const sameDiagram = found && found.documentId === ids.documentId;
-    outcome = !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : "refreshed";
+    outcome = !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : !found.mermaid ? "mermaid" : "refreshed";
     widthPt = pic.width;
     // The caption under the picture follows a rename, unless it was reworded by
     // hand: only a caption whose title part is still the old title changes.
@@ -510,6 +510,7 @@ $("replace").onclick = () => act("Updating...", async () => {
   });
   last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
   say((outcome === "refreshed" ? `"${d.title}" was already up to date; refreshed it at full resolution for its size.`
+    : outcome === "mermaid" ? `Added Mermaid text for LLMs to "${d.title}" (and refreshed its image).`
     : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid.`
     : outcome === "updated" ? `Updated to the latest "${d.title}".`
     : `Replaced "${oldTitle}" with "${d.title}".`) + shrinkNote(widthPt, d));
