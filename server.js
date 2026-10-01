@@ -18,7 +18,14 @@ const PORT = 3000;
 const REDIRECT = `https://localhost:${PORT}/callback`;
 const SCOPES = ["offline_access", "lucidchart.document.app.picker.share.embed", "lucidchart.document.content:readonly"];
 const PANE_ORIGIN = "https://tigerbitten.github.io";
-const DPI = 192; // export resolution; the pane sizes the picture from this
+// Export resolution. A first export at BASE_DPI gives the diagram's natural size;
+// if that leaves fewer than TARGET_PPI pixels per inch at the size the picture is
+// shown in Word, it's exported again at a higher DPI. Lucid caps exports at
+// roughly 10 megapixels whatever DPI is asked for, and big DPIs are slow (600 is ~5s).
+const BASE_DPI = 192;
+const TARGET_PPI = 400;
+const MAX_DPI = 800;
+const MAX_WIDTH_PT = 468; // 6.5in: new pictures fit the text width of a Letter page with 1in margins
 // Tokens survive restarts so you don't sign in every time. Gitignored.
 const TOKEN_FILE = ".lucid-token.json";
 
@@ -110,35 +117,57 @@ const routes = {
     return { title: doc.title, version: doc.version };
   },
 
-  // The PNG export is the slow call (~1s), so it runs alongside the info call, and
-  // a diagram whose version hasn't moved since the last export reuses that PNG.
-  // The pane calls this when the pointer reaches its buttons, so by the click
-  // the PNG is usually cached already.
+  // `shownPt` is the width the picture will have in Word (an updated picture
+  // keeps its width); without it, a new picture's width: natural size capped to
+  // the page. Exports are cached per version, and the pane calls this when the
+  // pointer reaches its buttons, so by the click the PNG is usually ready.
   "/export": async url => {
     const id = docId(url);
+    // The base export is the slow call (~1s), so it runs alongside the info call.
     const abort = new AbortController();
-    const pngRequest = lucid("/documents/" + id + "?crop=content", {
-      headers: { Accept: `image/png;dpi=${DPI}` }, signal: abort.signal }).then(r => r.arrayBuffer());
-    pngRequest.catch(() => {}); // awaited below, or deliberately abandoned
+    const baseRequest = fetchPng(id, BASE_DPI, abort.signal);
+    baseRequest.catch(() => {}); // awaited below, or deliberately abandoned
     let doc;
     try { doc = await docInfo(id); } catch (e) { abort.abort(); throw e; }
-    const cached = exportCache.get(id);
-    if (cached && doc.version != null && cached.version === doc.version) {
-      abort.abort();
-      console.log("   export cache hit, version", doc.version);
-      return { ...cached, title: doc.title };
+    let base = cachedPng(id, BASE_DPI, doc.version);
+    if (base) abort.abort();
+    else base = storePng(id, BASE_DPI, doc.version, await baseRequest);
+
+    const naturalPt = base.readUInt32BE(16) * 72 / BASE_DPI;
+    const shownPt = +url.searchParams.get("shownPt") || Math.min(naturalPt, MAX_WIDTH_PT);
+    const basePpi = base.readUInt32BE(16) / (shownPt / 72);
+    let png = base, dpi = BASE_DPI;
+    if (basePpi < TARGET_PPI) {
+      // Rounded up to a multiple of 32 so nearby sizes share a cached export.
+      dpi = Math.min(MAX_DPI, Math.ceil(BASE_DPI * TARGET_PPI / basePpi / 32) * 32);
+      png = cachedPng(id, dpi, doc.version) || storePng(id, dpi, doc.version, await fetchPng(id, dpi));
     }
-    const png = Buffer.from(await pngRequest);
-    if (png.toString("latin1", 1, 4) !== "PNG") throw new Shown(502, "Lucid's export wasn't a PNG: " + png.toString("utf8", 0, 100));
     // Pixel size from the IHDR chunk, so the pane can size the picture without decoding it.
-    const result = { title: doc.title, version: doc.version, base64: png.toString("base64"),
-      width: png.readUInt32BE(16), height: png.readUInt32BE(20), dpi: DPI };
-    exportCache.set(id, result);
-    return result;
+    const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
+    console.log(`   export ${width}x${height} at ${dpi}dpi, ${Math.round(width / (shownPt / 72))}ppi at ${Math.round(shownPt)}pt wide`);
+    return { title: doc.title, version: doc.version, base64: png.toString("base64"), width, height, naturalPt, shownPt };
   },
 };
 
-const exportCache = new Map(); // document id -> last export, keyed on its version
+// Exports by document and DPI, each remembered with the version it shows.
+const exportCache = new Map();
+
+function cachedPng(id, dpi, version) {
+  const c = exportCache.get(id + "@" + dpi);
+  return c && version != null && c.version === version ? c.png : null;
+}
+
+function storePng(id, dpi, version, png) {
+  exportCache.set(id + "@" + dpi, { version, png });
+  return png;
+}
+
+async function fetchPng(id, dpi, signal) {
+  const r = await lucid("/documents/" + id + "?crop=content", { headers: { Accept: `image/png;dpi=${dpi}` }, signal });
+  const png = Buffer.from(await r.arrayBuffer());
+  if (png.toString("latin1", 1, 4) !== "PNG") throw new Shown(502, "Lucid's export wasn't a PNG: " + png.toString("utf8", 0, 100));
+  return png;
+}
 
 function docId(url) {
   const id = url.searchParams.get("doc");

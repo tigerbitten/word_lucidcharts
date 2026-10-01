@@ -61,7 +61,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v17</span>
+  <span id="build">build v18</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -102,7 +102,9 @@
 // Hardcoded: the prototype backend runs on this machine only (see server.js).
 const BACKEND = "https://localhost:3000";
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const MAX_WIDTH_PT = 468; // 6.5in: the text width of a Letter page with 1in margins
+// More pixels per inch than this, at the size the picture is shown, only makes
+// the file bigger; the backend aims for 400 (server.js).
+const MAX_PPI = 600;
 const $ = id => document.getElementById(id);
 
 let inWord = false;
@@ -297,11 +299,10 @@ const TAG_PREFIX = "Lucidchart diagram #";
 const newTag = () => TAG_PREFIX + Math.random().toString(36).slice(2, 8);
 const tagOf = pic => pic.altTextTitle && pic.altTextTitle.startsWith(TAG_PREFIX) ? pic.altTextTitle : newTag();
 
-// New pictures come in at their natural size, capped to the page width. An
-// updated picture keeps the width it had in the document, so resizing sticks.
+// New pictures come in at the width the backend chose (natural size, capped to
+// the page). An updated picture keeps the width it had in the document, so resizing sticks.
 function dress(pic, d, ids, tag, keepWidthPt) {
-  const naturalPt = d.width * 72 / d.dpi;
-  const widthPt = keepWidthPt || Math.min(naturalPt, MAX_WIDTH_PT);
+  const widthPt = keepWidthPt || d.shownPt;
   pic.width = widthPt;
   pic.height = widthPt * d.height / d.width;
   pic.altTextTitle = tag;
@@ -331,7 +332,7 @@ async function readSelection() {
     try {
       await word(async ctx => {
         const s = await inspectSelection(ctx, false);
-        selected = s.kind === "ours" ? { kind: "ours", ...s.found } : { kind: s.kind };
+        selected = s.kind === "ours" ? { kind: "ours", ...s.found, width: s.pic.width } : { kind: s.kind };
       });
     } catch (e) { console.warn("reading selection:", e); selected = { kind: "none" }; }
   }
@@ -347,30 +348,48 @@ function onSelectionChanged() {
 
 // Callers capture `current` up front: the embed can announce another diagram
 // while the export is in flight.
-async function exportDiagram(ids) {
+// `shownPt`: the width the picture will have in Word, so the export has enough
+// pixels for it; left out for a new picture.
+const exportPath = (documentId, shownPt) => "/export?doc=" + documentId + (shownPt ? "&shownPt=" + Math.round(shownPt) : "");
+
+async function exportDiagram(ids, shownPt) {
   say("Exporting from Lucid...");
-  const d = await backend("/export?doc=" + ids.documentId);
+  const d = await backend(exportPath(ids.documentId, shownPt));
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars");
-  d.base64 = await plainPng(d.base64, ids.documentId + "@" + d.version);
+  const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
+  Object.assign(d, await plainPng(d.base64, maxWidthPx, ids.documentId + "@" + d.version + "@" + maxWidthPx));
   say("Placing in document...");
   return d;
+}
+
+// A diagram shown much smaller than in Lucid has much smaller text; no
+// resolution makes 3pt text readable at 100% zoom, so say so.
+function shrinkNote(widthPt, d) {
+  const scale = widthPt / d.naturalPt;
+  return scale >= 0.6 ? "" : ` It's shown at ${Math.round(scale * 100)}% of its size in Lucid, so its text is that much smaller: `
+    + "zoom in to read fine print, or give the diagram more room (a landscape page, or split it up).";
 }
 
 // Word on the web refused Lucid's PNG ("unable to insert the picture"): it's a
 // palette PNG with colour-profile and text chunks. Redrawn through a canvas it
 // becomes a plain RGBA PNG, the kind the sibling add-ins insert without trouble.
-let plainCache = { key: null, base64: null };
-async function plainPng(base64, key) {
-  if (plainCache.key === key) return plainCache.base64;
-  const img = new Image();
-  img.src = "data:image/png;base64," + base64;
-  await img.decode();
+// An export with far more pixels than the picture can show is scaled down here
+// with high-quality resampling, rather than left for Word to squash on screen.
+let plainCache = { key: null };
+async function plainPng(base64, maxWidthPx, key) {
+  if (plainCache.key === key) return plainCache.result;
+  const blob = await (await fetch("data:image/png;base64," + base64)).blob();
+  const full = await createImageBitmap(blob);
+  const scale = Math.min(1, maxWidthPx / full.width);
+  const width = Math.round(full.width * scale), height = Math.round(full.height * scale);
+  const bitmap = scale < 1 ? await createImageBitmap(blob, { resizeWidth: width, resizeHeight: height, resizeQuality: "high" }) : full;
   const canvas = document.createElement("canvas");
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  canvas.getContext("2d").drawImage(img, 0, 0);
-  plainCache = { key, base64: canvas.toDataURL("image/png").split(",")[1] };
-  return plainCache.base64;
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0);
+  if (scale < 1) console.log("downscaled", full.width + "x" + full.height, "->", width + "x" + height);
+  plainCache = { key, result: { base64: canvas.toDataURL("image/png").split(",")[1], width, height } };
+  return plainCache.result;
 }
 
 $("insert").onclick = () => act("Inserting...", async () => {
@@ -383,17 +402,20 @@ $("insert").onclick = () => act("Inserting...", async () => {
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag };
-  say(`Inserted "${d.title}".`);
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: d.shownPt };
+  say(`Inserted "${d.title}".` + shrinkNote(d.shownPt, d));
 });
 
 // Updates the selected diagram picture (or the one last inserted/loaded, when
 // nothing is selected) to the diagram in the editor. If the picture shows a
 // different diagram, this replaces it with the editor's.
+// The image is always re-exported for the picture's current width, so Update
+// also sharpens a picture that was enlarged in Word or made by an older build.
 $("replace").onclick = () => act("Updating...", async () => {
   const ids = current;
-  const d = await exportDiagram(ids);
-  let tag, outcome, oldTitle;
+  const t = updateTarget();
+  const d = await exportDiagram(ids, t && t.width);
+  let tag, outcome, oldTitle, widthPt;
   await word(async ctx => {
     const s = await inspectSelection(ctx, true);
     if (s.kind === "other") throw new Error("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
@@ -417,41 +439,36 @@ $("replace").onclick = () => act("Updating...", async () => {
     // A diagram linked by pasted URL has no embed id; keep the picture's own if it's the same diagram.
     const embedId = ids.embedId || (found && found.documentId === ids.documentId ? found.embedId : null);
     oldTitle = found && found.title;
-    if (found && found.documentId === ids.documentId && found.version === d.version) {
-      // The picture already shows this version: only its alt text can be behind
-      // (a rename in Lucid), so rewrite that and leave the image alone.
-      outcome = found.title === d.title ? "current" : "renamed";
-      pic.altTextTitle = tag;
-      pic.altTextDescription = altText(d.title, { documentId: ids.documentId, embedId }, d.version);
-    } else {
-      outcome = found && found.documentId === ids.documentId ? "updated" : "replaced";
-      const target = viaRange ? s.range : pic;
-      dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
-        { documentId: ids.documentId, embedId }, tag, pic.width);
-    }
+    const sameDiagram = found && found.documentId === ids.documentId;
+    outcome = !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : "refreshed";
+    widthPt = pic.width;
+    const target = viaRange ? s.range : pic;
+    dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
+      { documentId: ids.documentId, embedId }, tag, widthPt);
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag };
-  say(outcome === "current" ? `"${d.title}" is already up to date.`
-    : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid. The image was already current.`
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt };
+  say((outcome === "refreshed" ? `"${d.title}" was already up to date; refreshed it at full resolution for its size.`
+    : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid.`
     : outcome === "updated" ? `Updated to the latest "${d.title}".`
-    : `Replaced "${oldTitle}" with "${d.title}".`);
+    : `Replaced "${oldTitle}" with "${d.title}".`) + shrinkNote(widthPt, d));
 });
 
 $("load").onclick = () => act("Loading...", async () => {
-  let found, tag;
+  let found, tag, width;
   await word(async ctx => {
     const s = await inspectSelection(ctx, false);
     if (s.kind !== "ours") throw new Error("Select a diagram picture from this add-in in the document first.");
     found = s.found;
     // Tag it so Update can find it again once the selection moves on.
     tag = tagOf(s.pic);
+    width = s.pic.width;
     if (tag !== s.pic.altTextTitle) { s.pic.altTextTitle = tag; await ctx.sync(); }
   });
   // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
   await loadEditor(found.embedId);
   setCurrent(found, found.title);
-  last = { kind: "ours", ...found, tag };
+  last = { kind: "ours", ...found, tag, width };
   say(found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
     : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`);
 });
@@ -487,7 +504,10 @@ let lastPrefetch = 0;
 $("actions").addEventListener("pointerenter", () => {
   if (Date.now() - lastPrefetch < 2000) return;
   lastPrefetch = Date.now();
-  if (current && !busy) quietly("/export?doc=" + current.documentId);
+  // Warm the export the next click will most likely ask for: an update of the
+  // target picture at its width, or else a new picture.
+  const t = updateTarget();
+  if (current && !busy) quietly(exportPath(current.documentId, t && t.documentId === current.documentId ? t.width : null));
   syncLucid();
 });
 // Back from a lucid.app tab: edits made there may have made the picture stale.
