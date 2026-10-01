@@ -63,7 +63,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v24</span>
+  <span id="build">build v25</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -234,9 +234,11 @@ async function act(label, fn) {
   finally { busy = false; refreshButtons(); readSelection(); }
 }
 
-async function loadEditor(embedId) {
+// `page` asks the editor to open on that page. Lucid documents no such option
+// for embeds (lucid.app's own editor URLs take ?page=), so it may be ignored.
+async function loadEditor(embedId, page) {
   const { token } = await backend("/embed-token" + (embedId ? "?embedId=" + embedId : ""));
-  $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(token);
+  $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(token) + (page ? "&page=" + encodeURIComponent(page) : "");
   $("card").hidden = true;
   $("frame").hidden = false;
 }
@@ -246,7 +248,7 @@ function setCurrent(ids, title, page) {
   current = { documentId: ids.documentId, embedId: ids.embedId, title: title || "this diagram", page: page || "", pages: null };
   refreshButtons();
   syncLucid();
-  syncPages();
+  return syncPages();
 }
 
 // Fills the page chooser; it only shows for a document with more than one page.
@@ -616,11 +618,15 @@ $("load").onclick = () => act("Loading...", async () => {
     if (tag !== s.pic.altTextTitle) { s.pic.altTextTitle = tag; await ctx.sync(); }
   });
   // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
-  await loadEditor(found.embedId);
-  setCurrent(found, found.title, found.page);
+  await loadEditor(found.embedId, found.page);
+  await setCurrent(found, found.title, found.page);
   last = { kind: "ours", ...found, tag, width };
-  say(found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
-    : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`);
+  // The editor may well open on the first page whatever page the picture shows.
+  const page = pageInfo(found.page);
+  const later = page && current.pages.indexOf(page) > 0
+    ? ` It shows "${page.title}": if the editor opened on another page, click the "${page.title}" tab in it, or use Open in Lucid, which opens on "${page.title}".` : "";
+  say((found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
+    : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`) + later);
 });
 
 function openInBrowser(url) {
@@ -629,7 +635,8 @@ function openInBrowser(url) {
 }
 
 $("lucid").onclick = () => {
-  openInBrowser(`https://lucid.app/lucidchart/${current.documentId}/edit`);
+  // lucid.app's editor takes ?page=, so this opens on the page chosen under Page for Word.
+  openInBrowser(`https://lucid.app/lucidchart/${current.documentId}/edit` + (current.page ? `?page=${encodeURIComponent(current.page)}` : ""));
   say(`"${current.title}" opened in Lucid. It's the same diagram: changes there appear here, and Update selected puts them in Word.`);
 };
 
