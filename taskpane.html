@@ -357,10 +357,10 @@ async function start() {
       // After a re-sign-in, come back to the diagram that was open; on opening
       // the pane, to the last diagram used, ready to edit with no picker.
       const back = current && current.embedId;
-      const last = !current && recent()[0];
-      await loadEditor(back ? current.embedId : last ? last.embedId : null);
-      if (last) setCurrent(last, last.title);
-      say(back ? "Signed in. Carry on editing." : last ? `Opened "${last.title}", the last diagram you used. The menu above opens others.`
+      const lastUsed = !current && recent()[0];
+      await loadEditor(back ? current.embedId : lastUsed ? lastUsed.embedId : null);
+      if (lastUsed) setCurrent(lastUsed, lastUsed.title);
+      say(back ? "Signed in. Carry on editing." : lastUsed ? `Opened "${lastUsed.title}", the last diagram you used. The menu above opens others.`
         : "Pick a diagram (or New) in Lucid's window below, then Continue and Insert.");
     } else {
       showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });

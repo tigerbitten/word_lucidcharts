@@ -1,0 +1,558 @@
+{
+ "id": "781358cb-085b-4876-8943-77dc7102d1c7",
+ "title": "Blank diagram",
+ "version": 420,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "XRHzJUVNCLte",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "D2 Payroll History"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHzojn4p2xy",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Bank"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHzRyr3bsyN",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "1.0 Timesheet Entry"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHzeFpYfUmj",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Online Payroll System — Level 1 DFD"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "XRHz.h7FaCKM",
+        "XRHz6OGOenbe",
+        "XRHzJUVNCLte",
+        "XRHzQSL-.388",
+        "XRHzRyr3bsyN",
+        "XRHz_.Z48CzD",
+        "XRHziVVd3oI2",
+        "XRHzojn4p2xy",
+        "XRHzzD.F633C"
+       ],
+       "lines": [
+        "XRHz-UK2i-l~",
+        "XRHz-ZLw2Oi5",
+        "XRHz38gmte68",
+        "XRHz4yCwhscJ",
+        "XRHz7X_~zocV",
+        "XRHz7bWPusz5",
+        "XRHz9IeztJpE",
+        "XRHzKiDkOxyt",
+        "XRHzV0r__0e0",
+        "XRHza1Lntbjc",
+        "XRHzcCH.XLyg",
+        "XRHzkTVsFiDw",
+        "XRHzsH6Dq5jq"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "XRHziVVd3oI2",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "2.0 Payroll Calculation"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHz_.Z48CzD",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "D1 Employee Records"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHz6OGOenbe",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "4.0 Payment Processing"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHzzD.F633C",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Employee"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHz.h7FaCKM",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "3.0 Tax Withholding"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XRHzQSL-.388",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "HR Manager"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "XRHz38gmte68",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHzQSL-.388"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHziVVd3oI2"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Payroll Rules"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHzKiDkOxyt",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHz.h7FaCKM"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHz6OGOenbe"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Net Payroll"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHz7bWPusz5",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHz_.Z48CzD"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHziVVd3oI2"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Employee Details"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHza1Lntbjc",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHz6OGOenbe"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHzzD.F633C"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Pay Statement"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHzsH6Dq5jq",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHzojn4p2xy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHz6OGOenbe"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Payment Confirmation"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHzcCH.XLyg",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHz.h7FaCKM"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHzJUVNCLte"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Tax Records"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHz4yCwhscJ",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHzQSL-.388"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHzRyr3bsyN"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Employee Updates"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHz7X_~zocV",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHzzD.F633C"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHzRyr3bsyN"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Timesheet Data"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHz-UK2i-l~",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHziVVd3oI2"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHz.h7FaCKM"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Gross Payroll"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHzV0r__0e0",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHzRyr3bsyN"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHziVVd3oI2"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Approved Hours"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHz9IeztJpE",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHziVVd3oI2"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHzJUVNCLte"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Payroll Results"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHz-ZLw2Oi5",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHz6OGOenbe"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHzojn4p2xy"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Payment Instructions"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XRHzkTVsFiDw",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XRHzRyr3bsyN"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XRHz_.Z48CzD"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Timesheet Records"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

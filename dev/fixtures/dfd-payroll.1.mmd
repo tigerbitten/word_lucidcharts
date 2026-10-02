@@ -1,0 +1,26 @@
+flowchart TD
+  subgraph g1["Online Payroll System — Level 1 DFD"]
+    direction TB
+    n1{"HR Manager"}
+    n2{"2.0 Payroll Calculation"}
+    n3{"3.0 Tax Withholding"}
+    n4["D2 Payroll History"]
+    n5{"4.0 Payment Processing"}
+    n6["Employee"]
+    n7{"1.0 Timesheet Entry"}
+    n8["D1 Employee Records"]
+    n9["Bank"]
+  end
+  n1 -->|"Payroll Rules"| n2
+  n1 -->|"Employee Updates"| n7
+  n2 -->|"Gross Payroll"| n3
+  n2 -->|"Payroll Results"| n4
+  n3 -->|"Tax Records"| n4
+  n3 -->|"Net Payroll"| n5
+  n5 -->|"Pay Statement"| n6
+  n5 -->|"Payment Instructions"| n9
+  n6 -->|"Timesheet Data"| n7
+  n7 -->|"Approved Hours"| n2
+  n7 -->|"Timesheet Records"| n8
+  n8 -->|"Employee Details"| n2
+  n9 -->|"Payment Confirmation"| n5

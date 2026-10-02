@@ -158,7 +158,11 @@ Custom shape data isn't included.
 
 ### Pointing an LLM at the diagrams
 
-Plain text extraction from a `.docx` skips alt text (the captions do come
+The simplest way: `python docx2md.py report.docx > report.md` (standard library
+only) writes the document as Markdown, with each diagram picture replaced by its
+title, its Lucid link and its Mermaid. Hand the LLM the `.md`.
+
+Otherwise, plain text extraction from a `.docx` skips alt text (the captions do come
 through), so tell the LLM where to look:
 
 > Diagrams in this document are pictures whose alt text (`wp:docPr/@descr` in
@@ -248,6 +252,7 @@ The backend console logs every Lucid API call.
 | `mermaid.js` | Lucid page contents → Mermaid (used by `server.js`): flowcharts, and the dispatch to the next two |
 | `uml.js` | Sequence, ER, class, state and mind-map pages → their own Mermaid forms |
 | `svg.js` | Mermaid code Lucid keeps as a picture → Mermaid again |
+| `docx2md.py` | A `.docx` as Markdown with the diagrams' Mermaid in place, for LLMs |
 | `dev/` | Testing without a person: drive Word on the web in a test Chrome, translator fixtures from real Lucid diagrams checked against Mermaid's parser (see `CLAUDE.md`) |
 | `notes.md` | What Lucid's embed and REST APIs can and can't do, for planning features |
 | `manifest.xml` | Points Word at the pane on GitHub Pages |

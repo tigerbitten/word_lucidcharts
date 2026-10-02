@@ -1,0 +1,470 @@
+{
+ "id": "54753bba-c05c-4a2e-bb04-52df87011000",
+ "title": "Blank diagram",
+ "version": 55,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "gTHzA7vRlvWS",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Mobile Signup User Flow"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "gTHz1tDGN2gb",
+        "gTHz9T0mebar",
+        "gTHzAbOjTwlJ",
+        "gTHzBpth6p4~",
+        "gTHzD5~U8bh6",
+        "gTHzIUUQien4",
+        "gTHzJStoBNKS",
+        "gTHzjuzJKxp9"
+       ],
+       "lines": [
+        "gTHz24V6CJiT",
+        "gTHz7oIEbQQ8",
+        "gTHzC7GnfDGo",
+        "gTHzLoJlHCrw",
+        "gTHzPOH.oYsT",
+        "gTHzRdVi.s7o",
+        "gTHzdaAw4yh0",
+        "gTHzeFGAiuDC",
+        "gTHzfQkwuNfS",
+        "gTHzuuqtBCqp"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "gTHz1tDGN2gb",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Splash Screen<br>[App logo]<br>Get Started"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "gTHzAbOjTwlJ",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Sign Up<br>Name · Email · Password<br>☐ Accept terms<br>Create account"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "gTHzJStoBNKS",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Email Verification<br>Code sent to m•••@email.com<br>Verification code<br>Verify · Resend code"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "gTHzIUUQien4",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Profile Setup<br>[Avatar placeholder]<br>Display name<br>Continue"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "gTHzD5~U8bh6",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Permissions Prompt<br>Notifications · Location<br>Allow · Not now"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "gTHzjuzJKxp9",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Home Screen<br>Welcome header<br>Content cards<br>Home · Explore · Profile"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "gTHzBpth6p4~",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Error State<br>Email already in use<br>Check your details"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "gTHz9T0mebar",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Error State<br>Code expired"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "gTHzPOH.oYsT",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHz1tDGN2gb"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzAbOjTwlJ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Get Started"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHzuuqtBCqp",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzAbOjTwlJ"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzJStoBNKS"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Create account"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHz24V6CJiT",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzJStoBNKS"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzIUUQien4"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Verify"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHzC7GnfDGo",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzIUUQien4"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzD5~U8bh6"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Continue"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHzfQkwuNfS",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzD5~U8bh6"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzjuzJKxp9"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Allow"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHzLoJlHCrw",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzD5~U8bh6"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzjuzJKxp9"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Not now"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHzdaAw4yh0",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzAbOjTwlJ"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzBpth6p4~"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Invalid form"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHz7oIEbQQ8",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzBpth6p4~"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzAbOjTwlJ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Return to form"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHzRdVi.s7o",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHzJStoBNKS"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHz9T0mebar"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Failed verification"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gTHzeFGAiuDC",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gTHz9T0mebar"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gTHzJStoBNKS"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Return to verification"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

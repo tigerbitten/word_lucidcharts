@@ -1,0 +1,652 @@
+{
+ "id": "08253c62-8b46-4e4b-8902-6b94146059c2",
+ "title": "Blank diagram",
+ "version": 600,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "pSHzWITSkEi1",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Redis Cache<br>Low-latency cache and ephemeral trip/availability state"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "pSHzgFjr4.Pl",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Ride Sharing App — Container View"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "pSHz0FB9lAVJ",
+        "pSHz1aYrArEH",
+        "pSHz2famSUnT",
+        "pSHzAyXuKlVn",
+        "pSHzETJwJxkq",
+        "pSHzNe~H0Gsf",
+        "pSHzP3s6RfTk",
+        "pSHzRyoqtXTw",
+        "pSHzWITSkEi1",
+        "pSHzWnWbd3Qz",
+        "pSHza7rPFUDN",
+        "pSHzf0fD_Y9~",
+        "pSHzu7-SACvq"
+       ],
+       "lines": [
+        "pSHz.xD9w1Hf",
+        "pSHzB_JL0yKH",
+        "pSHzJ.mgH3Q_",
+        "pSHzK-WqKY8l",
+        "pSHzUbEBWTF_",
+        "pSHzXb0~z5_.",
+        "pSHzbMe4hcX8",
+        "pSHzcnIZo2L6",
+        "pSHzgP-SHvn9",
+        "pSHzhaHK_vlJ",
+        "pSHznTAUUvhs",
+        "pSHzpjBf1oTw",
+        "pSHzqw5BWbAS",
+        "pSHzta8BBJJS",
+        "pSHzvelm2Dcj"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "pSHzAyXuKlVn",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "External Payment Provider<br>Third-party payment processing system"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzf0fD_Y9~",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Rider Mobile App<br>Native mobile app used by riders"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzNe~H0Gsf",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Payments Service<br>Authorization, capture, refunds, payment records"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "pSHzu7-SACvq",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Internal Services"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "pSHz0FB9lAVJ",
+        "pSHzETJwJxkq",
+        "pSHzNe~H0Gsf",
+        "pSHzRyoqtXTw"
+       ],
+       "lines": [
+        "pSHzpjBf1oTw",
+        "pSHzqw5BWbAS"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "pSHzRyoqtXTw",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Trip Service<br>Trip lifecycle, matching, driver/rider coordination"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "pSHz1aYrArEH",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Driver Mobile App<br>Native mobile app used by drivers"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHz0FB9lAVJ",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Notification Service<br>Push notifications, SMS/email orchestration"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "pSHzWnWbd3Qz",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Data Stores"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "pSHz2famSUnT",
+        "pSHzWITSkEi1"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "pSHzETJwJxkq",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Pricing Service<br>Fare calculation and surge pricing"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "pSHz2famSUnT",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "PostgreSQL Database<br>Persistent transactional data"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "pSHzP3s6RfTk",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "API Gateway<br>Public entry point, routing, authentication, rate limiting"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHza7rPFUDN",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Ride Sharing App"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "pSHz0FB9lAVJ",
+        "pSHz2famSUnT",
+        "pSHzETJwJxkq",
+        "pSHzNe~H0Gsf",
+        "pSHzP3s6RfTk",
+        "pSHzRyoqtXTw",
+        "pSHzWITSkEi1",
+        "pSHzWnWbd3Qz",
+        "pSHzu7-SACvq"
+       ],
+       "lines": [
+        "pSHzB_JL0yKH",
+        "pSHzJ.mgH3Q_",
+        "pSHzK-WqKY8l",
+        "pSHzXb0~z5_.",
+        "pSHzbMe4hcX8",
+        "pSHzcnIZo2L6",
+        "pSHzgP-SHvn9",
+        "pSHznTAUUvhs",
+        "pSHzpjBf1oTw",
+        "pSHzqw5BWbAS"
+       ],
+       "groups": []
+      }
+     }
+    ],
+    "lines": [
+     {
+      "id": "pSHzcnIZo2L6",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzP3s6RfTk"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzNe~H0Gsf"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "gRPC/HTTP — payment operations"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzhaHK_vlJ",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzf0fD_Y9~"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzP3s6RfTk"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "HTTPS/JSON — REST"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzpjBf1oTw",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzRyoqtXTw"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzETJwJxkq"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "gRPC — fare calculation"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHz.xD9w1Hf",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzP3s6RfTk"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzETJwJxkq"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "gRPC/HTTP — fare quotes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzta8BBJJS",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHz1aYrArEH"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzP3s6RfTk"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "HTTPS/JSON — REST"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzUbEBWTF_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzRyoqtXTw"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHz2famSUnT"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "SQL/TLS — trips and users"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzJ.mgH3Q_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzRyoqtXTw"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzWITSkEi1"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "RESP — availability and trip state"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzXb0~z5_.",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHz0FB9lAVJ"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzWITSkEi1"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "RESP — job/state cache"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHznTAUUvhs",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzETJwJxkq"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzWITSkEi1"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "RESP — surge/price cache"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzqw5BWbAS",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHz0FB9lAVJ"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzRyoqtXTw"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "gRPC — trip event lookup"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzgP-SHvn9",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzNe~H0Gsf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHz2famSUnT"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "SQL/TLS — payment records"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzK-WqKY8l",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzP3s6RfTk"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzRyoqtXTw"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "gRPC/HTTP — service routing"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzB_JL0yKH",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzETJwJxkq"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHz2famSUnT"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "SQL/TLS — pricing rules"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzbMe4hcX8",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzP3s6RfTk"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHz0FB9lAVJ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "gRPC/HTTP — notification requests"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pSHzvelm2Dcj",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "pSHzNe~H0Gsf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "pSHzAyXuKlVn"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "HTTPS/JSON — provider API"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

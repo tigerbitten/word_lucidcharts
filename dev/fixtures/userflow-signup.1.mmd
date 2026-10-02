@@ -1,0 +1,22 @@
+flowchart TD
+  subgraph g1["Mobile Signup User Flow"]
+    direction TB
+    n1["Splash Screen<br>[App logo]<br>Get Started"]
+    n2{"Sign Up<br>Name · Email · Password<br>☐ Accept terms<br>Create account"}
+    n3["Error State<br>Email already in use<br>Check your details"]
+    n4{"Email Verification<br>Code sent to m•••@email.com<br>Verification code<br>Verify · Resend code"}
+    n5["Profile Setup<br>[Avatar placeholder]<br>Display name<br>Continue"]
+    n6{"Permissions Prompt<br>Notifications · Location<br>Allow · Not now"}
+    n7["Home Screen<br>Welcome header<br>Content cards<br>Home · Explore · Profile"]
+    n8["Error State<br>Code expired"]
+  end
+  n1 -->|"Get Started"| n2
+  n2 -->|"Invalid form"| n3
+  n2 -->|"Create account"| n4
+  n3 -->|"Return to form"| n2
+  n4 -->|"Verify"| n5
+  n4 -->|"Failed verification"| n8
+  n5 -->|"Continue"| n6
+  n6 -->|"Allow"| n7
+  n6 -->|"Not now"| n7
+  n8 -->|"Return to verification"| n4

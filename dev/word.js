@@ -5,6 +5,7 @@
 //                                  without the picker (an edit embed made over the
 //                                  API, as if Lucid's picker had announced it)
 //   node dev/word.js end           puts the cursor at the end of the document
+//   node dev/word.js save <file>   saves the document as a .docx
 const { execFileSync } = require("child_process");
 const fs = require("fs"), path = require("path");
 const [, , cmd, arg] = process.argv;
@@ -24,6 +25,22 @@ const pane = js => execFileSync("node", [path.join(__dirname, "cdp.js"), "eval",
   else if (cmd === "clear") console.log(pane(`Word.run(async ctx => { ctx.document.body.clear(); const p = ctx.document.body.paragraphs.getFirst();
     p.styleBuiltIn = Word.BuiltInStyleName.normal; p.alignment = "Left"; Object.assign(p.font, { italic: false, size: 12, color: "#000000" });
     await ctx.sync(); return "cleared"; })`));
+  else if (cmd === "save") {
+    // The document as a .docx file, read through Office.js in slices.
+    const b64 = JSON.parse(pane(`new Promise((resolve, reject) => Office.context.document.getFileAsync(Office.FileType.Compressed, { sliceSize: 4194304 }, r => {
+      if (r.status !== "succeeded") return reject(new Error(r.error.message));
+      const file = r.value, parts = [];
+      const next = i => i === file.sliceCount ? (file.closeAsync(), resolve(parts.join(""))) : file.getSliceAsync(i, s => {
+        if (s.status !== "succeeded") return reject(new Error(s.error.message));
+        let bin = ""; for (const byte of s.value.data) bin += String.fromCharCode(byte);
+        parts.push(btoa(bin)); next(i + 1);
+      });
+      next(0);
+    }))`));
+    // Slices are base64 separately; join their bytes.
+    fs.writeFileSync(arg, Buffer.concat(b64.match(/[^=]+=*/g).map(p => Buffer.from(p, "base64"))));
+    console.log("saved", arg, fs.statSync(arg).size, "bytes");
+  }
   else if (cmd === "end") console.log(pane(`Word.run(async ctx => { ctx.document.body.getRange("End").select(); await ctx.sync(); return "cursor at end"; })`));
   else if (cmd === "open") {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";

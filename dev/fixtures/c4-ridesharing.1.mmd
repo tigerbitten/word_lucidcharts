@@ -1,0 +1,38 @@
+flowchart TD
+  subgraph g1["Ride Sharing App — Container View"]
+    direction TB
+    n1["Rider Mobile App<br>Native mobile app used by riders"]
+    n2["Driver Mobile App<br>Native mobile app used by drivers"]
+    subgraph g4["Ride Sharing App"]
+      direction TB
+      n3{"API Gateway<br>Public entry point, routing, authentication, rate limiting"}
+      subgraph g2["Internal Services"]
+        direction TB
+        n4{"Notification Service<br>Push notifications, SMS/email orchestration"}
+        n5{"Trip Service<br>Trip lifecycle, matching, driver/rider coordination"}
+        n6{"Pricing Service<br>Fare calculation and surge pricing"}
+        n7{"Payments Service<br>Authorization, capture, refunds, payment records"}
+      end
+      subgraph g3["Data Stores"]
+        direction TB
+        n9["Redis Cache<br>Low-latency cache and ephemeral trip/availability state"]
+        n10["PostgreSQL Database<br>Persistent transactional data"]
+      end
+    end
+    n8["External Payment Provider<br>Third-party payment processing system"]
+  end
+  n1 -->|"HTTPS/JSON — REST"| n3
+  n2 -->|"HTTPS/JSON — REST"| n3
+  n3 -->|"gRPC/HTTP — notification requests"| n4
+  n3 -->|"gRPC/HTTP — service routing"| n5
+  n3 -->|"gRPC/HTTP — fare quotes"| n6
+  n3 -->|"gRPC/HTTP — payment operations"| n7
+  n4 -->|"gRPC — trip event lookup"| n5
+  n4 -->|"RESP — job/state cache"| n9
+  n5 -->|"gRPC — fare calculation"| n6
+  n5 -->|"RESP — availability and trip state"| n9
+  n5 -->|"SQL/TLS — trips and users"| n10
+  n6 -->|"RESP — surge/price cache"| n9
+  n6 -->|"SQL/TLS — pricing rules"| n10
+  n7 -->|"HTTPS/JSON — provider API"| n8
+  n7 -->|"SQL/TLS — payment records"| n10
