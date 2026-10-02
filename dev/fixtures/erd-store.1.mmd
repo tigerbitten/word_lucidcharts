@@ -1,0 +1,42 @@
+erDiagram
+  e1["CUSTOMER"] {
+    INT customer_id PK "NOT NULL"
+    VARCHAR(255) email UK "NOT NULL"
+    VARCHAR(120) name "NOT NULL"
+  }
+  e2["ORDER"] {
+    INT order_id PK "NOT NULL"
+    INT customer_id FK "NOT NULL"
+    TIMESTAMP order_date "NOT NULL"
+    VARCHAR(30) status "NOT NULL"
+  }
+  e3["ORDER_ITEM"] {
+    INT order_item_id PK "NOT NULL"
+    INT order_id FK "NOT NULL"
+    INT product_id FK "NOT NULL"
+    INT quantity "NOT NULL"
+    DECIMAL(10,2) unit_price "NOT NULL"
+  }
+  e4["PRODUCT"] {
+    INT product_id PK "NOT NULL"
+    INT category_id FK "NOT NULL"
+    VARCHAR(64) sku UK "NOT NULL"
+    VARCHAR(160) name "NOT NULL"
+    DECIMAL(10,2) price "NOT NULL"
+  }
+  e5["CATEGORY"] {
+    INT category_id PK "NOT NULL"
+    VARCHAR(120) name "NOT NULL"
+  }
+  e6["PAYMENT"] {
+    INT payment_id PK "NOT NULL"
+    INT order_id FK "NOT NULL"
+    DECIMAL(10,2) amount "NOT NULL"
+    VARCHAR(30) status "NOT NULL"
+    TIMESTAMP paid_at
+  }
+  e1 ||--o{ e2 : "places"
+  e2 ||--|{ e3 : "contains"
+  e4 ||--o{ e3 : "included in"
+  e5 ||--o{ e4 : "classifies"
+  e2 ||--o{ e6 : "paid by"

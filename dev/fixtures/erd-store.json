@@ -1,0 +1,482 @@
+{
+ "id": "5b535800-e5da-45da-b8d3-dd28c74e1808",
+ "title": "Blank diagram",
+ "version": 327,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "X-Gz10CN_~lI",
+      "class": "ERDEntityBlock4",
+      "textAreas": [
+       {
+        "label": "Name",
+        "text": "CUSTOMER"
+       },
+       {
+        "label": "Key1",
+        "text": "PK"
+       },
+       {
+        "label": "Field1",
+        "text": "customer_id"
+       },
+       {
+        "label": "Type1",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key2",
+        "text": "AK"
+       },
+       {
+        "label": "Field2",
+        "text": "email"
+       },
+       {
+        "label": "Type2",
+        "text": "VARCHAR(255) NOT NULL"
+       },
+       {
+        "label": "Key3",
+        "text": ""
+       },
+       {
+        "label": "Field3",
+        "text": "name"
+       },
+       {
+        "label": "Type3",
+        "text": "VARCHAR(120) NOT NULL"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-GzE7uat7n2",
+      "class": "ERDEntityBlock4",
+      "textAreas": [
+       {
+        "label": "Name",
+        "text": "ORDER"
+       },
+       {
+        "label": "Key1",
+        "text": "PK"
+       },
+       {
+        "label": "Field1",
+        "text": "order_id"
+       },
+       {
+        "label": "Type1",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key2",
+        "text": "FK"
+       },
+       {
+        "label": "Field2",
+        "text": "customer_id"
+       },
+       {
+        "label": "Type2",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key3",
+        "text": ""
+       },
+       {
+        "label": "Field3",
+        "text": "order_date"
+       },
+       {
+        "label": "Type3",
+        "text": "TIMESTAMP NOT NULL"
+       },
+       {
+        "label": "Key4",
+        "text": ""
+       },
+       {
+        "label": "Field4",
+        "text": "status"
+       },
+       {
+        "label": "Type4",
+        "text": "VARCHAR(30) NOT NULL"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-GzWHwZcCKW",
+      "class": "ERDEntityBlock4",
+      "textAreas": [
+       {
+        "label": "Name",
+        "text": "ORDER_ITEM"
+       },
+       {
+        "label": "Key1",
+        "text": "PK"
+       },
+       {
+        "label": "Field1",
+        "text": "order_item_id"
+       },
+       {
+        "label": "Type1",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key2",
+        "text": "FK"
+       },
+       {
+        "label": "Field2",
+        "text": "order_id"
+       },
+       {
+        "label": "Type2",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key3",
+        "text": "FK"
+       },
+       {
+        "label": "Field3",
+        "text": "product_id"
+       },
+       {
+        "label": "Type3",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key4",
+        "text": ""
+       },
+       {
+        "label": "Field4",
+        "text": "quantity"
+       },
+       {
+        "label": "Type4",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key5",
+        "text": ""
+       },
+       {
+        "label": "Field5",
+        "text": "unit_price"
+       },
+       {
+        "label": "Type5",
+        "text": "DECIMAL(10,2) NOT NULL"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-GzAG2_A_J.",
+      "class": "ERDEntityBlock4",
+      "textAreas": [
+       {
+        "label": "Name",
+        "text": "PRODUCT"
+       },
+       {
+        "label": "Key1",
+        "text": "PK"
+       },
+       {
+        "label": "Field1",
+        "text": "product_id"
+       },
+       {
+        "label": "Type1",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key2",
+        "text": "FK"
+       },
+       {
+        "label": "Field2",
+        "text": "category_id"
+       },
+       {
+        "label": "Type2",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key3",
+        "text": "AK"
+       },
+       {
+        "label": "Field3",
+        "text": "sku"
+       },
+       {
+        "label": "Type3",
+        "text": "VARCHAR(64) NOT NULL"
+       },
+       {
+        "label": "Key4",
+        "text": ""
+       },
+       {
+        "label": "Field4",
+        "text": "name"
+       },
+       {
+        "label": "Type4",
+        "text": "VARCHAR(160) NOT NULL"
+       },
+       {
+        "label": "Key5",
+        "text": ""
+       },
+       {
+        "label": "Field5",
+        "text": "price"
+       },
+       {
+        "label": "Type5",
+        "text": "DECIMAL(10,2) NOT NULL"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-Gz_Dpb-ic7",
+      "class": "ERDEntityBlock4",
+      "textAreas": [
+       {
+        "label": "Name",
+        "text": "CATEGORY"
+       },
+       {
+        "label": "Key1",
+        "text": "PK"
+       },
+       {
+        "label": "Field1",
+        "text": "category_id"
+       },
+       {
+        "label": "Type1",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key2",
+        "text": ""
+       },
+       {
+        "label": "Field2",
+        "text": "name"
+       },
+       {
+        "label": "Type2",
+        "text": "VARCHAR(120) NOT NULL"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-Gzf5151kQP",
+      "class": "ERDEntityBlock4",
+      "textAreas": [
+       {
+        "label": "Name",
+        "text": "PAYMENT"
+       },
+       {
+        "label": "Key1",
+        "text": "PK"
+       },
+       {
+        "label": "Field1",
+        "text": "payment_id"
+       },
+       {
+        "label": "Type1",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key2",
+        "text": "FK"
+       },
+       {
+        "label": "Field2",
+        "text": "order_id"
+       },
+       {
+        "label": "Type2",
+        "text": "INT NOT NULL"
+       },
+       {
+        "label": "Key3",
+        "text": ""
+       },
+       {
+        "label": "Field3",
+        "text": "amount"
+       },
+       {
+        "label": "Type3",
+        "text": "DECIMAL(10,2) NOT NULL"
+       },
+       {
+        "label": "Key4",
+        "text": ""
+       },
+       {
+        "label": "Field4",
+        "text": "status"
+       },
+       {
+        "label": "Type4",
+        "text": "VARCHAR(30) NOT NULL"
+       },
+       {
+        "label": "Key5",
+        "text": ""
+       },
+       {
+        "label": "Field5",
+        "text": "paid_at"
+       },
+       {
+        "label": "Type5",
+        "text": "TIMESTAMP"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "X-Gz-hZiRHzC",
+      "endpoint1": {
+       "style": "CFN ERD Exactly One Arrow",
+       "connectedTo": "X-Gz10CN_~lI"
+      },
+      "endpoint2": {
+       "style": "CFN ERD Zero Or More Arrow",
+       "connectedTo": "X-GzE7uat7n2"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "places"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-GzB1nGQoku",
+      "endpoint1": {
+       "style": "CFN ERD Exactly One Arrow",
+       "connectedTo": "X-GzE7uat7n2"
+      },
+      "endpoint2": {
+       "style": "CFN ERD One Or More Arrow",
+       "connectedTo": "X-GzWHwZcCKW"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "contains"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-GzmJ5fMqHb",
+      "endpoint1": {
+       "style": "CFN ERD Exactly One Arrow",
+       "connectedTo": "X-GzAG2_A_J."
+      },
+      "endpoint2": {
+       "style": "CFN ERD Zero Or More Arrow",
+       "connectedTo": "X-GzWHwZcCKW"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "included in"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-Gz6kBAHg3s",
+      "endpoint1": {
+       "style": "CFN ERD Exactly One Arrow",
+       "connectedTo": "X-Gz_Dpb-ic7"
+      },
+      "endpoint2": {
+       "style": "CFN ERD Zero Or More Arrow",
+       "connectedTo": "X-GzAG2_A_J."
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "classifies"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "X-Gz2s0DokZi",
+      "endpoint1": {
+       "style": "CFN ERD Exactly One Arrow",
+       "connectedTo": "X-GzE7uat7n2"
+      },
+      "endpoint2": {
+       "style": "CFN ERD Zero Or More Arrow",
+       "connectedTo": "X-Gzf5151kQP"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "paid by"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

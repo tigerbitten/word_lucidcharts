@@ -27,12 +27,26 @@ const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placehold
 
 // A shape with no text (mostly an icon whose title was cleared) is named after
 // its class, so the meaning survives: "AzureCosmosDBAzure2024" -> "Azure Cosmos
-// DB", "AECloudBlock" -> "AE Cloud". Library suffixes seen so far: Block,
-// Azure2024; AWS/GCP ones are a guess until a real example shows up.
+// DB", "AECloudBlock" -> "AE Cloud", "ResAmazonRoute53HostedZoneAWS2024" ->
+// "Amazon Route53 Hosted Zone" (AWS 2024 icons start Res/Arch).
+const ICON = /(AWS|Azure|GCP)\d*$/;
 function className(cls) {
   const base = cls.replace(/Block$/, "");
-  const name = base.replace(/(AWS|Azure|GCP)\d*$/, "") || base;
+  const name = base.replace(ICON, "").replace(/^(Res|Arch)(?=[A-Z])/, "") || base;
   return name.replace(/([a-z\d])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2");
+}
+
+// A cloud icon whose title doesn't name its service ("Orders store" on an S3
+// bucket) also gets the service, which is what a reader needs to know.
+function nodeLabel(s) {
+  const text = textOf(s), type = className(s.class);
+  if (!text) return type;
+  if (!ICON.test(s.class)) return text;
+  // Matched against the class name run together: class names split badly
+  // ("ElastiCacheforRedis" -> "Elasti Cachefor Redis").
+  const compact = type.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const named = text.toLowerCase().split(/[^a-z0-9]+/).some(w => w.length >= 3 && compact.includes(w));
+  return named ? text : `${text}\n(${type})`;
 }
 
 // Sequence-diagram text: no line breaks, and ";" / "#" are statement and
@@ -162,11 +176,56 @@ function sequenceToMermaid(shapes, lines) {
   return out.join("\n");
 }
 
+// An entity-relationship diagram: Lucid's entity shapes (ERDEntityBlock4 and
+// kin) hold a Name text area and numbered rows, Key1/Field1/Type1 and so on;
+// relationships are lines whose ends are crow's-foot styles ("CFN ERD Zero Or
+// More Arrow"). Returns null when the page has no entities.
+function erToMermaid(shapes, lines) {
+  const entities = shapes.filter(s => /^ERDEntity/.test(s.class));
+  if (!entities.length) return null;
+  const ids = new Map(entities.map((s, i) => [s.id, "e" + (i + 1)]));
+  const quote = t => `"${t.replace(/\s+/g, " ").trim().replace(/"/g, "#quot;")}"`;
+  const word = t => t.trim().replace(/\s+/g, "_").replace(/[^\w\-()[\],.]/g, "") || "_";
+  const out = ["erDiagram"];
+  for (const s of entities) {
+    const areas = s.textAreas || [];
+    const name = (areas.find(t => t.label === "Name") || {}).text || textOf(s).split("\n")[0] || "entity";
+    out.push(`  ${ids.get(s.id)}[${quote(name)}] {`);
+    const rows = new Map(); // row number -> { Key, Field, Type }
+    for (const t of areas) {
+      const m = t.label.match(/^(Key|Field|Type)(\d+)$/);
+      if (m) rows.set(+m[2], { ...rows.get(+m[2]), [m[1]]: (t.text || "").trim() });
+    }
+    for (const [, r] of [...rows].sort((a, b) => a[0] - b[0])) {
+      if (!r.Field) continue;
+      // "VARCHAR(255) NOT NULL": Mermaid's type is one word, the rest is a comment.
+      const [type, ...more] = (r.Type || "").split(/\s+/);
+      // Lucid's alternate key (AK) is what Mermaid calls a unique key (UK).
+      const keys = (r.Key || "").toUpperCase().split(/[\s,/]+/).map(k => k === "AK" ? "UK" : k).filter(k => /^(PK|FK|UK)$/.test(k));
+      out.push(`    ${word(type || "_")} ${word(r.Field)}${keys.length ? " " + keys.join(", ") : ""}${more.length ? " " + quote(more.join(" ")) : ""}`);
+    }
+    out.push("  }");
+  }
+  // Crow's-foot ends, as Mermaid writes them on the left / right of "--".
+  const end = (style, left) => {
+    const s = (style || "").toLowerCase();
+    const [l, r] = /zero or one/.test(s) ? ["|o", "o|"] : /one or more/.test(s) ? ["}|", "|{"]
+      : /zero or more|many/.test(s) ? ["}o", "o{"] : ["||", "||"];
+    return left ? l : r;
+  };
+  for (const l of lines) {
+    const a = ids.get(l.endpoint1.connectedTo), b = ids.get(l.endpoint2.connectedTo);
+    if (a && b) out.push(`  ${a} ${end(l.endpoint1.style, true)}--${end(l.endpoint2.style, false)} ${b} : ${quote(textOf(l))}`);
+  }
+  for (const s of shapes) if (!ids.has(s.id) && textOf(s)) out.push(`  %% note: ${textOf(s).replace(/\s+/g, " ")}`);
+  return out.join("\n");
+}
+
 function pageToMermaid(page) {
   const shapes = (page.items && page.items.shapes) || [];
   const lines = (page.items && page.items.lines) || [];
-  const sequence = sequenceToMermaid(shapes, lines);
-  if (sequence) return sequence;
+  const special = sequenceToMermaid(shapes, lines) || erToMermaid(shapes, lines);
+  if (special) return special;
   const byId = new Map(shapes.map(s => [s.id, s]));
   const linesById = new Map(lines.map(l => [l.id, l]));
   // A container's members are the shapes it lists.
@@ -271,7 +330,7 @@ function pageToMermaid(page) {
       out.push(`${pad}end`);
     } else {
       const [open, close] = (SHAPES.find(([re]) => re.test(s.class)) || [null, '["', '"]']).slice(1);
-      out.push(`${pad}${ids.get(id)}${open}${label(textOf(s) || className(s.class))}${close}`);
+      out.push(`${pad}${ids.get(id)}${open}${label(nodeLabel(s))}${close}`);
     }
   }
   for (const id of order.filter(id => !parent.has(id) || !ids.has(parent.get(id))).sort((x, y) => firstRank(x) - firstRank(y))) emit(id, 1);
