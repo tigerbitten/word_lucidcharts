@@ -1,0 +1,39 @@
+flowchart TD
+  subgraph g4["Streaming Analytics Pipeline"]
+    direction TB
+    subgraph g5["Security & Governance"]
+      direction TB
+      n1["IAM<br>(Identity And Access Management)"]
+    end
+    subgraph g3["Ingestion"]
+      direction TB
+      n2["Event Producers<br>(Producer Portal)"]
+      n3["Pub/Sub"]
+    end
+    subgraph g1["Processing"]
+      direction TB
+      n4["Dataflow"]
+      n8["Cloud Functions"]
+    end
+    subgraph g6["Storage & Analytics"]
+      direction TB
+      n5["BigQuery"]
+      n7["Cloud Storage"]
+    end
+    subgraph g2["Visualization"]
+      direction TB
+      n6["Looker"]
+    end
+  end
+  n1 -->|"access control"| n3
+  n1 -->|"service permissions"| n4
+  n1 -->|"access control"| n5
+  n1 -->|"access control"| n6
+  n1 -->|"service permissions"| n7
+  n1 -->|"access control"| n8
+  n2 -->|"streaming events"| n3
+  n3 -->|"event stream"| n4
+  n3 -->|"event trigger"| n8
+  n4 -->|"curated data"| n5
+  n4 -->|"raw event archive"| n7
+  n5 -->|"analytical datasets"| n6

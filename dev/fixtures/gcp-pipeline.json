@@ -1,0 +1,615 @@
+{
+ "id": "394b289e-4674-421b-abf5-58f40275672a",
+ "title": "Blank diagram",
+ "version": 1336,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "muHze_OMROOf",
+      "class": "GCP2021IdentityAndAccessManagementIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "IAM"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "muHzZiPIQmw.",
+      "class": "GCP2021ProducerPortalIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Event Producers"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "muHzgqZhGBEk",
+      "class": "GCP2021ContainerLogicalGroupingOfServicesInstances",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Processing"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "muHzSvlwHvRJ",
+        "muHzmVsSO870"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "muHzmM9Fthaj",
+      "class": "GCP2021CloudStorageIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Cloud Storage"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "muHzSvlwHvRJ",
+      "class": "GCP2021CloudFunctionsIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Cloud Functions"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "muHzkp9aV8iF",
+      "class": "GCP2021ContainerLogicalGroupingOfServicesInstances",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Visualization"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "muHzMQDk0HAZ"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "muHzDY3UkiEW",
+      "class": "GCP2021PubsubIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Pub/Sub"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "muHzeRRWW56Y",
+      "class": "GCP2021ContainerLogicalGroupingOfServicesInstances",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Ingestion"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "muHzDY3UkiEW",
+        "muHzZiPIQmw."
+       ],
+       "lines": [
+        "muHzhcdWHHgc"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "muHzMQDk0HAZ",
+      "class": "GCP2021LookerIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Looker"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "muHz0LE0S5xo",
+      "class": "GCP2021BigqueryIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "BigQuery"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "muHzYHhp49ZM",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Streaming Analytics Pipeline"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "muHz0LE0S5xo",
+        "muHz6qeSwogU",
+        "muHzDY3UkiEW",
+        "muHzMQDk0HAZ",
+        "muHzSvlwHvRJ",
+        "muHzZiPIQmw.",
+        "muHzeRRWW56Y",
+        "muHze_OMROOf",
+        "muHzgqZhGBEk",
+        "muHzkp9aV8iF",
+        "muHzmM9Fthaj",
+        "muHzmVsSO870",
+        "muHzqAzRGPdY"
+       ],
+       "lines": [
+        "muHz3BF4fsZ6",
+        "muHzMxAyZCu~",
+        "muHzRkLjqc4R",
+        "muHzelDUkWD3",
+        "muHzhcdWHHgc",
+        "muHzhpp8FM..",
+        "nuHz-2Ut6ZqU",
+        "nuHz8KQr0t_H",
+        "nuHzDRRv2CCs",
+        "nuHznB5I_NHO",
+        "nuHzunRFYSJh",
+        "nuHz~LaORek1"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "muHz6qeSwogU",
+      "class": "GCP2021ContainerLogicalGroupingOfServicesInstances",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Security & Governance"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "muHze_OMROOf"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "muHzqAzRGPdY",
+      "class": "GCP2021ContainerLogicalGroupingOfServicesInstances",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Storage & Analytics"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "muHz0LE0S5xo",
+        "muHzmM9Fthaj"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "muHzmVsSO870",
+      "class": "GCP2021DataflowIcon",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Dataflow"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "muHzRkLjqc4R",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHzDY3UkiEW"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzSvlwHvRJ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "event trigger"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "muHzelDUkWD3",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHzmVsSO870"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzmM9Fthaj"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "raw event archive"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "muHz3BF4fsZ6",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHz0LE0S5xo"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzMQDk0HAZ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "analytical datasets"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "muHzhcdWHHgc",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHzZiPIQmw."
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzDY3UkiEW"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "streaming events"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "muHzhpp8FM..",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHzmVsSO870"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHz0LE0S5xo"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "curated data"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nuHznB5I_NHO",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHze_OMROOf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzDY3UkiEW"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "access control"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nuHz8KQr0t_H",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHze_OMROOf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHz0LE0S5xo"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "access control"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nuHz-2Ut6ZqU",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHze_OMROOf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzMQDk0HAZ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "access control"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nuHzunRFYSJh",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHze_OMROOf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzSvlwHvRJ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "access control"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "muHzMxAyZCu~",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHzDY3UkiEW"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzmVsSO870"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "event stream"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nuHz~LaORek1",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHze_OMROOf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzmVsSO870"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "service permissions"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nuHzDRRv2CCs",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "muHze_OMROOf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "muHzmM9Fthaj"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "service permissions"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}
