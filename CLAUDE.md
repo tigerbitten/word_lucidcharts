@@ -103,6 +103,10 @@ Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
   `key`, `mouse`, `file`, `shot`, `open`/`close` (tabs). Chrome doesn't render a
   background tab: Lucid tabs sit on their loading screen until `shot` brings
   them to the front.
+- `node dev/e2e.js`: the pane's main flows in the test Word, PASS/FAIL per
+  check (insert, captions, headings, table cells, update, MD view). Run it after
+  pane changes; `node dev/test-mermaid.js` after translator changes (it also
+  checks the pane's script compiles).
 - `dev/word.js`: `doc` (pictures and paragraphs), `clear`, `end`, `open <docId>`
   (a diagram straight into the pane's editor). `dev/contents.js <doc> <name>`
   saves a document's contents as a fixture.
