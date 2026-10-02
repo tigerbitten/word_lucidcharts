@@ -39,7 +39,7 @@ The bar above the editor has:
   the diagrams already in this document (choosing one also selects its
   picture), the ones you used recently, or **Browse or create in Lucid...**
   (Lucid's picker). Diagrams from the document and recent ones open straight
-  in the editor.
+  in the editor; one whose picture is out of date says so.
 - **↗** opens the diagram on lucid.app (more room, and Lucid features that don't
   work inside Word, like Create with AI); **↻** reloads the editor so it shows
   changes made elsewhere (the pane also says when the diagram changed there);
@@ -88,8 +88,9 @@ above others.
 
 Lucid only exports PNG (no SVG), so pictures are made sharp by pixel count:
 each export is sized for about 400 pixels per inch at the width the picture
-has in Word. That's a re-export at a higher DPI when needed, so the first
-export of a changed diagram can take a few seconds. Anything far sharper
+has in Word. The DPI comes from the diagram's last known size, so one export
+is usually enough (the very first one exports twice, to learn the size); a big
+changed diagram still takes several seconds, which is Lucid's rendering. Anything far sharper
 than 600 ppi is scaled down in the pane with high-quality resampling.
 **Update** always re-exports for the picture's current width, so after
 enlarging a picture in Word, Update makes it sharp again. New pictures fit
