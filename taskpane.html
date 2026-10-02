@@ -44,6 +44,11 @@
   #help p { margin: 0 0 0.4rem; }
   #help p:last-child { margin: 0; }
   #help input { width: 100%; margin-top: 0.2rem; font: inherit; padding: 0.2rem; }
+  /* Over the editor, which keeps its state underneath. */
+  #md { position: absolute; inset: 0; background: #fff; display: flex; flex-direction: column; gap: 0.35rem; padding: 0.4rem; z-index: 1; }
+  #md p { margin: 0; font-size: 0.8rem; color: #444; }
+  #mdText { flex: 1; min-height: 0; width: 100%; font: 0.75rem/1.35 Consolas, monospace; resize: none; }
+  #md div { display: flex; gap: 0.35rem; }
 
   #main { flex: 1; min-height: 0; position: relative; }
   #frame { width: 100%; height: 100%; border: 0; display: block; }
@@ -70,8 +75,9 @@
   <select id="diagram" title="The diagram in the editor. Open another: one already in this document, a recent one, or any in Lucid"></select>
   <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work inside Word">&#8599;</button>
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
+  <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v34</span>
+  <span id="build">build v35</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -86,6 +92,8 @@
   <p><b>The menu at the top</b> switches diagrams: the ones already in this document, your recent ones,
     or <i>Browse or create in Lucid</i>. <b>&#8599;</b> opens the diagram on lucid.app for more room and the
     Lucid features that don't work inside Word, like Create with AI; <b>&#8635;</b> reloads the editor here.</p>
+  <p><b>MD</b> shows the whole document as Markdown, each diagram as its Mermaid, to copy into an LLM
+    (or download as a .md file): most tools that read .docx files skip the Mermaid in the pictures' alt text.</p>
   <p><b>Page for Word</b> (for diagrams with several pages) picks the page that goes into the document:
     Lucid's editor doesn't tell the add-in which page you're looking at.</p>
   <p>If the editor asks you to log in, log in to lucid.app in a browser tab (it can't be done inside Word),
@@ -94,6 +102,11 @@
     <input id="docUrl" placeholder="https://lucid.app/lucidchart/..."></p>
 </div>
 <div id="main">
+  <div id="md" hidden>
+    <p>This document as Markdown, each diagram replaced by its Mermaid: select it all and copy it into an LLM.</p>
+    <textarea id="mdText" readonly spellcheck="false"></textarea>
+    <div><button id="mdSelect" class="primary">Select all</button><button id="mdDownload">Download .md</button><button id="mdClose">Close</button></div>
+  </div>
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
   <div id="card">
     <p id="cardText"></p>
@@ -926,6 +939,69 @@ $("updateAll").onclick = () => act("Updating...", async () => {
 });
 
 $("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };
+
+// The document as Markdown for an LLM: text, headings, lists and tables as
+// they read, each diagram picture as its title and Mermaid (what docx2md.py
+// does with a saved file). The clipboard is blocked in Word's frame, so it's
+// shown for the person to select and copy.
+async function documentMarkdown() {
+  const blocks = [];
+  const fence = "```";
+  await word(async ctx => {
+    const paras = ctx.document.body.paragraphs;
+    paras.load("items/text,items/styleBuiltIn,items/isListItem,items/tableNestingLevel");
+    await ctx.sync();
+    const pics = paras.items.map(p => p.inlinePictures.load("items/altTextDescription"));
+    const tables = paras.items.map(p => p.tableNestingLevel > 0 ? p.parentTableOrNullObject.load("values") : null);
+    await ctx.sync();
+    let inTable = false;
+    paras.items.forEach((p, i) => {
+      // A table's paragraphs come one cell at a time; the table is written once, from its values.
+      if (p.tableNestingLevel > 0) {
+        if (inTable) return;
+        inTable = true;
+        const rows = tables[i].isNullObject ? [] : tables[i].values.map(r => r.map(c => String(c).replace(/\s+/g, " ").replace(/\|/g, "\\|")));
+        if (rows.length) blocks.push([`| ${rows[0].join(" | ")} |`, "|" + "---|".repeat(rows[0].length), ...rows.slice(1).map(r => `| ${r.join(" | ")} |`)].join("\n"));
+        return;
+      }
+      inTable = false;
+      for (const pic of pics[i].items) {
+        const alt = pic.altTextDescription || "", found = parseAlt(alt);
+        const mermaid = alt.match(/^```mermaid\n([\s\S]*?)\n```/m);
+        blocks.push(found && mermaid ? `Diagram: ${found.title} (https://lucid.app/lucidchart/${found.documentId}/edit)\n\n${fence}mermaid\n${mermaid[1]}\n${fence}`
+          : `[image${alt.trim() ? ": " + alt.trim().replace(/\s+/g, " ") : ""}]`);
+      }
+      const text = p.text.trim();
+      if (!text) return;
+      const heading = (p.styleBuiltIn || "").match(/^Heading(\d)$/);
+      const line = heading ? "#".repeat(+heading[1]) + " " + text : p.styleBuiltIn === "Title" ? "# " + text
+        : p.isListItem ? "- " + text : captionTitle(text) != null || p.styleBuiltIn === "Caption" ? `*${text}*` : text;
+      // A list's items go on consecutive lines.
+      if (line.startsWith("- ") && blocks.length && blocks[blocks.length - 1].split("\n").pop().startsWith("- ")) blocks[blocks.length - 1] += "\n" + line;
+      else blocks.push(line);
+    });
+  });
+  return blocks.join("\n\n") + "\n";
+}
+
+$("mdToggle").onclick = () => {
+  if (!$("md").hidden) return void ($("md").hidden = true);
+  act("Reading the document...", async () => {
+    $("mdText").value = await documentMarkdown();
+    $("md").hidden = false;
+    say("The document as Markdown: Select all, then Ctrl+C, and paste it into an LLM.");
+  });
+};
+$("mdSelect").onclick = () => { $("mdText").focus(); $("mdText").select(); };
+$("mdClose").onclick = () => { $("md").hidden = true; };
+$("mdDownload").onclick = () => {
+  // Named after the Word document ("Design.docx" -> "Design.md").
+  const name = decodeURIComponent((Office.context.document.url || "").split(/[\\/]/).pop() || "").replace(/\.docx?$/i, "") || "document";
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([$("mdText").value], { type: "text/markdown" })), download: name + ".md" });
+  document.body.append(a);
+  a.click();
+  a.remove();
+};
 
 $("docUrl").oninput = () => {
   const m = $("docUrl").value.match(new RegExp(UUID));

@@ -44,6 +44,8 @@ The bar above the editor has:
   work inside Word, like Create with AI); **↻** reloads the editor so it shows
   changes made elsewhere (the pane also says when the diagram changed there);
   **?** explains all this.
+- **MD** shows the whole document as Markdown with each diagram's Mermaid in
+  place, to select and copy into an LLM, or download as a `.md` file.
 - **Page for Word**, for a document with several pages: which page Insert uses.
 
 The buttons at the bottom act on whatever is selected in Word, and the line
@@ -164,7 +166,7 @@ Custom shape data isn't included.
 
 ### Pointing an LLM at the diagrams
 
-The simplest way: `python docx2md.py report.docx > report.md` (standard library
+The simplest way: **MD** in the pane. Without Word: `python docx2md.py report.docx > report.md` (standard library
 only) writes the document as Markdown, with each diagram picture replaced by its
 title, its Lucid link and its Mermaid. Hand the LLM the `.md`.
 
