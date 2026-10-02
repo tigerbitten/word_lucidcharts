@@ -1,0 +1,231 @@
+{
+ "id": "0e3d4814-f8ce-4d89-89a7-09c96b866f5b",
+ "title": "Blank diagram",
+ "version": 159,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "I3HzsTrUlNi.",
+      "class": "DefaultTableBlock",
+      "textAreas": [
+       {
+        "label": "Cell_0,0",
+        "text": "Criteria"
+       },
+       {
+        "label": "Cell_0,1",
+        "text": "Salesforce"
+       },
+       {
+        "label": "Cell_0,2",
+        "text": "HubSpot"
+       },
+       {
+        "label": "Cell_0,3",
+        "text": "Zoho"
+       },
+       {
+        "label": "Cell_1,0",
+        "text": "Price"
+       },
+       {
+        "label": "Cell_1,1",
+        "text": "Premium; highly flexible"
+       },
+       {
+        "label": "Cell_1,2",
+        "text": "Free entry; paid scaling"
+       },
+       {
+        "label": "Cell_1,3",
+        "text": "Affordable; bundled plans"
+       },
+       {
+        "label": "Cell_2,0",
+        "text": "Integrations"
+       },
+       {
+        "label": "Cell_2,1",
+        "text": "Extensive marketplace"
+       },
+       {
+        "label": "Cell_2,2",
+        "text": "Strong native integrations"
+       },
+       {
+        "label": "Cell_2,3",
+        "text": "Strong Zoho ecosystem"
+       },
+       {
+        "label": "Cell_3,0",
+        "text": "Reporting"
+       },
+       {
+        "label": "Cell_3,1",
+        "text": "Advanced customization"
+       },
+       {
+        "label": "Cell_3,2",
+        "text": "Clear, easy dashboards"
+       },
+       {
+        "label": "Cell_3,3",
+        "text": "Solid standard reports"
+       },
+       {
+        "label": "Cell_4,0",
+        "text": "Support"
+       },
+       {
+        "label": "Cell_4,1",
+        "text": "Broad ecosystem; paid tiers"
+       },
+       {
+        "label": "Cell_4,2",
+        "text": "Responsive; tier-dependent"
+       },
+       {
+        "label": "Cell_4,3",
+        "text": "Email and tier-based support"
+       },
+       {
+        "label": "Cell_5,0",
+        "text": "Ease of use"
+       },
+       {
+        "label": "Cell_5,1",
+        "text": "Powerful, steeper learning curve"
+       },
+       {
+        "label": "Cell_5,2",
+        "text": "Very intuitive for teams"
+       },
+       {
+        "label": "Cell_5,3",
+        "text": "Feature-rich; moderate learning curve"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "I3Hzd8_RcKRS",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Comparison Matrix"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "I3HzsTrUlNi."
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "I3Hz.VovDD4p",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "October 2, 2026"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "I3HzVl9-DC6X",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "CRM Vendor Comparison"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "I3HzZv7VPCH7",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Add title"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "I3Hz.VovDD4p",
+        "I3HzVl9-DC6X"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     }
+    ],
+    "lines": [],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

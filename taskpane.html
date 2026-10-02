@@ -71,7 +71,7 @@
   <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work inside Word">&#8599;</button>
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v31</span>
+  <span id="build">build v32</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -362,7 +362,7 @@ async function start() {
       const lastUsed = !current && recent()[0];
       await loadEditor(back ? current.embedId : lastUsed ? lastUsed.embedId : null);
       if (lastUsed) setCurrent(lastUsed, lastUsed.title);
-      say(back ? "Signed in. Carry on editing." : lastUsed ? `Opened "${lastUsed.title}", the last diagram you used. The menu above opens others.`
+      say(back ? "Connected. Carry on editing." : lastUsed ? `Opened "${lastUsed.title}", the last diagram you used. The menu above opens others.`
         : "Pick a diagram (or New) in Lucid's window below, then Continue and Insert.");
     } else {
       showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });

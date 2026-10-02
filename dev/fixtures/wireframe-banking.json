@@ -1,0 +1,248 @@
+{
+ "id": "76f26527-13c6-4f41-a0ee-d410dcd28379",
+ "title": "Blank diagram",
+ "version": 243,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "M4HzeuI~kBvL",
+      "class": "UI2AreaBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        ".4HzCq_JXz-3",
+        ".4HzlOD1LHhC",
+        "S4HzTH7PncRQ",
+        "S4HzUb8I1Bdd",
+        "S4Hzalj6eE68",
+        "Z4HzOUl-f3MV",
+        "Z4HzSQYpzOt9",
+        "n5Hzrb2SCxXP"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "S4HzUb8I1Bdd",
+      "class": "UI2MenuBarBlock",
+      "textAreas": [
+       {
+        "label": "MenuItem_1",
+        "text": "9:41"
+       },
+       {
+        "label": "MenuItem_2",
+        "text": "LTE"
+       },
+       {
+        "label": "MenuItem_3",
+        "text": "100%"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "S4HzTH7PncRQ",
+      "class": "UI2ElementBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Good morning, Alex"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "S4Hzalj6eE68"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "S4Hzalj6eE68",
+      "class": "UI2ButtonBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "A"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "Z4HzOUl-f3MV",
+      "class": "UI2ElementBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Total balance\n$12,480.56\n•••• 4821"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "Z4HzSQYpzOt9",
+      "class": "UI2ButtonBarBlock",
+      "textAreas": [
+       {
+        "label": "Button_1",
+        "text": "Send"
+       },
+       {
+        "label": "Button_2",
+        "text": "Request"
+       },
+       {
+        "label": "Button_3",
+        "text": "Deposit"
+       },
+       {
+        "label": "Button_4",
+        "text": "More"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": ".4HzlOD1LHhC",
+      "class": "UI2ElementBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Recent transactions"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": ".4HzCq_JXz-3",
+      "class": "UI2TableBlock",
+      "textAreas": [
+       {
+        "label": "Cell_0_0",
+        "text": "Merchant"
+       },
+       {
+        "label": "Cell_0_1",
+        "text": "Date"
+       },
+       {
+        "label": "Cell_0_2",
+        "text": "Amount"
+       },
+       {
+        "label": "Cell_1_0",
+        "text": "Grocery Market"
+       },
+       {
+        "label": "Cell_1_1",
+        "text": "Oct 01"
+       },
+       {
+        "label": "Cell_1_2",
+        "text": "-$86.24"
+       },
+       {
+        "label": "Cell_2_0",
+        "text": "Coffee House"
+       },
+       {
+        "label": "Cell_2_1",
+        "text": "Sep 30"
+       },
+       {
+        "label": "Cell_2_2",
+        "text": "-$5.80"
+       },
+       {
+        "label": "Cell_3_0",
+        "text": "Paycheck"
+       },
+       {
+        "label": "Cell_3_1",
+        "text": "Sep 29"
+       },
+       {
+        "label": "Cell_3_2",
+        "text": "+$2,450.00"
+       },
+       {
+        "label": "Cell_4_0",
+        "text": "Electric Co."
+       },
+       {
+        "label": "Cell_4_1",
+        "text": "Sep 28"
+       },
+       {
+        "label": "Cell_4_2",
+        "text": "-$74.16"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "n5Hzrb2SCxXP",
+      "class": "UI2ButtonBarBlock",
+      "textAreas": [
+       {
+        "label": "Button_1",
+        "text": "Home"
+       },
+       {
+        "label": "Button_2",
+        "text": "Activity"
+       },
+       {
+        "label": "Button_3",
+        "text": "Cards"
+       },
+       {
+        "label": "Button_4",
+        "text": "Profile"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

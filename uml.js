@@ -3,8 +3,10 @@
 // each from its own shape library, so a page is recognised by its shape
 // classes. The flowchart translator (mermaid.js) takes everything else.
 
-// Same as mermaid.js: a "Placeholder" text area is Lucid's hint in an empty box.
-const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder").map(t => t.text || "").join("\n").trim();
+// Same as mermaid.js: a "Placeholder" text area is Lucid's hint in an empty box,
+// "Add title" an unfilled frame title.
+const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder" && !(t.label === "FrameTitle" && t.text === "Add title"))
+  .map(t => t.text || "").join("\n").trim();
 const area = (s, label) => ((s.textAreas || []).find(t => t.label === label) || {}).text || "";
 
 // Sequence-diagram text: no line breaks, and ";" / "#" are statement and

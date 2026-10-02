@@ -1,0 +1,377 @@
+{
+ "id": "842cbb59-945b-46fe-b73f-7e349cb25ef6",
+ "title": "Blank diagram",
+ "version": 337,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "b4HzMs5P8e3u",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Skills for Data Science"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "b4HzMOBUPzdL",
+        "b4HzSzD2Hc.q",
+        "b4HzfdLVEDzl",
+        "b4Hzwe_kVI7-",
+        "b4Hzz1~189RH",
+        "b4Hz~A9pz~Zv",
+        "b4Hz~MJD83Lp"
+       ],
+       "lines": [
+        "b4HzLR1DSv2N",
+        "b4HzR0Qj_4wR",
+        "b4HzWHOGaQOF",
+        "b4HzYJAbO1kg",
+        "b4Hzf8t.7TLu",
+        "b4Hzhw-o4AJz",
+        "b4Hzp89CzBBI",
+        "b4HzpM~AUvfJ",
+        "b4HzwYB1GaAv"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "b4HzfdLVEDzl",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Data Science"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "b4Hz~MJD83Lp",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Programming"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "b4Hzwe_kVI7-",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Machine Learning"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "b4Hz~A9pz~Zv",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Data Engineering"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "b4HzSzD2Hc.q",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Applied Analytics"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "b4HzMOBUPzdL",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Domain Expertise"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "b4Hzz1~189RH",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Statistics"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "b4HzwYB1GaAv",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4Hzz1~189RH"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4Hzwe_kVI7-"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4HzYJAbO1kg",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4HzMOBUPzdL"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4HzSzD2Hc.q"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4HzWHOGaQOF",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4Hz~MJD83Lp"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4Hz~A9pz~Zv"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4Hzp89CzBBI",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4Hz~MJD83Lp"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4Hzwe_kVI7-"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4HzpM~AUvfJ",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4Hzz1~189RH"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4HzfdLVEDzl"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4Hzf8t.7TLu",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4HzMOBUPzdL"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4HzfdLVEDzl"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4HzLR1DSv2N",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4HzMOBUPzdL"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4Hz~A9pz~Zv"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4Hzhw-o4AJz",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4Hz~MJD83Lp"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4HzfdLVEDzl"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "b4HzR0Qj_4wR",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b4Hzz1~189RH"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b4HzSzD2Hc.q"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

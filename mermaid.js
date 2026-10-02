@@ -29,8 +29,21 @@ function label(text) {
 }
 
 // A "Placeholder" text area holds the hint Lucid shows in an empty text box
-// ("Type something"), not the diagram's text.
-const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder").map(t => t.text || "").join("\n").trim();
+// ("Type something"), not the diagram's text; "Add title" is a frame's title
+// never filled in.
+const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder" && !(t.label === "FrameTitle" && t.text === "Add title"))
+  .map(t => t.text || "").join("\n").trim();
+
+// A Lucid table keeps each cell as a text area labelled by row and column.
+// Mermaid has no table, so a table is written out as one, in comments.
+function tableRows(s) {
+  const rows = [];
+  for (const t of s.textAreas || []) {
+    const m = t.label.match(/^Cell_(\d+)[,_](\d+)$/); // "Cell_1,2"; UI mockup tables write "Cell_1_2"
+    if (m) (rows[+m[1]] = rows[+m[1]] || [])[+m[2]] = (t.text || "").replace(/\s+/g, " ").trim();
+  }
+  return rows.length ? rows.filter(Boolean).map(r => Array.from(r, c => c || "")) : null;
+}
 
 // A shape with no text (mostly an icon whose title was cleared) is named after
 // its class, so the meaning survives: "AzureCosmosDBAzure2024" -> "Azure Cosmos
@@ -141,7 +154,8 @@ function pageToMermaid(page) {
   // be a step; so is a group that doesn't say what's in it (Lucid's Mermaid
   // subgraph shapes don't).
   const notes = [];
-  const isNode = s => !isContainer(s) && (connected.has(s.id) || (textOf(s) && !/text|subgraph/i.test(s.class)));
+  // A table is a node only when connected (named by its header row); it's written out in comments either way.
+  const isNode = s => !isContainer(s) && (connected.has(s.id) || (textOf(s) && !/text|subgraph/i.test(s.class) && !tableRows(s)));
   // A container is only a subgraph if something it holds is a node, or a
   // connector ends on it; one holding only freehand strokes, pictures or
   // untitled scraps would be an empty box, so it's a note too.
@@ -150,7 +164,7 @@ function pageToMermaid(page) {
   for (const s of shapes) if (isNode(s)) keep(parent.get(s.id));
   for (const id of connected) if (isContainer(byId.get(id))) keep(id);
   const isGroup = s => isContainer(s) && kept.has(s.id);
-  for (const s of shapes) if (!isGroup(s) && !isNode(s) && textOf(s)) notes.push(textOf(s));
+  for (const s of shapes) if (!isGroup(s) && !isNode(s) && textOf(s) && !tableRows(s)) notes.push(textOf(s));
 
   // Reading order: follow the arrows from the sources (topological order),
   // ties and cycles falling back to Lucid's own order. Mermaid lays out in
@@ -183,7 +197,7 @@ function pageToMermaid(page) {
       out.push(`${pad}end`);
     } else {
       const [open, close] = (SHAPES.find(([re]) => re.test(s.class)) || [null, '["', '"]']).slice(1);
-      out.push(`${pad}${ids.get(id)}${open}${label(nodeLabel(s))}${close}`);
+      out.push(`${pad}${ids.get(id)}${open}${label(tableRows(s) ? tableRows(s)[0].join(" | ") : nodeLabel(s))}${close}`);
     }
   }
   for (const id of order.filter(id => !parent.has(id) || !ids.has(parent.get(id))).sort((x, y) => firstRank(x) - firstRank(y))) emit(id, 1);
@@ -191,6 +205,10 @@ function pageToMermaid(page) {
   edges.sort((x, y) => rank.get(x.from) - rank.get(y.from) || rank.get(x.to) - rank.get(y.to));
   for (const e of edges) out.push(`  ${ids.get(e.from)} ${e.kind}${e.text ? `|"${label(e.text)}"|` : ""} ${ids.get(e.to)}`);
   for (const t of notes) out.push(`  %% note: ${t.replace(/\s+/g, " ")}`);
+  for (const rows of shapes.map(tableRows).filter(Boolean)) {
+    out.push("  %% table:");
+    for (const r of rows) out.push(`  %% | ${r.join(" | ")} |`);
+  }
   for (const l of loose) out.push(`  %% connector with a loose end${textOf(l) ? `: ${textOf(l).replace(/\s+/g, " ")}` : ""}`);
   return out.join("\n");
 }

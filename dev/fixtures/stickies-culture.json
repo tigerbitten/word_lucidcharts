@@ -1,0 +1,248 @@
+{
+ "id": "7f640ed4-3219-4cab-b0b1-8ca8c7e32e63",
+ "title": "Blank diagram",
+ "version": 205,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "t5HzS0drwj9u",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Wellbeing: Normalize offline hours"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5Hz0FpB9ZDn",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Wellbeing: Offer meeting-free blocks"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzaK1_.NIV",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Wellbeing: Protect focus time"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzGFnRwe6p",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Rituals: Celebrate small wins"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzVP~v-xLb",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Remote Team Culture"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "t5Hz-utcpCK~",
+        "t5Hz0FpB9ZDn",
+        "t5Hz2tIhF3_M",
+        "t5HzCaIKy4zq",
+        "t5HzClH7o0xg",
+        "t5HzGFnRwe6p",
+        "t5HzKBXf7Y7J",
+        "t5HzS0drwj9u",
+        "t5HzSyQdncIt",
+        "t5HzaK1_.NIV",
+        "t5HzgM7ZTY.h",
+        "t5HzxSHSVevL"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "t5HzgM7ZTY.h",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Tools: Keep channels purpose-driven"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzSyQdncIt",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Tools: One source of truth"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5Hz-utcpCK~",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Rituals: Weekly team pulse check"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzCaIKy4zq",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Communication: Use async status updates"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzClH7o0xg",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Communication: Make feedback specific"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzxSHSVevL",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Tools: Record key decisions"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5Hz2tIhF3_M",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Rituals: Host informal coffee chats"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t5HzKBXf7Y7J",
+      "class": "StickiesStickyNoteBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Communication: Share context by default"
+       },
+       {
+        "label": "ReadonlyAttributionText",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}
