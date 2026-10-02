@@ -184,18 +184,28 @@ function pageToMermaid(page) {
   function emit(id, indent) {
     const s = byId.get(id), pad = "  ".repeat(indent);
     if (isGroup(s)) {
-      // Lucid's swimlane is one shape: the lanes' titles are its text areas
-      // (Primary_0, Primary_1, ...) and it lists every step at once. Which lane
-      // a step is in only shows in the drawing (the API has no positions), so
-      // the lanes are named and that's said.
+      // Lucid's swimlane (or BPMN pool) is one shape: the lanes' titles are its
+      // text areas (Primary_0, Primary_1, ...) and it lists every step at once.
+      // Each step names its lane in its linked data (SpreadsheetRowParentKey or
+      // ...ColumnParentKey: "Primary_2"), so each lane becomes a subgraph.
       const lanes = (s.textAreas || []).filter(t => /^(Primary|Secondary)_\d+$/.test(t.label) && (t.text || "").trim());
       const title = lanes.length ? (s.textAreas.find(t => /Title/.test(t.label)) || {}).text : textOf(s);
-      const name = [title, lanes.length && `lanes: ${lanes.map(t => t.text.trim()).join(", ")}`].filter(t => t && t.trim()).join(" - ");
-      out.push(`${pad}subgraph ${ids.get(id)}["${label(name || "")}"]`);
+      out.push(`${pad}subgraph ${ids.get(id)}["${label(title || "")}"]`);
       // Without this, Mermaid lays a subgraph's contents out left to right.
       out.push(`${pad}  direction TB`);
-      if (lanes.length) out.push(`${pad}  %% Lucid's API doesn't say which lane each step below is in`);
-      for (const c of childrenOf(id).sort((x, y) => firstRank(x) - firstRank(y))) emit(c, indent + 1);
+      const laneOf = c => ((byId.get(c).linkedData || []).flatMap(d => d.data || [])
+        .find(d => /^Spreadsheet(Row|Column)ParentKey$/.test(d.key) && lanes.some(t => t.label === d.value)) || {}).value;
+      const children = childrenOf(id).sort((x, y) => firstRank(x) - firstRank(y));
+      lanes.forEach((lane, i) => {
+        const inLane = children.filter(c => laneOf(c) === lane.label);
+        if (!inLane.length) return;
+        out.push(`${pad}  subgraph ${ids.get(id)}_${i}["${label(lane.text)}"]`, `${pad}    direction TB`);
+        for (const c of inLane) emit(c, indent + 2);
+        out.push(`${pad}  end`);
+      });
+      const unplaced = children.filter(c => !laneOf(c));
+      if (lanes.length && unplaced.length) out.push(`${pad}  %% Lucid doesn't say which lane these are in`);
+      for (const c of unplaced) emit(c, indent + 1);
       out.push(`${pad}end`);
     } else {
       const [open, close] = (SHAPES.find(([re]) => re.test(s.class)) || [null, '["', '"]']).slice(1);

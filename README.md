@@ -154,8 +154,8 @@ say it ("S3 Static Website (Amazon Simple Storage Service Bucket With
 Objects)"). Free-standing text and connectors with a loose end become `%%`
 comments. Lucid's API gives no positions, so it's the structure that's
 preserved; nodes are listed in the order the arrows flow, and Mermaid lays them
-out itself. That also means a swimlane's lanes are named but which lane each
-step is in isn't known (the output says so).
+out itself. A swimlane's or BPMN pool's lanes are subgraphs too, each step in
+its own lane (Lucid records the lane with the step).
 
 Pages drawn with Lucid's own libraries for other kinds of diagram get
 Mermaid's matching form (`uml.js`):

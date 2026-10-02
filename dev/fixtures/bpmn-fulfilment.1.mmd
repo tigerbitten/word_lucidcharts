@@ -1,18 +1,26 @@
 flowchart TD
-  subgraph g1["Order Fulfilment Process - lanes: Sales, Warehouse, Shipping"]
+  subgraph g1["Order Fulfilment Process"]
     direction TB
-    %% Lucid's API doesn't say which lane each step below is in
-    n1(("Order received"))
-    n2("Validate order")
-    n3("Send order to warehouse")
-    n4("Check stock")
-    n5{"Stock available?"}
-    n6("Pick and pack order")
-    n7("Ship order")
-    n8(("Notify customer"))
-    n9("Request backorder")
-    n10(("Backorder requested"))
-    n12(("Order fulfilled"))
+    subgraph g1_0["Sales"]
+      direction TB
+      n1(("Order received"))
+      n2("Validate order")
+      n3("Send order to warehouse")
+    end
+    subgraph g1_1["Warehouse"]
+      direction TB
+      n4("Check stock")
+      n5{"Stock available?"}
+      n6("Pick and pack order")
+      n9("Request backorder")
+      n10(("Backorder requested"))
+    end
+    subgraph g1_2["Shipping"]
+      direction TB
+      n7("Ship order")
+      n8(("Notify customer"))
+      n12(("Order fulfilled"))
+    end
   end
   n11["Customer"]
   n1 --> n2

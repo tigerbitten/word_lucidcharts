@@ -1,18 +1,29 @@
 flowchart TD
   subgraph g2["Employee Expense Approval"]
     direction TB
-    subgraph g1["lanes: Employee, Manager, Finance, Payroll System"]
+    subgraph g1[" "]
       direction TB
-      %% Lucid's API doesn't say which lane each step below is in
-      n1(["Start"])
-      n2["Submit expense report"]
-      n3{"Missing receipt?"}
-      n4{"Amount over limit?"}
-      n5["Review expense"]
-      n6["Audit claim"]
-      n7["Process reimbursement"]
-      n8(["End"])
-      n9["Attach receipt"]
+      subgraph g1_0["Employee"]
+        direction TB
+        n1(["Start"])
+        n2["Submit expense report"]
+        n3{"Missing receipt?"}
+        n4{"Amount over limit?"}
+        n9["Attach receipt"]
+      end
+      subgraph g1_1["Manager"]
+        direction TB
+        n5["Review expense"]
+      end
+      subgraph g1_2["Finance"]
+        direction TB
+        n6["Audit claim"]
+      end
+      subgraph g1_3["Payroll System"]
+        direction TB
+        n7["Process reimbursement"]
+        n8(["End"])
+      end
     end
   end
   n1 --> n2

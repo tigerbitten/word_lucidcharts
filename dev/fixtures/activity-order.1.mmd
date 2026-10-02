@@ -1,22 +1,30 @@
 flowchart TD
   subgraph g2["Online Order Processing"]
     direction TB
-    subgraph g1["lanes: Customer, Warehouse, Billing"]
+    subgraph g1[" "]
       direction TB
-      %% Lucid's API doesn't say which lane each step below is in
-      n1["●"]
-      n2["Place online order"]
-      n3["Receive order"]
-      n4{"In stock?"}
-      n5["Fork"]
-      n6["Pack order"]
-      n7["Create invoice"]
-      n8["Join"]
-      n9["Ship order"]
-      n10["Receive order"]
-      n11["Notify out of stock"]
-      n12["◎"]
-      n13["◎"]
+      subgraph g1_0["Customer"]
+        direction TB
+        n1["●"]
+        n2["Place online order"]
+        n10["Receive order"]
+        n11["Notify out of stock"]
+        n12["◎"]
+        n13["◎"]
+      end
+      subgraph g1_1["Warehouse"]
+        direction TB
+        n3["Receive order"]
+        n4{"In stock?"}
+        n5["Fork"]
+        n6["Pack order"]
+        n8["Join"]
+        n9["Ship order"]
+      end
+      subgraph g1_2["Billing"]
+        direction TB
+        n7["Create invoice"]
+      end
     end
   end
   n1 --> n2

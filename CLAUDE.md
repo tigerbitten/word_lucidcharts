@@ -46,8 +46,9 @@ Two stages:
   shape class. Contents have shapes (class, textAreas, `contains` for
   containers), lines (endpoint1/2 `connectedTo` + end `style`) but **no
   positions**, so only structure survives; what positions alone would say
-  (swimlane membership, which lifeline an activation bar is on) is inferred or
-  stated as unknown. `svg.js` reads back Mermaid code Lucid keeps as a picture
+  (which lifeline an activation bar is on) is inferred or stated as unknown.
+  Swimlane / pool lanes come from each step's `linkedData`
+  (`SpreadsheetRowParentKey: "Primary_2"`). `svg.js` reads back Mermaid code Lucid keeps as a picture
   (`LucidNativeMermaidDiagramBlock`, its `image.url` is Mermaid's SVG).
   `dev/fixtures/` holds real Lucid pages (mostly made by Lucid AI) and their
   output; `node dev/test-mermaid.js` regenerates the `.mmd` files and checks
@@ -55,7 +56,7 @@ Two stages:
 - Flowcharts made from Mermaid code in Lucid can't be exported (notes.md, Export
   quirks). `/pages` flags them `fromCode` (not the one-picture kind above, which
   exports fine); the pane
-  re-fetches the page list before every picture (`freshPages`; cached per version), and draws
+  re-fetches the page list before every picture (`exportDiagram`; cached per version), and draws
   those pages from their Mermaid with Mermaid 11.17.2 (pinned) from jsDelivr,
   with plain SVG labels so the canvas isn't tainted, capped to WebKit's canvas
   limits. `mermaid.js` gives each shape at the end of a code subgraph's connectors
