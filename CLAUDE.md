@@ -69,7 +69,9 @@ Two stages:
   text is still "Figure N: <old title>". Insert goes below a figure's caption
   when the cursor is on its picture, and leaves the cursor below the new figure
   (in a fresh paragraph at the end of the document). New pictures fit 6.5 x
-  8.5in (MAX_WIDTH_PT / MAX_HEIGHT_PT in server.js).
+  8.5in (MAX_WIDTH_PT / MAX_HEIGHT_PT in server.js), or the table cell they go
+  in. The picture and caption paragraphs are set to Normal: made after a heading
+  they would otherwise become headings too.
 - Each picture records the Lucid document `version` it was exported from
   (`lucid-version:`); comparing it with `/info` is how the pane says a picture
   is out of date. The backend caches the last PNG per document keyed on that
