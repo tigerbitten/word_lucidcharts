@@ -150,6 +150,7 @@ Mermaid's matching form (`uml.js`):
 | UML class | `classDiagram` with members, inheritance, composition, multiplicities |
 | UML state machine | `stateDiagram-v2` with guards, composite states |
 | Mind map | `mindmap` |
+| Timeline (roadmap) | `timeline`, milestones under their period by date |
 
 Mermaid code pasted or imported into Lucid that isn't a flowchart is kept by
 Lucid as a picture of Mermaid's drawing, without the code; `svg.js` reads it

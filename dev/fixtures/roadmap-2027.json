@@ -1,0 +1,330 @@
+{
+ "id": "1a2b6d26-91f3-4ef9-a355-c7b74a883505",
+ "title": "Blank diagram",
+ "version": 268,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "PbAWTocHMJ+yRrKr1NMNcOXw8KU=",
+      "class": "TimelineMilestoneRowBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "wsbbuMhIj5/Wo5NmaoFfXE0lPvE=",
+      "class": "TimelineOrganizerBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "AdsfsiXlUeBUNQQt1J2JK5CXavg=",
+      "class": "TimelineCornerBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "fwhzOrAHBx1NQHMfz+ybB3KZjSg=",
+      "class": "TimelineOutlineBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "59ocC/ZUnfwtjYeI5w0+BXkCUGE=",
+      "class": "TimelineRowBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": ""
+       }
+      ],
+      "customData": [
+       {
+        "key": "DisplayDue",
+        "value": "-"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "6SHzzZ5Fn8nq-Row",
+        "data": [
+         {
+          "key": "value",
+          "value": "defaultTimelineCustomPivot"
+         },
+         {
+          "key": "Name",
+          "value": ""
+         }
+        ],
+        "primaryKeyValue": "6SHzzZ5Fn8nq|j5PVOVIY/Pr4MG0RIVvnP3SFpbM="
+       }
+      ]
+     },
+     {
+      "id": "LTayA3MEvCtbzKxvmkLhjaedk0Q=",
+      "class": "TimelineContainerBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Q1 2027"
+       },
+       {
+        "label": "t___MonthRange__",
+        "text": "January, February, and March"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pvU3mq0MLin1h5UeB162G+z/nis=",
+      "class": "TimelineContainerBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Q2 2027"
+       },
+       {
+        "label": "t___MonthRange__",
+        "text": "April, May, and June"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "Ye5t+TO+iD9q36FuiiM2TP6c++E=",
+      "class": "TimelineContainerBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Q3 2027"
+       },
+       {
+        "label": "t___MonthRange__",
+        "text": "July, August, and September"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "I1Odi/rQIkM2Zujn8P4UQa7YQZk=",
+      "class": "TimelineContainerBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Q4 2027"
+       },
+       {
+        "label": "t___MonthRange__",
+        "text": "October, November, and December"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "hj4iZzAras2U/DDdI8T/eRqgyeo=",
+      "class": "TimelineVizMilestoneBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Beta launch"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "OJBS01o+DFT4XlLu0aP/SfPyH7Q=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "wTHzejZxANXc"
+         },
+         {
+          "key": "Label",
+          "value": "Beta launch"
+         },
+         {
+          "key": "Date",
+          "value": "Mar 15, 2027"
+         }
+        ],
+        "primaryKeyValue": "\"wTHzejZxANXc\""
+       }
+      ]
+     },
+     {
+      "id": "M0yUjPzk+SXa2N3DJSOOfPXenGM=",
+      "class": "TimelineVizMilestoneBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Payments integration"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "OJBS01o+DFT4XlLu0aP/SfPyH7Q=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "wTHzMu3PzS1_"
+         },
+         {
+          "key": "Label",
+          "value": "Payments integration"
+         },
+         {
+          "key": "Date",
+          "value": "May 15, 2027"
+         }
+        ],
+        "primaryKeyValue": "\"wTHzMu3PzS1_\""
+       }
+      ]
+     },
+     {
+      "id": "JnCLOTOii9NRt0b0m5roVPFWM34=",
+      "class": "TimelineVizMilestoneBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Android release"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "OJBS01o+DFT4XlLu0aP/SfPyH7Q=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "wTHzBiES4xqs"
+         },
+         {
+          "key": "Label",
+          "value": "Android release"
+         },
+         {
+          "key": "Date",
+          "value": "Jun 15, 2027"
+         }
+        ],
+        "primaryKeyValue": "\"wTHzBiES4xqs\""
+       }
+      ]
+     },
+     {
+      "id": "JErXkMH3tJ3+h1UHH6tKsjGUgm0=",
+      "class": "TimelineVizMilestoneBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "Enterprise features"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "OJBS01o+DFT4XlLu0aP/SfPyH7Q=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "wTHzlOHBzjhN"
+         },
+         {
+          "key": "Label",
+          "value": "Enterprise features"
+         },
+         {
+          "key": "Date",
+          "value": "Sep 15, 2027"
+         }
+        ],
+        "primaryKeyValue": "\"wTHzlOHBzjhN\""
+       }
+      ]
+     },
+     {
+      "id": "xUVWZV15REOHdAPEhqQB1XQ54iU=",
+      "class": "TimelineVizMilestoneBlock",
+      "textAreas": [
+       {
+        "label": "t___Name__",
+        "text": "v2.0"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "OJBS01o+DFT4XlLu0aP/SfPyH7Q=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "wTHz1Dumkn3E"
+         },
+         {
+          "key": "Label",
+          "value": "v2.0"
+         },
+         {
+          "key": "Date",
+          "value": "Dec 1, 2027"
+         }
+        ],
+        "primaryKeyValue": "\"wTHz1Dumkn3E\""
+       }
+      ]
+     },
+     {
+      "id": "6SHzFivor5IV",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Plan"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [],
+       "lines": [],
+       "groups": []
+      }
+     }
+    ],
+    "lines": [],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": [
+   {
+    "id": "OJBS01o+DFT4XlLu0aP/SfPyH7Q=_b",
+    "name": "(6SHzBdof.NhB) Timeline Milestones",
+    "primaryKey": [
+     "Id"
+    ]
+   }
+  ]
+ },
+ "accountId": 218308185
+}

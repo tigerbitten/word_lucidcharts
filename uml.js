@@ -1,5 +1,5 @@
 // Pages of a kind Mermaid has its own diagram for, rather than a flowchart:
-// UML sequence, class and state diagrams, ER diagrams and mind maps. Lucid draws
+// UML sequence, class and state diagrams, ER diagrams, mind maps and timelines. Lucid draws
 // each from its own shape library, so a page is recognised by its shape
 // classes. The flowchart translator (mermaid.js) takes everything else.
 
@@ -300,9 +300,41 @@ function mindmapToMermaid(shapes, lines) {
   return out.join("\n");
 }
 
+// A Lucid timeline: TimelineContainerBlock columns (a period's name, and its
+// months in t___MonthRange__) and TimelineVizMilestoneBlock milestones, whose
+// dates are in their linked data (the API gives no positions). Mermaid's
+// timeline: a section per period, each milestone under the period its month is in.
+function timelineToMermaid(shapes) {
+  const milestones = shapes.filter(s => /^TimelineVizMilestone/.test(s.class));
+  const periods = shapes.filter(s => /^TimelineContainer/.test(s.class) && textOf(s));
+  if (!milestones.length && !periods.length) return null;
+  const text = t => inline(t).replace(/:/g, "#58;");
+  const dated = milestones.map(s => {
+    const date = ((s.linkedData || []).flatMap(l => l.data || []).find(d => d.key === "Date") || {}).value || "";
+    return { name: area(s, "t___Name__") || textOf(s), date, time: Date.parse(date) };
+  }).sort((a, b) => (a.time || Infinity) - (b.time || Infinity));
+  const month = m => new Date(m.time).toLocaleString("en-US", { month: "long" });
+  const year = m => String(new Date(m.time).getFullYear());
+  const out = ["timeline"];
+  const frame = shapes.find(s => /Frame/.test(s.class) && textOf(s));
+  if (frame) out.push(`  title ${text(textOf(frame))}`);
+  const placed = new Set();
+  for (const p of periods) {
+    const name = area(p, "t___Name__"), months = area(p, "t___MonthRange__");
+    // "Q1 2027" + "January, February, and March": a milestone dated in one of those months (and that year, if named).
+    const inside = dated.filter(m => !placed.has(m) && m.time && months.includes(month(m)) && (!/\d{4}/.test(name) || name.includes(year(m))));
+    out.push(`  section ${text(name || months || "period")}`);
+    for (const m of inside) { placed.add(m); out.push(`    ${text(m.date)} : ${text(m.name)}`); }
+  }
+  const rest = dated.filter(m => !placed.has(m));
+  if (rest.length && periods.length) out.push("  section Other dates");
+  for (const m of rest) out.push(`    ${text(m.date || "no date")} : ${text(m.name)}`);
+  return out.join("\n");
+}
+
 function umlToMermaid(shapes, lines) {
   return sequenceToMermaid(shapes, lines) || erToMermaid(shapes, lines) || classToMermaid(shapes, lines)
-    || stateToMermaid(shapes, lines) || mindmapToMermaid(shapes, lines);
+    || stateToMermaid(shapes, lines) || mindmapToMermaid(shapes, lines) || timelineToMermaid(shapes);
 }
 
 module.exports = { umlToMermaid };
