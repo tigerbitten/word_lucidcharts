@@ -43,33 +43,70 @@ function sequenceToMermaid(shapes, lines) {
   const messages = lines.filter(l => !lifelines.includes(l) && isEnd(l.endpoint1.connectedTo) && isEnd(l.endpoint2.connectedTo));
 
   // Which lifeline an activation bar sits on is only in the drawing, so it's
-  // inferred: a bar isn't on the lifeline it exchanges messages with (a
-  // message from a bar to itself is a self call), every participant takes
-  // part in something, and Lucid lists bars lifeline by lifeline, left to
-  // right. The first placement (leftmost first) meeting all three wins; if
-  // none does, each bar goes on the first lifeline that's not at the other
-  // end of its messages.
+  // inferred. Rules: a bar isn't on a lifeline it exchanges messages with (a
+  // message from a bar to itself is a self call); every participant takes part
+  // in something; and, in Lucid's listing of the bars, each participant's first
+  // bar comes in left-to-right order. That last one holds both for Lucid AI
+  // (bars listed lifeline by lifeline) and for a person drawing as they go
+  // (bars listed as the calls happen, lifelines placed in order of first
+  // involvement); it's dropped if nothing keeps it. Of the placements left, the
+  // cheapest by `cost` wins. Found by branch and bound, which gives up after a
+  // while on a huge diagram and keeps its best so far.
   const others = id => messages.flatMap(m => m.endpoint1.connectedTo === id && m.endpoint2.connectedTo !== id ? [m.endpoint2.connectedTo]
     : m.endpoint2.connectedTo === id && m.endpoint1.connectedTo !== id ? [m.endpoint1.connectedTo] : []);
   const direct = new Set(messages.flatMap(m => [m.endpoint1.connectedTo, m.endpoint2.connectedTo]).filter(id => owner.has(id)).map(id => owner.get(id)));
-  const fits = (a, p, placed) => others(a).every(o => (owner.has(o) ? owner.get(o) : placed.get(o)) !== p);
-  const place = (i, from, placed) => {
+  const at = (id, placed) => owner.has(id) ? owner.get(id) : placed.get(id);
+  const fits = (a, p, placed) => others(a).every(o => at(o, placed) !== p);
+  // A message often names its receiver or sender ("reviewCart()" to Cart
+  // Service, "paymentApproved" from the Payment Gateway): words of 4+ letters
+  // shared by its text and a participant's name.
+  const words = t => (t || "").replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase().split(/[^a-z]+/).filter(w => w.length >= 4);
+  const nameWords = participants.map(p => words(p.name));
+  const names = (m, p) => words(textOf(m)).some(w => nameWords[p].some(n => n.startsWith(w) || w.startsWith(n)));
+  // Cost of the bars placed so far: 3000 per pair of participants that talk
+  // (a conversation keeps to a few pairs), 3000 more per pair that talks only
+  // one way (calls get answers: whoever a participant calls answers it), 1000
+  // per lifeline a message crosses (lifelines that talk are drawn side by side),
+  // less 1500 for a message with an end on a participant its text names (once
+  // per message). `bound` is the least any completion could cost: a message
+  // not fully placed may still earn the bonus or answer a one-way pair.
+  const cost = placed => {
+    let c = 0, open = 0;
+    const ways = new Set();
+    for (const m of messages) {
+      const a = at(m.endpoint1.connectedTo, placed), b = at(m.endpoint2.connectedTo, placed);
+      if (a != null && b != null) {
+        c += Math.abs(a - b) * 1000;
+        if (a !== b) ways.add(a + ">" + b);
+      }
+      if ((a != null && names(m, a)) || (b != null && names(m, b))) c -= 1500;
+      else if (a == null || b == null) open++;
+    }
+    const pairs = new Set([...ways].map(w => w.split(">").map(Number).sort((x, y) => x - y).join("-")));
+    const oneWay = [...ways].filter(w => !ways.has(w.split(">").reverse().join(">"))).length;
+    c += pairs.size * 3000;
+    return { c: c + oneWay * 3000, bound: c - 1500 * open };
+  };
+  let best = null, bestCost = Infinity, steps = 0;
+  // `newest`: the rightmost participant whose first bar is placed (-1: none yet).
+  const place = (i, placed, newest, inOrder) => {
+    if (++steps > 20000 || cost(placed).bound >= bestCost) return;
     if (i === activations.length) {
       const used = new Set([...direct, ...placed.values()]);
-      return participants.every((_, p) => used.has(p)) ? placed : null;
+      if (participants.every((_, p) => used.has(p))) { best = placed; bestCost = cost(placed).c; }
+      return;
     }
-    for (let p = from; p < participants.length; p++) {
-      if (!fits(activations[i], p, placed)) continue;
-      const done = place(i + 1, p, new Map(placed).set(activations[i], p));
-      if (done) return done;
+    const had = new Set(placed.values());
+    for (let p = 0; p < participants.length; p++) {
+      if (!fits(activations[i], p, placed) || (inOrder && !had.has(p) && p < newest)) continue;
+      place(i + 1, new Map(placed).set(activations[i], p), had.has(p) ? newest : Math.max(newest, p), inOrder);
     }
-    return null;
   };
-  let placed = activations.length <= 40 && place(0, 0, new Map());
-  if (!placed) {
-    placed = new Map();
-    for (const a of activations) placed.set(a, Math.max(0, participants.findIndex((_, p) => fits(a, p, placed))));
-  }
+  place(0, new Map(), -1, true);
+  if (!best) { steps = 0; place(0, new Map(), -1, false); }
+  // Nothing keeps both rules (an odd drawing): each bar on the first lifeline it doesn't talk to.
+  const placed = best || new Map();
+  if (!best) for (const a of activations) placed.set(a, Math.max(0, participants.findIndex((_, p) => fits(a, p, placed))));
   const who = id => owner.has(id) ? owner.get(id) : placed.get(id);
 
   // A message back to a participant whose call is still unanswered is the

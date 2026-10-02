@@ -1,0 +1,28 @@
+sequenceDiagram
+  title Online Checkout
+  actor p1 as Customer
+  participant p2 as Storefront
+  participant p3 as Cart Service
+  participant p4 as Inventory
+  participant p5 as Payment Gateway
+  p1->>p3: startCheckout()
+  p3->>p2: reviewCart()
+  loop for each item in cart
+    p2->>p4: checkAndReserve(item)
+    p4-->>p2: reserved / outOfStock
+  end
+  opt coupon present
+    p3->>p5: validateCoupon(code)
+    p5-->>p3: couponValid / couponInvalid
+  end
+  p3->>p3: prepareOrderSummary()<br>/validateCheckout()
+  p3->>p2: sendPayment(details)
+  alt payment approved
+    p2-->>p3: paymentApproved
+    p3->>p2: finalizeOrder()
+  else payment declined
+    p2-->>p3: orderFinalized
+    p3-)p1: sendOrderConfirmationEmail()
+    p2-->>p3: paymentDeclined
+    p3-->>p1: showPaymentError()
+  end
