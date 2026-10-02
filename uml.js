@@ -372,9 +372,48 @@ function timelineToMermaid(shapes) {
   return out.join("\n");
 }
 
+// A UML component diagram: UMLComponentBlock components, each joined by a line
+// to its provided (lollipop) and required (socket) interface shapes; a line
+// from a required interface to a provided one says the first component uses
+// the second. Mermaid has no component diagram, so it's a flowchart of the
+// components with a dashed "uses" arrow per such line, the interfaces folded
+// into their owners (named on the arrow when they have a name).
+function componentToMermaid(shapes, lines) {
+  const components = shapes.filter(s => /^UMLComponent/.test(s.class));
+  if (!components.length) return null;
+  const byId = new Map(shapes.map(s => [s.id, s]));
+  const isInterface = id => byId.has(id) && /Interface/.test(byId.get(id).class);
+  const ids = new Map(components.map((s, i) => [s.id, "c" + (i + 1)]));
+  // An interface belongs to the component a line joins it to.
+  const ownerOf = new Map();
+  for (const l of lines) {
+    const [a, b] = [l.endpoint1.connectedTo, l.endpoint2.connectedTo];
+    if (ids.has(a) && isInterface(b)) ownerOf.set(b, a);
+    if (ids.has(b) && isInterface(a)) ownerOf.set(a, b);
+  }
+  const out = ["flowchart TD"];
+  for (const s of components) out.push(`  ${ids.get(s.id)}["${inline(area(s, "Title") || textOf(s) || "component")}"]`);
+  const seen = new Set();
+  for (const l of lines) {
+    let [a, b] = [l.endpoint1.connectedTo, l.endpoint2.connectedTo];
+    if (ids.has(a) && ids.has(b)) { out.push(`  ${ids.get(a)} --> ${ids.get(b)}${textOf(l) ? `|"${inline(textOf(l))}"|` : ""}`); continue; }
+    if (!isInterface(a) || !isInterface(b)) continue;
+    // From the requiring side to the providing one.
+    if (/Provided/.test(byId.get(a).class)) [a, b] = [b, a];
+    const from = ownerOf.get(a), to = ownerOf.get(b);
+    if (!from || !to || from === to) continue;
+    const name = [textOf(byId.get(a)), textOf(byId.get(b)), textOf(l)].find(Boolean);
+    const edge = `  ${ids.get(from)} -.->|"${inline(name ? "uses " + name : "uses")}"| ${ids.get(to)}`;
+    if (!seen.has(edge)) out.push(edge);
+    seen.add(edge);
+  }
+  for (const s of shapes) if (!ids.has(s.id) && !isInterface(s.id) && textOf(s) && !/Frame/.test(s.class)) out.push(`  %% note: ${textOf(s).replace(/\s+/g, " ")}`);
+  return out.join("\n");
+}
+
 function umlToMermaid(shapes, lines) {
   return sequenceToMermaid(shapes, lines) || erToMermaid(shapes, lines) || classToMermaid(shapes, lines)
-    || stateToMermaid(shapes, lines) || mindmapToMermaid(shapes, lines) || timelineToMermaid(shapes);
+    || stateToMermaid(shapes, lines) || mindmapToMermaid(shapes, lines) || timelineToMermaid(shapes) || componentToMermaid(shapes, lines);
 }
 
 module.exports = { umlToMermaid };

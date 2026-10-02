@@ -158,6 +158,7 @@ Mermaid's matching form (`uml.js`):
 | UML state machine | `stateDiagram-v2` with guards, composite states |
 | Mind map | `mindmap` |
 | Timeline (roadmap) | `timeline`, milestones under their period by date |
+| UML component (provided / required interfaces) | a flowchart of the components with a dashed "uses" arrow per interface connection |
 
 Mermaid code pasted or imported into Lucid that isn't a flowchart is kept by
 Lucid as a picture of Mermaid's drawing, without the code; `svg.js` reads it

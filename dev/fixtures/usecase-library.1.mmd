@@ -1,0 +1,26 @@
+flowchart TD
+  subgraph g1["Library System Use Case Diagram"]
+    direction TB
+    n1["👤 Payment Provider"]
+    n2["👤 Member"]
+    subgraph g2["Library System"]
+      direction TB
+      n3["Pay Fine"]
+      n5["Return Book"]
+      n6["Borrow Book"]
+      n7["Search Catalog"]
+      n8["Manage Inventory"]
+    end
+    n4["👤 Librarian"]
+  end
+  n1 --> n3
+  n2 --> n3
+  n2 --> n5
+  n2 --> n6
+  n2 --> n7
+  n3 -->|"&lt;&gt;"| n5
+  n4 --> n5
+  n4 --> n7
+  n4 --> n8
+  n5 -->|"&lt;&gt;"| n7
+  n6 -->|"&lt;&gt;"| n7

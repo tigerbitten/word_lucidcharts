@@ -1,0 +1,673 @@
+{
+ "id": "b822050d-9e6a-419a-8e90-30ab18a515cc",
+ "title": "Blank diagram",
+ "version": 528,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "IvIz4ekhKsD6",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "●"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIz_itW45GL",
+      "class": "AdvancedSwimLaneBlock",
+      "textAreas": [
+       {
+        "label": "FloatingTitle",
+        "text": ""
+       },
+       {
+        "label": "Primary_0",
+        "text": "Customer"
+       },
+       {
+        "label": "Primary_1",
+        "text": "Warehouse"
+       },
+       {
+        "label": "Primary_2",
+        "text": "Billing"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "IvIz3c.KN~yb",
+        "IvIz4ekhKsD6",
+        "IvIz5H0-hcE7",
+        "IvIzFFCHUXuU",
+        "IvIzKtx~i2ej",
+        "IvIzNgaXw9Y7",
+        "IvIzS_Bd..XN",
+        "IvIzU5iB~WnR",
+        "IvIzYz.UlLd2",
+        "IvIzcBe3oXUk",
+        "IvIziM0dpC2t",
+        "IvIzmfeKta7g",
+        "IvIzuRr4gzk-"
+       ],
+       "lines": [
+        "IvIz-ANNoZUH",
+        "IvIz3KIc0oo0",
+        "IvIz6ed0TAiw",
+        "IvIz7orfh2B4",
+        "IvIz8k7wm1c0",
+        "IvIzDcn9lFVP",
+        "IvIzE04v2SEJ",
+        "IvIzG~hXhB.n",
+        "IvIzJgPcWe5G",
+        "IvIziXo3XOxP",
+        "IvIzj0W~obCq",
+        "IvIzuWWJbP0n",
+        "IvIzxVVLTK.D"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "IvIzcBe3oXUk",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Receive order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIz5H0-hcE7",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Ship order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIzS_Bd..XN",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Pack order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIzKtx~i2ej",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Create invoice"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_2"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIzU5iB~WnR",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Place online order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIzuRr4gzk-",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Receive order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIz3c.KN~yb",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Fork"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIziM0dpC2t",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "In stock?"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIzYz.UlLd2",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "◎"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIzmfeKta7g",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Notify out of stock"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "JvIzwuSgVtPT",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Online Order Processing"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "IvIz3c.KN~yb",
+        "IvIz4ekhKsD6",
+        "IvIz5H0-hcE7",
+        "IvIzFFCHUXuU",
+        "IvIzKtx~i2ej",
+        "IvIzNgaXw9Y7",
+        "IvIzS_Bd..XN",
+        "IvIzU5iB~WnR",
+        "IvIzYz.UlLd2",
+        "IvIz_itW45GL",
+        "IvIzcBe3oXUk",
+        "IvIziM0dpC2t",
+        "IvIzmfeKta7g",
+        "IvIzuRr4gzk-"
+       ],
+       "lines": [
+        "IvIz-ANNoZUH",
+        "IvIz3KIc0oo0",
+        "IvIz6ed0TAiw",
+        "IvIz7orfh2B4",
+        "IvIz8k7wm1c0",
+        "IvIzDcn9lFVP",
+        "IvIzE04v2SEJ",
+        "IvIzG~hXhB.n",
+        "IvIzJgPcWe5G",
+        "IvIziXo3XOxP",
+        "IvIzj0W~obCq",
+        "IvIzuWWJbP0n",
+        "IvIzxVVLTK.D"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "IvIzFFCHUXuU",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "◎"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IvIzNgaXw9Y7",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Join"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "IvIzuWWJbP0n",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIziM0dpC2t"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzmfeKta7g"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "No"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIziXo3XOxP",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIzS_Bd..XN"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzNgaXw9Y7"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIzxVVLTK.D",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIz3c.KN~yb"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzKtx~i2ej"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIz7orfh2B4",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIziM0dpC2t"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIz3c.KN~yb"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Yes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIzj0W~obCq",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIzcBe3oXUk"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzYz.UlLd2"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIz6ed0TAiw",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIzmfeKta7g"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzFFCHUXuU"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIz-ANNoZUH",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIz3c.KN~yb"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzS_Bd..XN"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIz8k7wm1c0",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIzNgaXw9Y7"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIz5H0-hcE7"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIzJgPcWe5G",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIzKtx~i2ej"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzNgaXw9Y7"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIzDcn9lFVP",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIz5H0-hcE7"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzcBe3oXUk"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIzG~hXhB.n",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIzU5iB~WnR"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzuRr4gzk-"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIz3KIc0oo0",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIz4ekhKsD6"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIzU5iB~WnR"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IvIzE04v2SEJ",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IvIzuRr4gzk-"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IvIziM0dpC2t"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

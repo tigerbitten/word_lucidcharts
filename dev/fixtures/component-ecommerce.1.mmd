@@ -1,0 +1,15 @@
+flowchart TD
+  c1["Web UI"]
+  c2["API Gateway"]
+  c3["Order Service"]
+  c4["Payment Service"]
+  c5["Inventory Service"]
+  c6["Notification Service"]
+  c7["Database"]
+  c2 -.->|"uses"| c3
+  c2 -.->|"uses"| c4
+  c2 -.->|"uses"| c5
+  c2 -.->|"uses"| c6
+  c3 -.->|"uses"| c4
+  c3 -.->|"uses"| c5
+  c3 -.->|"uses"| c6

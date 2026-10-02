@@ -1,0 +1,741 @@
+{
+ "id": "4ef80941-1bfb-41ee-8733-5a487a5c75f3",
+ "title": "Blank diagram",
+ "version": 582,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "nwIzr9bP8Mv4",
+      "class": "UMLComponentBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Web UI"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzL3vZHvAQ",
+      "class": "UMLComponentBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "API Gateway"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzRO2aEeWV",
+      "class": "UMLComponentBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Order Service"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzCq5gm~4D",
+      "class": "UMLComponentBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Payment Service"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzkUo4Pfdo",
+      "class": "UMLComponentBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Inventory Service"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzKDkDAm0g",
+      "class": "UMLComponentBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Notification Service"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzrhTltSea",
+      "class": "UMLComponentBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Database"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz-s2wBKdB",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzoYC7kaX7",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzXD3ZRalK",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzHHUSm-vC",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzzL2YHLaM",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz6VUpud_Z",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzps4LmYS-",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzkVzHSHQi",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzQQzKlLcE",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzWjNNuGba",
+      "class": "UMLProvidedInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzJmy8dhyj",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzWQQKly2l",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzwBrydfB4",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzL60JhVjt",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzSc.oAeCe",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzVM9z_2Qk",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz5G9Ro0xo",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz-taIGy0G",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz27eEOqVO",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz6Dfoi6T5",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzgSmz3cRw",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIziJ~P_YB-",
+      "class": "UMLRequiredInterfaceBlockV2",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "nwIzd~UuEFtC",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzr9bP8Mv4"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz-s2wBKdB"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzV7R8T.-o",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzL3vZHvAQ"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzJmy8dhyj"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzWxYkk4ac",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzL3vZHvAQ"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzoYC7kaX7"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzyREcourC",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzL3vZHvAQ"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz27eEOqVO"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzwSE0I0jf",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzL3vZHvAQ"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz6Dfoi6T5"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz7iNEYYlM",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzL3vZHvAQ"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzgSmz3cRw"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzSAslqxkG",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzL3vZHvAQ"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIziJ~P_YB-"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzmip70vjD",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzRO2aEeWV"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzXD3ZRalK"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzuP6_eJVL",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzRO2aEeWV"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzWQQKly2l"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzZ6Jo7hGa",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzRO2aEeWV"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzwBrydfB4"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzoTfX-nn6",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzRO2aEeWV"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzL60JhVjt"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzBVVt_aWy",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzRO2aEeWV"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzSc.oAeCe"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzJDrUnDNe",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzCq5gm~4D"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzHHUSm-vC"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzuY.Id0xz",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzCq5gm~4D"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzVM9z_2Qk"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz9lAHFbPc",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzkUo4Pfdo"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzzL2YHLaM"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzKD6LQJIU",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzkUo4Pfdo"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz5G9Ro0xo"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzwSlcbW-R",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzKDkDAm0g"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz6VUpud_Z"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz.DwVkt1b",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzKDkDAm0g"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz-taIGy0G"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzwT_AZAM4",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzKDkDAm0g"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzWjNNuGba"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzJ6wHbva_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzRO2aEeWV"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzps4LmYS-"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzJRjXkny4",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzCq5gm~4D"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzkVzHSHQi"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz6eTXdKRY",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzkUo4Pfdo"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzQQzKlLcE"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzEyW_X5ri",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzJmy8dhyj"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzoYC7kaX7"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzVCDw6p_t",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIz27eEOqVO"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzXD3ZRalK"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz0.sACkLg",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIz6Dfoi6T5"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzHHUSm-vC"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzpwoDe-BO",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzgSmz3cRw"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzzL2YHLaM"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzueRSh-KR",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIziJ~P_YB-"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz6VUpud_Z"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzjZxpIme_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzWQQKly2l"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzHHUSm-vC"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzOEXvdf4H",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzwBrydfB4"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzzL2YHLaM"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIz-NMFiAP~",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzL60JhVjt"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIz6VUpud_Z"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzZ9xOihGB",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzSc.oAeCe"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzps4LmYS-"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzeM8YQdtw",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIzVM9z_2Qk"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzkVzHSHQi"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzmR9n7~~Z",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIz5G9Ro0xo"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzQQzKlLcE"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nwIzlZrGKzsF",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "nwIz-taIGy0G"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "nwIzWjNNuGba"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

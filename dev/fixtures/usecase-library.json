@@ -1,0 +1,433 @@
+{
+ "id": "08580fb0-18a5-460e-8608-d1756b88c089",
+ "title": "Blank diagram",
+ "version": 421,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "cvIzZUwtHbj1",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Search Catalog"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "cvIziD9RNcoJ",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Return Book"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "cvIzE7y0vgT0",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Library System Use Case Diagram"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "cvIz2drA23-w",
+        "cvIz6YMtcZ0A",
+        "cvIzISkj3O~L",
+        "cvIzIzMzvVyn",
+        "cvIzLezpjKIH",
+        "cvIzZUwtHbj1",
+        "cvIziD9RNcoJ",
+        "cvIzrxru75FO",
+        "cvIzsGH.5UhV"
+       ],
+       "lines": [
+        "cvIz9EbL5VGh",
+        "cvIzABwjs84E",
+        "cvIzCCR8rDGm",
+        "cvIzH04GM5KU",
+        "cvIzO35mBAIk",
+        "cvIzTeU-WM-B",
+        "cvIzWEPDTnpC",
+        "cvIzYaj99Rwf",
+        "cvIziNbPDFQq",
+        "cvIzviKvz9zC",
+        "cvIzy7_y~8a9"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "cvIzrxru75FO",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Pay Fine"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "cvIzLezpjKIH",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "👤 Payment Provider"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzsGH.5UhV",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "👤 Librarian"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIz2drA23-w",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Library System"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "cvIz6YMtcZ0A",
+        "cvIzISkj3O~L",
+        "cvIzZUwtHbj1",
+        "cvIziD9RNcoJ",
+        "cvIzrxru75FO"
+       ],
+       "lines": [
+        "cvIzABwjs84E",
+        "cvIzO35mBAIk",
+        "cvIzTeU-WM-B"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "cvIzIzMzvVyn",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "👤 Member"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzISkj3O~L",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Manage Inventory"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "cvIz6YMtcZ0A",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Borrow Book"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "cvIzABwjs84E",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzrxru75FO"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIziD9RNcoJ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "&lt;&gt;"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzCCR8rDGm",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzLezpjKIH"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIzrxru75FO"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzH04GM5KU",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzIzMzvVyn"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIzrxru75FO"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzYaj99Rwf",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzsGH.5UhV"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIzZUwtHbj1"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIz9EbL5VGh",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzIzMzvVyn"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIziD9RNcoJ"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIziNbPDFQq",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzsGH.5UhV"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIziD9RNcoJ"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzO35mBAIk",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIziD9RNcoJ"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIzZUwtHbj1"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "&lt;&gt;"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzWEPDTnpC",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzIzMzvVyn"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIzZUwtHbj1"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzTeU-WM-B",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIz6YMtcZ0A"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIzZUwtHbj1"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "&lt;&gt;"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzviKvz9zC",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzsGH.5UhV"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIzISkj3O~L"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cvIzy7_y~8a9",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "cvIzIzMzvVyn"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "cvIz6YMtcZ0A"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}
