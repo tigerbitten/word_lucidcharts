@@ -3,7 +3,7 @@
 // but no positions, so this describes structure and leaves layout to Mermaid.
 // Containers (frames, swimlanes) become subgraphs; everything else a node.
 // Sequence, ER, class and state diagrams get their own Mermaid forms (uml.js).
-const { umlToMermaid } = require("./uml.js");
+const { umlToMermaid, decodeEntities } = require("./uml.js");
 const { pictureToMermaid } = require("./svg.js");
 
 // Lucid shape class -> Mermaid node brackets. First match wins; default is a box.
@@ -32,7 +32,10 @@ function label(text) {
 // ("Type something"), not the diagram's text; "Add title" is a frame's title
 // never filled in.
 const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder" && !(t.label === "FrameTitle" && t.text === "Add title"))
-  .map(t => t.text || "").join("\n").trim();
+  .map(t => decodeEntities(t.text || "")).join("\n").trim();
+
+// A value from a shape's linked data (an org chart's "Employee ID"), or "".
+const dataOf = (s, key) => ((s.linkedData || []).flatMap(d => d.data || []).find(d => d.key === key) || {}).value || "";
 
 // A Lucid table keeps each cell as a text area labelled by row and column.
 // Mermaid has no table, so a table is written out as one, in comments.
@@ -68,6 +71,14 @@ function nodeLabel(s) {
   const compact = type.toLowerCase().replace(/[^a-z0-9]/g, "");
   const named = text.toLowerCase().split(/[^a-z0-9]+/).some(w => w.length >= 3 && compact.includes(w));
   return named ? text : `${text}\n(${type})`;
+}
+
+// Activity diagrams drawn as ordinary boxes holding a symbol (Lucid AI does
+// this): the start dot, the end bullseye, fork and join bars. Mermaid has the
+// shapes, under these very names.
+function activitySymbol(s) {
+  const t = textOf(s);
+  return /^[●⬤]$/.test(t) ? "start" : /^[◎◉⦿]$/.test(t) ? "stop" : /^(fork|join)$/i.test(t) ? t.toLowerCase() : null;
 }
 
 function pageToMermaid(page) {
@@ -145,6 +156,11 @@ function pageToMermaid(page) {
     let arrowA = head(l.endpoint1.style), arrowB = head(l.endpoint2.style);
     // A plain line ending on another line feeds into that line's flow.
     if (!arrowA && !arrowB) [arrowA, arrowB] = [linesById.has(l.endpoint1.connectedTo), linesById.has(l.endpoint2.connectedTo)];
+    // An org chart's lines have no arrowheads, but each person names their
+    // supervisor: the line runs manager --> report.
+    const boss = (x, y) => dataOf(y, "Supervisor ID") && dataOf(y, "Supervisor ID") === dataOf(x, "Employee ID");
+    if (!arrowA && !arrowB && boss(byId.get(a), byId.get(b))) arrowB = true;
+    if (!arrowA && !arrowB && boss(byId.get(b), byId.get(a))) arrowA = true;
     // A BPMN message flow (hollow circle at its start) is dashed.
     const message = /hollow circle/i.test(l.endpoint1.style + " " + l.endpoint2.style);
     if (arrowA && !arrowB) [a, b] = [b, a];
@@ -190,23 +206,31 @@ function pageToMermaid(page) {
       // ...ColumnParentKey: "Primary_2"), so each lane becomes a subgraph.
       const lanes = (s.textAreas || []).filter(t => /^(Primary|Secondary)_\d+$/.test(t.label) && (t.text || "").trim());
       const title = lanes.length ? (s.textAreas.find(t => /Title/.test(t.label)) || {}).text : textOf(s);
-      out.push(`${pad}subgraph ${ids.get(id)}["${label(title || "")}"]`);
-      // Without this, Mermaid lays a subgraph's contents out left to right.
-      out.push(`${pad}  direction TB`);
+      // Untitled lanes with nothing connected to the whole: just the lanes,
+      // not an empty box around them.
+      const bare = lanes.length && !(title || "").trim() && !connected.has(id);
+      if (!bare) {
+        out.push(`${pad}subgraph ${ids.get(id)}["${label(title || "")}"]`);
+        // Without this, Mermaid lays a subgraph's contents out left to right.
+        out.push(`${pad}  direction TB`);
+      }
       const laneOf = c => ((byId.get(c).linkedData || []).flatMap(d => d.data || [])
         .find(d => /^Spreadsheet(Row|Column)ParentKey$/.test(d.key) && lanes.some(t => t.label === d.value)) || {}).value;
       const children = childrenOf(id).sort((x, y) => firstRank(x) - firstRank(y));
+      const inside = bare ? indent : indent + 1, inPad = "  ".repeat(inside);
       lanes.forEach((lane, i) => {
         const inLane = children.filter(c => laneOf(c) === lane.label);
         if (!inLane.length) return;
-        out.push(`${pad}  subgraph ${ids.get(id)}_${i}["${label(lane.text)}"]`, `${pad}    direction TB`);
-        for (const c of inLane) emit(c, indent + 2);
-        out.push(`${pad}  end`);
+        out.push(`${inPad}subgraph ${ids.get(id)}_${i}["${label(lane.text)}"]`, `${inPad}  direction TB`);
+        for (const c of inLane) emit(c, inside + 1);
+        out.push(`${inPad}end`);
       });
       const unplaced = children.filter(c => !laneOf(c));
-      if (lanes.length && unplaced.length) out.push(`${pad}  %% Lucid doesn't say which lane these are in`);
-      for (const c of unplaced) emit(c, indent + 1);
-      out.push(`${pad}end`);
+      if (lanes.length && unplaced.length) out.push(`${inPad}%% Lucid doesn't say which lane these are in`);
+      for (const c of unplaced) emit(c, inside);
+      if (!bare) out.push(`${pad}end`);
+    } else if (activitySymbol(s)) {
+      out.push(`${pad}${ids.get(id)}@{ shape: ${activitySymbol(s)} }`);
     } else {
       const [open, close] = (SHAPES.find(([re]) => re.test(s.class)) || [null, '["', '"]']).slice(1);
       out.push(`${pad}${ids.get(id)}${open}${label(tableRows(s) ? tableRows(s)[0].join(" | ") : nodeLabel(s))}${close}`);

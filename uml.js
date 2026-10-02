@@ -6,8 +6,15 @@
 // Same as mermaid.js: a "Placeholder" text area is Lucid's hint in an empty box,
 // "Add title" an unfilled frame title.
 const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder" && !(t.label === "FrameTitle" && t.text === "Add title"))
-  .map(t => t.text || "").join("\n").trim();
-const area = (s, label) => ((s.textAreas || []).find(t => t.label === label) || {}).text || "";
+  .map(t => decodeEntities(t.text || "")).join("\n").trim();
+const area = (s, label) => decodeEntities(((s.textAreas || []).find(t => t.label === label) || {}).text || "");
+
+// Lucid sometimes keeps text HTML-escaped ("&lt;&lt;include&gt;&gt;"); the
+// Mermaid is for reading, so it gets the characters.
+function decodeEntities(text) {
+  return text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
+}
 
 // Sequence-diagram text: no line breaks, and ";" / "#" are statement and
 // entity syntax there, so they become entities too.
@@ -440,4 +447,4 @@ function umlToMermaid(shapes, lines) {
   return `---\ntitle: ${JSON.stringify(textOf(frame).replace(/\s+/g, " "))}\n---\n` + out;
 }
 
-module.exports = { umlToMermaid };
+module.exports = { umlToMermaid, decodeEntities };
