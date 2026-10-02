@@ -234,9 +234,10 @@ function classToMermaid(shapes, lines) {
   const out = ["classDiagram"];
   for (const s of classes) {
     const title = area(s, "Title") || textOf(s).split("\n")[0] || "class";
-    // Mermaid writes generics with ~ and opens a member block with {.
+    // Mermaid writes generics with ~, opens a member block with {, and puts a
+    // method's return type after a space (it adds the colon: "): Loan" shows ": : Loan").
     const members = (s.textAreas || []).filter(t => /^Text\d+$/.test(t.label)).flatMap(t => (t.text || "").split("\n"))
-      .map(l => l.trim().replace(/[<>]/g, "~").replace(/[{}]/g, "")).filter(Boolean);
+      .map(l => l.trim().replace(/[<>]/g, "~").replace(/[{}]/g, "").replace(/\)\s*:\s*/, ") ")).filter(Boolean);
     const kind = /Interface/.test(s.class) ? "<<interface>>" : /Enum/.test(s.class) ? "<<enumeration>>" : "";
     out.push(`  class ${ids.get(s.id)}["${inline(title)}"]${members.length || kind ? " {" : ""}`);
     if (kind) out.push(`    ${kind}`);
@@ -424,7 +425,7 @@ function componentToMermaid(shapes, lines) {
 function umlToMermaid(shapes, lines) {
   const real = shapes.filter(s => !/Frame|Text/.test(s.class));
   const mostly = re => real.filter(s => re.test(s.class)).length * 2 >= real.length;
-  return sequenceToMermaid(shapes, lines)
+  const out = sequenceToMermaid(shapes, lines)
     || (mostly(/^ERD/) && erToMermaid(shapes, lines))
     || (mostly(/^UML(Class|Interface|Enum)/) && classToMermaid(shapes, lines))
     || (mostly(/^UML(State|Start|End|Initial|Final)/) && stateToMermaid(shapes, lines))
@@ -432,6 +433,11 @@ function umlToMermaid(shapes, lines) {
     || (mostly(/^Timeline/) && timelineToMermaid(shapes))
     || (mostly(/^UML(Component|\w*Interface)/) && componentToMermaid(shapes, lines))
     || null;
+  // A frame's title ("Library System Class Diagram") that the diagram didn't
+  // already use goes in Mermaid's front matter, which every diagram type takes.
+  const frame = shapes.find(s => /Frame/.test(s.class) && textOf(s));
+  if (!out || !frame || out.includes(textOf(frame).split("\n")[0])) return out;
+  return `---\ntitle: ${JSON.stringify(textOf(frame).replace(/\s+/g, " "))}\n---\n` + out;
 }
 
 module.exports = { umlToMermaid };
