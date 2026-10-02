@@ -86,7 +86,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v39</span>
+  <span id="build">build v40</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -1093,7 +1093,9 @@ $("retry").onclick = start;
       document.documentElement.classList.toggle("dark", 0.299 * r + 0.587 * g + 0.114 * b < 128);
     };
     theme();
-    Office.context.document.addHandlerAsync(Office.EventType.OfficeThemeChanged, theme, () => {});
+    // Word has no theme-change event (it throws, which mustn't stop the pane from starting).
+    try { Office.context.document.addHandlerAsync(Office.EventType.OfficeThemeChanged, theme, () => {}); }
+    catch (e) { console.log("no theme-change event here:", e.message); }
     Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, onSelectionChanged,
       r => console.log("selection handler:", r.status, r.error && r.error.message));
   } else console.warn("not running inside Word: Insert/Update/Edit selected are disabled");
