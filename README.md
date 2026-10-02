@@ -17,12 +17,13 @@ client secret. Moving that to Azure Functions / AWS Lambda comes later.
 1. Open the add-in. If you're not signed in, click **Sign in to Lucid**,
    approve access in the tab that opens, and come back. The pane notices on its
    own. Sign-in lasts across restarts (the backend refreshes the token).
-2. Lucid's document picker appears. Pick a document or create one, choose
-   **Edit**, and click Lucid's **Insert**. That opens it in the editor. It
-   doesn't touch Word yet.
+2. The first time, Lucid's document picker appears. Pick a document or create
+   one, click **Continue**, keep **Edit** and click Lucid's **Insert**. That
+   opens it in the editor (it doesn't touch Word yet). After that the pane
+   opens straight on the last diagram you used.
 3. Draw. Lucid saves as you go.
-4. **Insert new** puts the diagram below the cursor, centred and scaled to fit
-   the page width, with a figure caption under it.
+4. **Insert** puts the diagram below the cursor, centred and scaled to fit the
+   page, with a figure caption under it, and leaves the cursor below the figure.
 
 ### How editing works
 
@@ -32,37 +33,49 @@ either saves to Lucid by itself. The pictures in Word are snapshots: each
 records the Lucid version it was made from, and changes only when you update
 it.
 
-The bar above the editor names the diagram in it, with **Open in Lucid ↗**
-(more room, and Lucid features that don't work inside Word, like Create with
-AI), **↻ Reload** (reloads the editor so it shows changes made elsewhere, e.g.
-on lucid.app; the pane also says when the diagram changed there),
-**Switch diagram** (back to Lucid's picker) and **?** (this explanation).
+The bar above the editor has:
+
+- **The diagram menu**, showing the diagram in the editor. It opens others:
+  the diagrams already in this document (choosing one also selects its
+  picture), the ones you used recently, or **Browse or create in Lucid...**
+  (Lucid's picker). Diagrams from the document and recent ones open straight
+  in the editor.
+- **↗** opens the diagram on lucid.app (more room, and Lucid features that don't
+  work inside Word, like Create with AI); **↻** reloads the editor so it shows
+  changes made elsewhere (the pane also says when the diagram changed there);
+  **?** explains all this.
+- **Page for Word**, for a document with several pages: which page Insert uses.
 
 The buttons at the bottom act on whatever is selected in Word, and the line
 above them says what that is and whether it's up to date with Lucid:
 
-- **Insert new** puts the editor's diagram below the cursor, centred and
-  scaled to fit the page width, with a caption. For a document with several
-  pages, the page chooser in the bar picks which one.
-- **Update selected** brings the selected picture up to date with the editor's
-  diagram. It turns blue when the picture is out of date. It keeps the
-  picture's width, so resizing in Word sticks.
+- **Insert** puts the editor's diagram below the cursor (below the caption, if
+  the cursor is on a figure).
+- **Update** brings the selected picture up to date with the editor's diagram.
+  It turns blue when the picture is out of date. It keeps the picture's width,
+  so resizing in Word sticks.
 - When the selected picture is a *different* diagram, the same button reads
-  **Replace selected** and turns that picture into the editor's diagram.
-- With nothing selected, it targets the picture you last inserted or loaded,
-  so load → edit → update needs no trip back to the document. It never touches
+  **Replace** and turns that picture into the editor's diagram.
+- With nothing selected, it targets the picture you last inserted or opened,
+  so open → edit → update needs no trip back to the document. It never touches
   a picture that isn't one of these diagrams.
-- **Load selected** opens the selected picture's diagram in the editor, and
+- **Edit selected** opens the selected picture's diagram in the editor, and
   sets the page chooser to the page the picture shows. Updating a picture keeps
   its page; replacing one with another diagram uses the chooser's page.
 
 Renaming a diagram in Lucid shows up in the bar within about 10 seconds (the
 pane asks Lucid; the embed doesn't announce renames). A picture made before the
-rename shows as out of date, and **Update selected** brings its name in line,
-along with its caption, unless you've reworded the caption by hand: only a
-caption whose title still matches the old name changes. Update never adds or
-removes captions. A picture inserted before Mermaid support also shows as out
-of date, and Update adds the Mermaid.
+rename shows as out of date, and **Update** brings its name in line, along with
+its caption, unless you've reworded the caption by hand: only a caption whose
+title still matches the old name changes. Update never adds or removes
+captions. A picture inserted before Mermaid support also shows as out of date,
+and Update adds the Mermaid.
+
+Captions are real Word captions (Caption style, numbered by a field that Word
+renumbers and lists in a Table of Figures) where Word allows. Word on the web
+has neither, so there they look the same but are typed: small italic text,
+numbered in document order, and renumbered whenever a figure is inserted
+above others.
 
 ### Image quality
 
@@ -71,17 +84,18 @@ each export is sized for about 400 pixels per inch at the width the picture
 has in Word. That's a re-export at a higher DPI when needed, so the first
 export of a changed diagram can take a few seconds. Anything far sharper
 than 600 ppi is scaled down in the pane with high-quality resampling.
-**Update selected** always re-exports for the picture's current width, so
-after enlarging a picture in Word, Update makes it sharp again.
+**Update** always re-exports for the picture's current width, so after
+enlarging a picture in Word, Update makes it sharp again. New pictures fit
+the page both ways: at most 6.5in wide and 8.5in tall.
 
-**Pages made from Mermaid code in Lucid** ("diagram as code") are the exception: Lucid's export piles their shapes on top of each other, so the add-in draws those pages itself from their Mermaid, at the same ~400 ppi, in Mermaid's own style (which is how Lucid draws them too). The page chooser marks them "(Mermaid code)".
+**Flowcharts made from Mermaid code in Lucid** ("diagram as code") are the exception: Lucid's export piles their shapes on top of each other, so the add-in draws those pages itself from their Mermaid, at the same ~400 ppi, in Mermaid's own style (which is how Lucid draws them too). The page chooser marks them "(Mermaid code)". Other Mermaid code (sequence, class, state...) is a single picture in Lucid and exports normally.
 
 A big diagram squeezed onto the page has physically small text, which no
 resolution fixes at 100% zoom; the status line says when a picture is shown
 at under 60% of its Lucid size.
 
 If the editor ever doesn't pick up which diagram you opened (Insert stays
-grey), open **Diagram not detected?** and paste the diagram's lucid.app URL.
+grey), paste the diagram's lucid.app URL at the bottom of **?**.
 
 The export is cached per Lucid version and starts when the pointer reaches the buttons, so
 inserting an unchanged diagram is quick.
@@ -105,25 +119,42 @@ inserting an unchanged diagram is quick.
       ...
     ```
 
-The embed id is what lets **Load selected** jump straight back into the
-editor (it's missing if the diagram was inserted from a pasted URL); the
+The embed id is what lets **Edit selected** jump straight back into the
+editor (if it's missing, from a pasted URL, the backend makes one when Lucid allows); the
 version is how the pane tells a picture is out of date; the page is which page
 of the Lucid document the picture shows.
 
 ### The Mermaid
 
-`mermaid.js` translates the picture's Lucid page into a Mermaid flowchart:
-every shape with text becomes a node (decision, terminator, database and other
-shapes map to Mermaid's matching node shapes), every connector an arrow with
-its label and direction, and containers (frames, swimlanes) subgraphs. A
-connected shape with no text, typically an icon whose title was cleared, is
-named after its Lucid class (`AzureCosmosDBAzure2024` → "Azure Cosmos DB").
-Free-standing text and connectors with a loose end become `%%` comments.
-Lucid's API gives no positions, so it's the structure that's preserved; nodes
-are listed in the order the arrows flow, and Mermaid lays them out itself.
-Custom shape data isn't included. Sequence and ER diagrams currently come out
-as flowcharts too (readable, not idiomatic); they get `sequenceDiagram` /
-`erDiagram` forms once there are real examples to build them from.
+`mermaid.js` translates the picture's Lucid page into Mermaid. Most pages
+become a flowchart: every shape with text becomes a node (decision,
+terminator, database, BPMN and other shapes map to Mermaid's matching node
+shapes), every connector an arrow with its label and direction (BPMN message
+flows dashed), and containers (frames, swimlanes, pools, cloud groups)
+subgraphs. A cloud or network icon is named after its Lucid class when it has
+no text, and keeps that service name next to its own when its title doesn't
+say it ("S3 Static Website (Amazon Simple Storage Service Bucket With
+Objects)"). Free-standing text and connectors with a loose end become `%%`
+comments. Lucid's API gives no positions, so it's the structure that's
+preserved; nodes are listed in the order the arrows flow, and Mermaid lays them
+out itself. That also means a swimlane's lanes are named but which lane each
+step is in isn't known (the output says so).
+
+Pages drawn with Lucid's own libraries for other kinds of diagram get
+Mermaid's matching form (`uml.js`):
+
+| Lucid page | Mermaid |
+|---|---|
+| UML sequence (lifelines, activations, alt/opt/loop) | `sequenceDiagram`, with replies and async messages; which lifeline an activation bar is on is inferred |
+| Entity relationship (ERD entities, crow's foot) | `erDiagram` with keys, types and cardinality |
+| UML class | `classDiagram` with members, inheritance, composition, multiplicities |
+| UML state machine | `stateDiagram-v2` with guards, composite states |
+| Mind map | `mindmap` |
+
+Mermaid code pasted or imported into Lucid that isn't a flowchart is kept by
+Lucid as a picture of Mermaid's drawing, without the code; `svg.js` reads it
+back (sequence, class and state diagrams fully, anything else as its text).
+Custom shape data isn't included.
 
 ### Pointing an LLM at the diagrams
 
@@ -199,8 +230,8 @@ Page As).
 |---|---|
 | Can't reach the add-in's backend | Start `node server.js`. If it's running, allow local network access for tigerbitten.github.io in the browser's site settings. |
 | Lucid refused the request (403) | Either your account can't open that diagram, or a scope is missing on the OAuth client (add it, then sign in again). |
-| The editor says "only signed in users… can access" | Log in to lucid.app in a browser tab (the embed uses that session), then **Switch diagram**. |
-| A Lucid button in the editor does nothing (e.g. Create with AI) | Use **Open in Lucid ↗**; the full editor has everything. Same diagram, so **Update selected** picks the result up. |
+| The editor says "only signed in users… can access" | Log in to lucid.app in a browser tab (the embed uses that session), then pick the diagram again from the menu. |
+| A Lucid button in the editor does nothing (e.g. Create with AI) | Use **↗** (Open in Lucid); the full editor has everything. Same diagram, so **Update** picks the result up. |
 | Update put in an older version | Lucid saves edits a second or two after you make them. Wait a moment and update again; the status line shows when a picture is out of date. |
 | Word didn't respond | Retry. If it repeats, reload the add-in. In Word on the web, this one is still being chased. |
 | The build marker isn't the latest | Word cached the old pane. Re-download and re-upload the manifest, or use a private window. |
@@ -214,7 +245,10 @@ The backend console logs every Lucid API call.
 |---|---|
 | `taskpane.html` | The whole pane: UI, Lucid embed, every Office.js call |
 | `server.js` | Local backend: OAuth, token refresh, embed tokens, PNG export, Lucid contents |
-| `mermaid.js` | Lucid page contents → Mermaid flowchart (used by `server.js`) |
+| `mermaid.js` | Lucid page contents → Mermaid (used by `server.js`): flowcharts, and the dispatch to the next two |
+| `uml.js` | Sequence, ER, class, state and mind-map pages → their own Mermaid forms |
+| `svg.js` | Mermaid code Lucid keeps as a picture → Mermaid again |
+| `dev/` | Testing without a person: drive Word on the web in a test Chrome, translator fixtures from real Lucid diagrams checked against Mermaid's parser (see `CLAUDE.md`) |
 | `notes.md` | What Lucid's embed and REST APIs can and can't do, for planning features |
 | `manifest.xml` | Points Word at the pane on GitHub Pages |
 | `icon.svg` | The icon; `icon-32.png` / `icon-64.png` are it at manifest sizes |
