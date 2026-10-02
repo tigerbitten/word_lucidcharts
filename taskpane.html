@@ -86,7 +86,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v40</span>
+  <span id="build">build v41</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -195,6 +195,11 @@ function refreshButtons() {
     : `Put the diagram in the editor ("${current.title}") in place of the selected picture`;
   $("replace").className = same && stale ? "primary" : "";
   $("load").disabled = !ready || selected.kind !== "ours";
+  // While Lucid's picker shows (no diagram open), Insert and Update can't do
+  // anything, and the picker needs the room: only Edit selected stays, when a
+  // diagram picture is selected (it opens that picture's diagram).
+  $("insert").hidden = $("replace").hidden = !current;
+  $("load").hidden = !current && selected.kind !== "ours";
   $("load").title = selected.kind === "ours" ? "Open the selected picture's diagram in the editor" : "Select a diagram picture in the document to edit its diagram";
   $("diagram").disabled = busy;
   $("lucid").disabled = !current;
@@ -397,7 +402,7 @@ async function start() {
       if (!lastUsed) await loadEditor(back ? current.embedId : null);
       if (lastUsed) setCurrent(lastUsed, lastUsed.title);
       say(back ? "Connected. Carry on editing." : lastUsed ? `Opened "${lastUsed.title}", the last diagram you used. The menu above opens others.`
-        : "Pick a diagram (or New) in Lucid's window below, then Continue and Insert.");
+        : "Pick a diagram (or New) in Lucid's window above, then Continue and Insert.");
     } else {
       showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });
       say("Not signed in.");
@@ -869,7 +874,7 @@ $("diagram").onchange = () => {
   if (kind === "browse") return act("Opening Lucid's document picker...", async () => {
     current = null;
     await loadEditor();
-    say("Pick a diagram (or New) in Lucid's window below, then Continue and Insert.");
+    say("Pick a diagram (or New) in Lucid's window above, then Continue and Insert.");
   });
   // A diagram from this document: select its picture, so the buttons act on it, and open it.
   if (kind === "doc") return act("Opening...", async () => {
