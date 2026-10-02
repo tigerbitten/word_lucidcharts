@@ -62,6 +62,25 @@ Two stages:
 - The pane also runs in a plain browser with the Word buttons disabled, which
   is how the Lucid side can be tested without Word.
 
+## Testing in real Word (no human needed)
+
+Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
+
+- `dev/chrome.ps1` starts it (own profile, Microsoft + Lucid signed in, opens
+  "Claude's test doc"). Keep the window un-minimised or screenshots hang.
+- `node dev/serve.js` (keep it running in the background) answers the pane's
+  GitHub Pages URLs from the local files, so a change is live on the next pane
+  reload (`node dev/cdp.js eval taskpane.html "location.reload()"`): no push and
+  no `?v=N` bump needed while testing.
+- `node server.js` in the background too; restart it after editing `server.js`
+  or `mermaid.js`.
+- `dev/cdp.js`: `eval` (Office.js runs in the `taskpane.html` frame, so
+  `Word.run` reads the document), `click` (trusted mouse click, works in Lucid's
+  frames too), `file`, `shot`.
+
+The user allows: anything in Claude's test doc, any of their Lucid diagrams.
+Commit locally; the user pushes.
+
 ## Style
 
 Goal: minimalistic, short, code that works. Not clever, not complete, not
