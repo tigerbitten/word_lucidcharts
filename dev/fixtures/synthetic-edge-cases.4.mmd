@@ -1,0 +1,8 @@
+flowchart TD
+  n1["Web order"]
+  n2["Phone order"]
+  n3["Fax order"]
+  n4["Validate order"]
+  n1 --> n4
+  n2 -->|"joins"| n4
+  n3 --> n4

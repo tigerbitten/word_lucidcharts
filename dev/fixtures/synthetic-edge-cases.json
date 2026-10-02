@@ -502,6 +502,97 @@
      }
     ]
    }
+  },
+  {
+   "id": "p4",
+   "title": "junction",
+   "items": {
+    "shapes": [
+     {
+      "id": "a",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Web order"
+       }
+      ]
+     },
+     {
+      "id": "b",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Phone order"
+       }
+      ]
+     },
+     {
+      "id": "c",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Validate order"
+       }
+      ]
+     },
+     {
+      "id": "d",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Fax order"
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "main",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "a"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "c"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "join",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "main"
+      },
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "joins"
+       }
+      ]
+     },
+     {
+      "id": "join2",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "d"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "join"
+      },
+      "textAreas": []
+     }
+    ]
+   }
   }
  ]
 }

@@ -113,13 +113,23 @@ function pageToMermaid(page) {
   // Normalise connectors to "from -> to" with the arrowhead at `to`.
   const connected = new Set();
   const edges = [], loose = [];
+  // Not every end style is an arrowhead: BPMN marks a conditional or default
+  // flow, and a message flow's start, on the source end.
+  const head = style => !!style && style !== "None" && !/conditional|default|circle|diamond|bar|dot/i.test(style);
+  // A connector can end on another connector (joining a flow part-way); it
+  // then leads where that one leads: its arrowhead end, else its second end.
+  const resolve = (id, seen = new Set()) => {
+    const l = linesById.get(id);
+    if (!l || seen.has(id)) return id;
+    seen.add(id);
+    return resolve(head(l.endpoint1.style) && !head(l.endpoint2.style) ? l.endpoint1.connectedTo : l.endpoint2.connectedTo, seen);
+  };
   for (const l of lines) {
-    let a = l.endpoint1.connectedTo, b = l.endpoint2.connectedTo;
+    let a = resolve(l.endpoint1.connectedTo), b = resolve(l.endpoint2.connectedTo);
     if (!byId.has(a) || !byId.has(b)) { loose.push(l); continue; }
-    // Not every end style is an arrowhead: BPMN marks a conditional or default
-    // flow, and a message flow's start, on the source end.
-    const head = style => !!style && style !== "None" && !/conditional|default|circle|diamond|bar|dot/i.test(style);
-    const arrowA = head(l.endpoint1.style), arrowB = head(l.endpoint2.style);
+    let arrowA = head(l.endpoint1.style), arrowB = head(l.endpoint2.style);
+    // A plain line ending on another line feeds into that line's flow.
+    if (!arrowA && !arrowB) [arrowA, arrowB] = [linesById.has(l.endpoint1.connectedTo), linesById.has(l.endpoint2.connectedTo)];
     // A BPMN message flow (hollow circle at its start) is dashed.
     const message = /hollow circle/i.test(l.endpoint1.style + " " + l.endpoint2.style);
     if (arrowA && !arrowB) [a, b] = [b, a];
