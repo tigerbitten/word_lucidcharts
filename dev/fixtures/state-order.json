@@ -1,0 +1,362 @@
+{
+ "id": "934105fa-6c11-4ffa-8989-9a3bd91f516a",
+ "title": "Blank diagram",
+ "version": 1135,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "tfHzzo5qSbuE",
+      "class": "UMLStateBlock",
+      "textAreas": [
+       {
+        "label": "State",
+        "text": "Refunded"
+       },
+       {
+        "label": "Action",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHzknz4M9ij",
+      "class": "UMLStateBlock",
+      "textAreas": [
+       {
+        "label": "State",
+        "text": "Cancelled"
+       },
+       {
+        "label": "Action",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHzZH.hIl2P",
+      "class": "UMLStateBlock",
+      "textAreas": [
+       {
+        "label": "State",
+        "text": "Paid"
+       },
+       {
+        "label": "Action",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHzGr8jVrEt",
+      "class": "UMLStateBlock",
+      "textAreas": [
+       {
+        "label": "State",
+        "text": "Packed"
+       },
+       {
+        "label": "Action",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHzlj2cukuQ",
+      "class": "UMLStateBlock",
+      "textAreas": [
+       {
+        "label": "State",
+        "text": "Pending"
+       },
+       {
+        "label": "Action",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHz65XBdv5y",
+      "class": "UMLEndBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHzz~VKWzVH",
+      "class": "UMLStateBlock",
+      "textAreas": [
+       {
+        "label": "State",
+        "text": "Shipped"
+       },
+       {
+        "label": "Action",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHz8Hfwl.LA",
+      "class": "UMLStateBlock",
+      "textAreas": [
+       {
+        "label": "State",
+        "text": "Delivered"
+       },
+       {
+        "label": "Action",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tfHzD9DqXOhY",
+      "class": "UMLStartBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "CfHznNyD.sN2",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzlj2cukuQ"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzZH.hIl2P"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "payment received [authorized]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "qeHzAhns8Yhf",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": null
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": null
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "cancel [before packing]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHz~xXPFjRw",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzz~VKWzVH"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHz8Hfwl.LA"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "deliver [delivery confirmed]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHzVxDX~FE8",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzGr8jVrEt"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzz~VKWzVH"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "ship [carrier assigned]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHz78I.sSEp",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzlj2cukuQ"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzknz4M9ij"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "cancel [before payment]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHzWMb3dfMI",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzzo5qSbuE"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHz65XBdv5y"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "complete"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHz5fuQWKpg",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHz8Hfwl.LA"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzzo5qSbuE"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "refund request [approved]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHzpTKAzvLh",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzZH.hIl2P"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzknz4M9ij"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "cancel [before packing]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHzVa7cP7hm",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzZH.hIl2P"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzGr8jVrEt"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "pack order [inventory available]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHz_69_p59L",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzD9DqXOhY"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzlj2cukuQ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "place order"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CfHzF3PEZYda",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tfHzknz4M9ij"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "tfHzzo5qSbuE"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "refund [payment captured]"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

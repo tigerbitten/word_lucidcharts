@@ -2,6 +2,8 @@
 // Mermaid flowchart. Lucid's contents have shapes, connectors and containment
 // but no positions, so this describes structure and leaves layout to Mermaid.
 // Containers (frames, swimlanes) become subgraphs; everything else a node.
+// Sequence, ER, class and state diagrams get their own Mermaid forms (uml.js).
+const { umlToMermaid } = require("./uml.js");
 
 // Lucid shape class -> Mermaid node brackets. First match wins; default is a box.
 const SHAPES = [
@@ -13,6 +15,10 @@ const SHAPES = [
   [/predefined|subroutine/i, '[["', '"]]'],
   [/parallelogram|inputoutput|dataio/i, '[/"', '"/]'],
   [/rounded/i, '("', '")'],
+  // BPMN: gateways are diamonds, events circles, tasks rounded boxes.
+  [/BPMNGateway/, '{"', '"}'],
+  [/BPMNEvent/, '(("', '"))'],
+  [/BPMNActivity/, '("', '")'],
 ];
 
 // Mermaid labels are quoted, so quotes become entities and line breaks <br>.
@@ -49,183 +55,11 @@ function nodeLabel(s) {
   return named ? text : `${text}\n(${type})`;
 }
 
-// Sequence-diagram text: no line breaks, and ";" / "#" are statement and
-// entity syntax there, so they become entities too.
-const seqText = text => text.split("\n").map(l => l.trim()).filter(Boolean).join("<br>")
-  .replace(/#/g, "#35;").replace(/;/g, "#59;").replace(/"/g, "#quot;");
-
-// A UML sequence diagram, as Lucid draws one: each participant is a pair of
-// heads (UMLObjectBlock, or UMLActorBlock for an actor) joined by an arrowless
-// line, the lifeline. Messages are lines from a lifeline or an activation bar
-// (UMLActivationBlock) to another. Fragments (UMLOptionLoopBlock: loop, opt...;
-// UMLAlternativeBlock2: alt) list the messages inside them. Lucid lists lines
-// in the order they were drawn, which is the order the messages happen.
-// Returns null when the page has no lifelines.
-function sequenceToMermaid(shapes, lines) {
-  const byId = new Map(shapes.map(s => [s.id, s]));
-  const isHead = id => byId.has(id) && /^UML(Object|Actor)/.test(byId.get(id).class);
-  const lifelines = lines.filter(l => isHead(l.endpoint1.connectedTo) && isHead(l.endpoint2.connectedTo)
-    && textOf(byId.get(l.endpoint1.connectedTo)) === textOf(byId.get(l.endpoint2.connectedTo)));
-  if (!lifelines.length) return null;
-  // Participants in the order Lucid lists their heads (left to right, as drawn).
-  const owner = new Map(); // lifeline, head or activation id -> participant index
-  const participants = [];
-  for (const s of shapes.filter(s => isHead(s.id))) {
-    const l = lifelines.find(l => l.endpoint1.connectedTo === s.id || l.endpoint2.connectedTo === s.id);
-    if (!l || owner.has(l.id)) continue;
-    owner.set(l.id, participants.length);
-    owner.set(l.endpoint1.connectedTo, participants.length);
-    owner.set(l.endpoint2.connectedTo, participants.length);
-    participants.push({ name: textOf(s), actor: /Actor/.test(s.class) });
-  }
-  const activations = shapes.filter(s => /^UMLActivation/.test(s.class)).map(s => s.id);
-  const isEnd = id => owner.has(id) || activations.includes(id);
-  const messages = lines.filter(l => !lifelines.includes(l) && isEnd(l.endpoint1.connectedTo) && isEnd(l.endpoint2.connectedTo));
-
-  // Which lifeline an activation bar sits on is only in the drawing, so it's
-  // inferred: a bar isn't on the lifeline it exchanges messages with (a
-  // message from a bar to itself is a self call), every participant takes
-  // part in something, and Lucid lists bars lifeline by lifeline, left to
-  // right. The first placement (leftmost first) meeting all three wins; if
-  // none does, each bar goes on the first lifeline that's not at the other
-  // end of its messages.
-  const others = id => messages.flatMap(m => m.endpoint1.connectedTo === id && m.endpoint2.connectedTo !== id ? [m.endpoint2.connectedTo]
-    : m.endpoint2.connectedTo === id && m.endpoint1.connectedTo !== id ? [m.endpoint1.connectedTo] : []);
-  const direct = new Set(messages.flatMap(m => [m.endpoint1.connectedTo, m.endpoint2.connectedTo]).filter(id => owner.has(id)).map(id => owner.get(id)));
-  const fits = (a, p, placed) => others(a).every(o => (owner.has(o) ? owner.get(o) : placed.get(o)) !== p);
-  const place = (i, from, placed) => {
-    if (i === activations.length) {
-      const used = new Set([...direct, ...placed.values()]);
-      return participants.every((_, p) => used.has(p)) ? placed : null;
-    }
-    for (let p = from; p < participants.length; p++) {
-      if (!fits(activations[i], p, placed)) continue;
-      const done = place(i + 1, p, new Map(placed).set(activations[i], p));
-      if (done) return done;
-    }
-    return null;
-  };
-  let placed = activations.length <= 40 && place(0, 0, new Map());
-  if (!placed) {
-    placed = new Map();
-    for (const a of activations) placed.set(a, Math.max(0, participants.findIndex((_, p) => fits(a, p, placed))));
-  }
-  const who = id => owner.has(id) ? owner.get(id) : placed.get(id);
-
-  // A message back to a participant whose call is still unanswered is the
-  // reply to it (Lucid draws those dashed, but the API doesn't say so). An
-  // open arrowhead is an asynchronous message.
-  const fragments = shapes.filter(s => /^UML(OptionLoop|Alternative)/.test(s.class) && s.contains)
-    .map(s => ({ s, msgs: messages.filter(m => s.contains.lines.includes(m.id)) })).filter(f => f.msgs.length);
-  const out = ["sequenceDiagram"];
-  const titles = [...new Set(shapes.filter(s => /Frame|Text/.test(s.class) && textOf(s)).map(textOf))];
-  if (titles.length === 1) out.push(`  title ${seqText(titles[0])}`);
-  participants.forEach((p, i) => out.push(`  ${p.actor ? "actor" : "participant"} p${i + 1} as ${seqText(p.name)}`));
-
-  // Messages in drawing order; a fragment opens at its first message and
-  // holds all of its own, a fragment inside it being one whose messages are a
-  // subset. An alt's branches aren't recorded either: a branch starts where a
-  // message repeats the sender and receiver of the alt's first one.
-  function emit(msgs, frags, pad, calls) {
-    const done = new Set();
-    for (const m of msgs) {
-      if (done.has(m)) continue;
-      const f = frags.find(f => f.msgs.includes(m) && !frags.some(g => g !== f && g.msgs.length > f.msgs.length && f.msgs.every(x => g.msgs.includes(x))));
-      if (f) {
-        const inner = frags.filter(g => g !== f && g.msgs.every(x => f.msgs.includes(x)));
-        const areas = f.s.textAreas || [];
-        const title = (areas.find(t => t.label === "Title") || {}).text || "";
-        const cond = t => (t || "").replace(/^\s*\[|\]\s*$/g, "").trim();
-        if (/^UMLAlternative/.test(f.s.class)) {
-          const conds = areas.filter(t => /^(Condition|Else\d+)$/.test(t.label)).map(t => cond(t.text));
-          const first = f.msgs[0];
-          const branches = [[]];
-          for (const x of f.msgs) {
-            if (x !== first && branches.length < conds.length && who(x.endpoint1.connectedTo) === who(first.endpoint1.connectedTo)
-              && who(x.endpoint2.connectedTo) === who(first.endpoint2.connectedTo)) branches.push([]);
-            branches[branches.length - 1].push(x);
-          }
-          conds.forEach((c, i) => {
-            out.push(`${pad}${i ? "else" : "alt"} ${seqText(c)}`);
-            emit(branches[i] || [], inner, pad + "  ", [...calls]);
-          });
-        } else {
-          const kind = (title.match(/^\s*(loop|opt|par|break|critical)/i) || [, "opt"])[1].toLowerCase();
-          const text = (areas.find(t => t.label === "Text") || {}).text;
-          out.push(`${pad}${kind} ${seqText(cond(text) || (kind === "opt" && !/^\s*opt/i.test(title) ? title : ""))}`);
-          emit(f.msgs, inner, pad + "  ", calls);
-        }
-        out.push(`${pad}end`);
-        f.msgs.forEach(x => done.add(x));
-        continue;
-      }
-      let [a, b] = [m.endpoint1, m.endpoint2];
-      if (a.style && a.style !== "None" && (!b.style || b.style === "None")) [a, b] = [b, a];
-      const from = who(a.connectedTo), to = who(b.connectedTo);
-      const open = calls.lastIndexOf(`${to}>${from}`);
-      const async = /open/i.test(b.style || "");
-      const arrow = from !== to && open >= 0 && !async ? "-->>" : async ? "-)" : "->>";
-      if (arrow === "-->>") calls.splice(open, 1);
-      else if (from !== to) calls.push(`${from}>${to}`);
-      out.push(`${pad}p${from + 1}${arrow}p${to + 1}: ${seqText(textOf(m))}`);
-      done.add(m);
-    }
-  }
-  emit(messages, fragments, "  ", []);
-  for (const s of shapes) if (/Text|Note/.test(s.class) && textOf(s) && !titles.includes(textOf(s))) out.push(`  %% note: ${textOf(s).replace(/\s+/g, " ")}`);
-  return out.join("\n");
-}
-
-// An entity-relationship diagram: Lucid's entity shapes (ERDEntityBlock4 and
-// kin) hold a Name text area and numbered rows, Key1/Field1/Type1 and so on;
-// relationships are lines whose ends are crow's-foot styles ("CFN ERD Zero Or
-// More Arrow"). Returns null when the page has no entities.
-function erToMermaid(shapes, lines) {
-  const entities = shapes.filter(s => /^ERDEntity/.test(s.class));
-  if (!entities.length) return null;
-  const ids = new Map(entities.map((s, i) => [s.id, "e" + (i + 1)]));
-  const quote = t => `"${t.replace(/\s+/g, " ").trim().replace(/"/g, "#quot;")}"`;
-  const word = t => t.trim().replace(/\s+/g, "_").replace(/[^\w\-()[\],.]/g, "") || "_";
-  const out = ["erDiagram"];
-  for (const s of entities) {
-    const areas = s.textAreas || [];
-    const name = (areas.find(t => t.label === "Name") || {}).text || textOf(s).split("\n")[0] || "entity";
-    out.push(`  ${ids.get(s.id)}[${quote(name)}] {`);
-    const rows = new Map(); // row number -> { Key, Field, Type }
-    for (const t of areas) {
-      const m = t.label.match(/^(Key|Field|Type)(\d+)$/);
-      if (m) rows.set(+m[2], { ...rows.get(+m[2]), [m[1]]: (t.text || "").trim() });
-    }
-    for (const [, r] of [...rows].sort((a, b) => a[0] - b[0])) {
-      if (!r.Field) continue;
-      // "VARCHAR(255) NOT NULL": Mermaid's type is one word, the rest is a comment.
-      const [type, ...more] = (r.Type || "").split(/\s+/);
-      // Lucid's alternate key (AK) is what Mermaid calls a unique key (UK).
-      const keys = (r.Key || "").toUpperCase().split(/[\s,/]+/).map(k => k === "AK" ? "UK" : k).filter(k => /^(PK|FK|UK)$/.test(k));
-      out.push(`    ${word(type || "_")} ${word(r.Field)}${keys.length ? " " + keys.join(", ") : ""}${more.length ? " " + quote(more.join(" ")) : ""}`);
-    }
-    out.push("  }");
-  }
-  // Crow's-foot ends, as Mermaid writes them on the left / right of "--".
-  const end = (style, left) => {
-    const s = (style || "").toLowerCase();
-    const [l, r] = /zero or one/.test(s) ? ["|o", "o|"] : /one or more/.test(s) ? ["}|", "|{"]
-      : /zero or more|many/.test(s) ? ["}o", "o{"] : ["||", "||"];
-    return left ? l : r;
-  };
-  for (const l of lines) {
-    const a = ids.get(l.endpoint1.connectedTo), b = ids.get(l.endpoint2.connectedTo);
-    if (a && b) out.push(`  ${a} ${end(l.endpoint1.style, true)}--${end(l.endpoint2.style, false)} ${b} : ${quote(textOf(l))}`);
-  }
-  for (const s of shapes) if (!ids.has(s.id) && textOf(s)) out.push(`  %% note: ${textOf(s).replace(/\s+/g, " ")}`);
-  return out.join("\n");
-}
-
 function pageToMermaid(page) {
   const shapes = (page.items && page.items.shapes) || [];
   const lines = (page.items && page.items.lines) || [];
-  const special = sequenceToMermaid(shapes, lines) || erToMermaid(shapes, lines);
-  if (special) return special;
+  const uml = umlToMermaid(shapes, lines);
+  if (uml) return uml;
   const byId = new Map(shapes.map(s => [s.id, s]));
   const linesById = new Map(lines.map(l => [l.id, l]));
   // A container's members are the shapes it lists.
@@ -277,10 +111,14 @@ function pageToMermaid(page) {
   for (const l of lines) {
     let a = l.endpoint1.connectedTo, b = l.endpoint2.connectedTo;
     if (!byId.has(a) || !byId.has(b)) { loose.push(l); continue; }
-    const arrowA = l.endpoint1.style && l.endpoint1.style !== "None";
-    const arrowB = l.endpoint2.style && l.endpoint2.style !== "None";
+    // Not every end style is an arrowhead: BPMN marks a conditional or default
+    // flow, and a message flow's start, on the source end.
+    const head = style => !!style && style !== "None" && !/conditional|default|circle|diamond|bar|dot/i.test(style);
+    const arrowA = head(l.endpoint1.style), arrowB = head(l.endpoint2.style);
+    // A BPMN message flow (hollow circle at its start) is dashed.
+    const message = /hollow circle/i.test(l.endpoint1.style + " " + l.endpoint2.style);
     if (arrowA && !arrowB) [a, b] = [b, a];
-    edges.push({ from: a, to: b, kind: arrowA && arrowB ? "<-->" : arrowA || arrowB ? "-->" : "---", text: textOf(l) });
+    edges.push({ from: a, to: b, kind: message ? "-.->" : arrowA && arrowB ? "<-->" : arrowA || arrowB ? "-->" : "---", text: textOf(l) });
     connected.add(a); connected.add(b);
   }
 

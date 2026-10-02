@@ -1,0 +1,404 @@
+{
+ "id": "9f018c83-5365-42b4-b3d8-5c8246f6fb48",
+ "title": "Blank diagram",
+ "version": 303,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "eeHzSAXBz7fP",
+      "class": "UMLClassBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Book"
+       },
+       {
+        "label": "Text1",
+        "text": "-isbn: String\n-title: String\n-publicationYear: int\n-available: boolean"
+       },
+       {
+        "label": "Text2",
+        "text": "+checkout(): void\n+checkin(): void\n+isAvailable(): boolean"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "eeHz1szgesJO",
+      "class": "UMLClassBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Person"
+       },
+       {
+        "label": "Text1",
+        "text": "-name: String\n-email: String\n-phone: String"
+       },
+       {
+        "label": "Text2",
+        "text": "+getContactInfo(): String\n+updateContactInfo(email: String, phone: String): void"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "eeHzpeXy4KZj",
+      "class": "UMLClassBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Member"
+       },
+       {
+        "label": "Text1",
+        "text": "-memberId: String\n-joinDate: Date\n-status: String"
+       },
+       {
+        "label": "Text2",
+        "text": "+borrowBook(book: Book): Loan\n+returnBook(loan: Loan): void"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "eeHzyFOSL~Eu",
+      "class": "UMLClassBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Author"
+       },
+       {
+        "label": "Text1",
+        "text": "-authorId: String\n-name: String\n-biography: String"
+       },
+       {
+        "label": "Text2",
+        "text": "+getBooks(): List~Book~"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "eeHzH75j2gjT",
+      "class": "UMLClassBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Librarian"
+       },
+       {
+        "label": "Text1",
+        "text": "-employeeId: String\n-hireDate: Date"
+       },
+       {
+        "label": "Text2",
+        "text": "+addBook(book: Book): void\n+removeBook(bookId: String): void\n+registerMember(member: Member): void"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "eeHzyP.gA1cS",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Library System Class Diagram"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "eeHz1szgesJO",
+        "eeHzH75j2gjT",
+        "eeHzSAXBz7fP",
+        "eeHzpeXy4KZj",
+        "eeHzrO9-Lx1g",
+        "eeHzyFOSL~Eu"
+       ],
+       "lines": [
+        "eeHz2D98loJb",
+        "eeHz8aSNCPZU",
+        "eeHz9pDxQk~o",
+        "eeHzIYDVmOCr",
+        "eeHzci38sA9Y",
+        "eeHzlenIAizJ"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "eeHzrO9-Lx1g",
+      "class": "UMLClassBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Loan"
+       },
+       {
+        "label": "Text1",
+        "text": "-loanId: String\n-loanDate: Date\n-dueDate: Date\n-returnDate: Date"
+       },
+       {
+        "label": "Text2",
+        "text": "+calculateFine(): double\n+closeLoan(): void"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "eeHzci38sA9Y",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eeHzH75j2gjT"
+      },
+      "endpoint2": {
+       "style": "Generalization",
+       "connectedTo": "eeHz1szgesJO"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "eeHz9pDxQk~o",
+      "endpoint1": {
+       "style": "Composition",
+       "connectedTo": "eeHzrO9-Lx1g"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "eeHzSAXBz7fP"
+      },
+      "textAreas": [
+       {
+        "label": "uml0",
+        "text": "1"
+       },
+       {
+        "label": "t0",
+        "text": "contains"
+       },
+       {
+        "label": "uml1",
+        "text": "1..*"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "eeHz2D98loJb",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eeHzyFOSL~Eu"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "eeHzSAXBz7fP"
+      },
+      "textAreas": [
+       {
+        "label": "uml0",
+        "text": "0..*"
+       },
+       {
+        "label": "t0",
+        "text": "writes"
+       },
+       {
+        "label": "uml1",
+        "text": "1..*"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "eeHzIYDVmOCr",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eeHzpeXy4KZj"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "eeHzrO9-Lx1g"
+      },
+      "textAreas": [
+       {
+        "label": "uml0",
+        "text": "1"
+       },
+       {
+        "label": "t0",
+        "text": "borrows"
+       },
+       {
+        "label": "uml1",
+        "text": "0..*"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "eeHzlenIAizJ",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eeHzH75j2gjT"
+      },
+      "endpoint2": {
+       "style": "Open Arrow",
+       "connectedTo": "eeHzrO9-Lx1g"
+      },
+      "textAreas": [
+       {
+        "label": "uml0",
+        "text": "1"
+       },
+       {
+        "label": "t0",
+        "text": "handles"
+       },
+       {
+        "label": "uml1",
+        "text": "0..*"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "eeHz8aSNCPZU",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eeHzpeXy4KZj"
+      },
+      "endpoint2": {
+       "style": "Generalization",
+       "connectedTo": "eeHz1szgesJO"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

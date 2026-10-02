@@ -1,0 +1,51 @@
+classDiagram
+  class c1["Book"] {
+    -isbn: String
+    -title: String
+    -publicationYear: int
+    -available: boolean
+    +checkout(): void
+    +checkin(): void
+    +isAvailable(): boolean
+  }
+  class c2["Person"] {
+    -name: String
+    -email: String
+    -phone: String
+    +getContactInfo(): String
+    +updateContactInfo(email: String, phone: String): void
+  }
+  class c3["Member"] {
+    -memberId: String
+    -joinDate: Date
+    -status: String
+    +borrowBook(book: Book): Loan
+    +returnBook(loan: Loan): void
+  }
+  class c4["Author"] {
+    -authorId: String
+    -name: String
+    -biography: String
+    +getBooks(): List~Book~
+  }
+  class c5["Librarian"] {
+    -employeeId: String
+    -hireDate: Date
+    +addBook(book: Book): void
+    +removeBook(bookId: String): void
+    +registerMember(member: Member): void
+  }
+  class c6["Loan"] {
+    -loanId: String
+    -loanDate: Date
+    -dueDate: Date
+    -returnDate: Date
+    +calculateFine(): double
+    +closeLoan(): void
+  }
+  c5 --|> c2
+  c6 "1" *-- "1..*" c1 : contains
+  c4 "0..*" --> "1..*" c1 : writes
+  c3 "1" --> "0..*" c6 : borrows
+  c5 "1" --> "0..*" c6 : handles
+  c3 --|> c2

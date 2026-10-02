@@ -1,0 +1,557 @@
+{
+ "id": "ee89afa8-3e70-44d2-a106-550f0d529855",
+ "title": "Blank diagram",
+ "version": 1213,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "9dHz2RjXillL",
+      "class": "BPMNBlackPool",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Customer"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "KdHz9HEqRLVx",
+      "class": "BPMNActivity",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Send order to warehouse"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHzF932sAWi",
+      "class": "BPMNEvent",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Backorder requested"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHzdsczC0dN",
+      "class": "BPMNEvent",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Order fulfilled"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_2"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHz75cmCPem",
+      "class": "BPMNActivity",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Validate order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHzlOO85HSo",
+      "class": "BPMNEvent",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Notify customer"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_2"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHzAk-11xLy",
+      "class": "BPMNActivity",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Pick and pack order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHzAeLwrJz0",
+      "class": "BPMNGateway",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Stock available?"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHzPvTNlNa9",
+      "class": "BPMNActivity",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Check stock"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHz4Aq9YvTf",
+      "class": "BPMNActivity",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Ship order"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_2"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "vdHz1HXZus11",
+      "class": "BPMNAdvancedPoolBlock",
+      "textAreas": [
+       {
+        "label": "poolPrimaryTitleKey",
+        "text": "Order Fulfilment Process"
+       },
+       {
+        "label": "Primary_0",
+        "text": "Sales"
+       },
+       {
+        "label": "Primary_1",
+        "text": "Warehouse"
+       },
+       {
+        "label": "Primary_2",
+        "text": "Shipping"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "KdHz4Aq9YvTf",
+        "KdHz75cmCPem",
+        "KdHz9HEqRLVx",
+        "KdHzAeLwrJz0",
+        "KdHzAk-11xLy",
+        "KdHzF932sAWi",
+        "KdHzN..LuC7z",
+        "KdHzPvTNlNa9",
+        "KdHz_DvUUoRY",
+        "KdHzdsczC0dN",
+        "KdHzlOO85HSo"
+       ],
+       "lines": [
+        "9dHz5TQiAjB_",
+        "9dHzIiNSszNy",
+        "9dHzMXj3bVng",
+        "9dHzOSyvsKio",
+        "9dHzjRiF5jZg",
+        "9dHzjTStQiC5",
+        "9dHzx5PJCON5",
+        "9dHzzb97IHM1",
+        "9dHz~I5ZxnbU",
+        "9dHz~yDw8BAW"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "KdHzN..LuC7z",
+      "class": "BPMNActivity",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Request backorder"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "KdHz_DvUUoRY",
+      "class": "BPMNEvent",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Order received"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "9dHzjRiF5jZg",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHzlOO85HSo"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHzdsczC0dN"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHzzb97IHM1",
+      "endpoint1": {
+       "style": "BPMN Conditional",
+       "connectedTo": "KdHzAeLwrJz0"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHzAk-11xLy"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Yes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHzx5PJCON5",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHz9HEqRLVx"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHzPvTNlNa9"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHz~yDw8BAW",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHz_DvUUoRY"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHz75cmCPem"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHzOSyvsKio",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHz75cmCPem"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHz9HEqRLVx"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHz~I5ZxnbU",
+      "endpoint1": {
+       "style": "BPMN Default",
+       "connectedTo": "KdHzAeLwrJz0"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHzN..LuC7z"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "No"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHzjTStQiC5",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHzPvTNlNa9"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHzAeLwrJz0"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHzIiNSszNy",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHzAk-11xLy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHz4Aq9YvTf"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHz5TQiAjB_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHz4Aq9YvTf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHzlOO85HSo"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHz9cMspVlR",
+      "endpoint1": {
+       "style": "Centered Hollow Circle",
+       "connectedTo": "KdHzlOO85HSo"
+      },
+      "endpoint2": {
+       "style": "Hollow Arrow",
+       "connectedTo": "9dHz2RjXillL"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Shipment notification"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9dHzMXj3bVng",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "KdHzN..LuC7z"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "KdHzF932sAWi"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

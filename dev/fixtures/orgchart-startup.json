@@ -1,0 +1,1170 @@
+{
+ "id": "c96126d6-48ac-4b23-9b35-fac35962face",
+ "title": "Blank diagram",
+ "version": 89,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "wFfRLf/+XkY2s8VgjS2mTARv4Uw=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Avery Morgan"
+       },
+       {
+        "label": "t_Title",
+        "text": "CEO"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "2"
+       },
+       {
+        "key": "Tier",
+        "value": "1"
+       },
+       {
+        "key": "Total Reports",
+        "value": "13"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "ceo"
+         },
+         {
+          "key": "Name",
+          "value": "Avery Morgan"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": ""
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "CEO"
+         }
+        ],
+        "primaryKeyValue": "\"ceo\""
+       }
+      ]
+     },
+     {
+      "id": "lP0sRsGPUP/qdMChsuKPKdxs00g=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Jordan Lee"
+       },
+       {
+        "label": "t_Title",
+        "text": "CTO"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "2"
+       },
+       {
+        "key": "Tier",
+        "value": "2"
+       },
+       {
+        "key": "Total Reports",
+        "value": "7"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "cto"
+         },
+         {
+          "key": "Name",
+          "value": "Jordan Lee"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "ceo"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "CTO"
+         }
+        ],
+        "primaryKeyValue": "\"cto\""
+       }
+      ]
+     },
+     {
+      "id": "7zJjRK4ygE3Uqv+8WCjg25kTq50=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Morgan Patel"
+       },
+       {
+        "label": "t_Title",
+        "text": "Engineering Manager"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "2"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "2"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "eng-mgr-2"
+         },
+         {
+          "key": "Name",
+          "value": "Morgan Patel"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "cto"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Engineering Manager"
+         }
+        ],
+        "primaryKeyValue": "\"eng-mgr-2\""
+       }
+      ]
+     },
+     {
+      "id": "kyz3An/z9YWtzXYP7PEv9SQV5Ic=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Alex Johnson"
+       },
+       {
+        "label": "t_Title",
+        "text": "Software Engineer"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "eng-5"
+         },
+         {
+          "key": "Name",
+          "value": "Alex Johnson"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "eng-mgr-2"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Software Engineer"
+         }
+        ],
+        "primaryKeyValue": "\"eng-5\""
+       }
+      ]
+     },
+     {
+      "id": "WHl6ibIpFrSVsz6tw2+sLUXGs+g=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Jamie Kim"
+       },
+       {
+        "label": "t_Title",
+        "text": "Software Engineer"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "eng-4"
+         },
+         {
+          "key": "Name",
+          "value": "Jamie Kim"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "eng-mgr-2"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Software Engineer"
+         }
+        ],
+        "primaryKeyValue": "\"eng-4\""
+       }
+      ]
+     },
+     {
+      "id": "8zRogFNAss/YyXx5pnslrlKvL1k=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Taylor Brooks"
+       },
+       {
+        "label": "t_Title",
+        "text": "Engineering Manager"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "3"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "3"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "eng-mgr-1"
+         },
+         {
+          "key": "Name",
+          "value": "Taylor Brooks"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "cto"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Engineering Manager"
+         }
+        ],
+        "primaryKeyValue": "\"eng-mgr-1\""
+       }
+      ]
+     },
+     {
+      "id": "sA2ruKc42HEG/cWzNFu5JTL1AFg=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Casey Nguyen"
+       },
+       {
+        "label": "t_Title",
+        "text": "Software Engineer"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "eng-1"
+         },
+         {
+          "key": "Name",
+          "value": "Casey Nguyen"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "eng-mgr-1"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Software Engineer"
+         }
+        ],
+        "primaryKeyValue": "\"eng-1\""
+       }
+      ]
+     },
+     {
+      "id": "09W4OpGQjY7hmxUucRGsSgvXSDo=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Drew Wilson"
+       },
+       {
+        "label": "t_Title",
+        "text": "Software Engineer"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "eng-2"
+         },
+         {
+          "key": "Name",
+          "value": "Drew Wilson"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "eng-mgr-1"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Software Engineer"
+         }
+        ],
+        "primaryKeyValue": "\"eng-2\""
+       }
+      ]
+     },
+     {
+      "id": "aGJto2nlpOp/NhKUN5nIpLSmCfw=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Sam Rivera"
+       },
+       {
+        "label": "t_Title",
+        "text": "Software Engineer"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "eng-3"
+         },
+         {
+          "key": "Name",
+          "value": "Sam Rivera"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "eng-mgr-1"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Software Engineer"
+         }
+        ],
+        "primaryKeyValue": "\"eng-3\""
+       }
+      ]
+     },
+     {
+      "id": "1+Qc6SshZeafFN3PedwV4IlJzCg=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Riley Chen"
+       },
+       {
+        "label": "t_Title",
+        "text": "COO"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "3"
+       },
+       {
+        "key": "Tier",
+        "value": "2"
+       },
+       {
+        "key": "Total Reports",
+        "value": "4"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "coo"
+         },
+         {
+          "key": "Name",
+          "value": "Riley Chen"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "ceo"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "COO"
+         }
+        ],
+        "primaryKeyValue": "\"coo\""
+       }
+      ]
+     },
+     {
+      "id": "2eI40+dXiQGTNp+HeiRfR5yweOk=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Cameron Garcia"
+       },
+       {
+        "label": "t_Title",
+        "text": "Customer Support Lead"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "support"
+         },
+         {
+          "key": "Name",
+          "value": "Cameron Garcia"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "coo"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Customer Support Lead"
+         }
+        ],
+        "primaryKeyValue": "\"support\""
+       }
+      ]
+     },
+     {
+      "id": "9UT7KvdS1lGcDLWCDLmlm2e4rEE=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Quinn Davis"
+       },
+       {
+        "label": "t_Title",
+        "text": "Product Designer"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "designer"
+         },
+         {
+          "key": "Name",
+          "value": "Quinn Davis"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "coo"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Product Designer"
+         }
+        ],
+        "primaryKeyValue": "\"designer\""
+       }
+      ]
+     },
+     {
+      "id": "UweiPjKBMabbZdfXBLEkDDH4OOg=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Reese Thompson"
+       },
+       {
+        "label": "t_Title",
+        "text": "Sales Lead"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "sales"
+         },
+         {
+          "key": "Name",
+          "value": "Reese Thompson"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "coo"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Sales Lead"
+         }
+        ],
+        "primaryKeyValue": "\"sales\""
+       }
+      ]
+     },
+     {
+      "id": "55WV+TBh34FnTQ1ctHFE8jj/E2k=",
+      "class": "TreeNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_018__Name__",
+        "text": "Parker Smith"
+       },
+       {
+        "label": "t_Title",
+        "text": "Sales Representative"
+       }
+      ],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "0"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "0"
+       }
+      ],
+      "linkedData": [
+       {
+        "collectionId": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+        "data": [
+         {
+          "key": "Employee ID",
+          "value": "sales-rep"
+         },
+         {
+          "key": "Name",
+          "value": "Parker Smith"
+         },
+         {
+          "key": "Supervisor ID",
+          "value": "sales"
+         },
+         {
+          "key": "Image URL",
+          "value": ""
+         },
+         {
+          "key": "Title",
+          "value": "Sales Representative"
+         }
+        ],
+        "primaryKeyValue": "\"sales-rep\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "duYtHd5Dxguwn++efKBlvAbAwvg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "wFfRLf/+XkY2s8VgjS2mTARv4Uw="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "lP0sRsGPUP/qdMChsuKPKdxs00g="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "2"
+       },
+       {
+        "key": "Total Reports",
+        "value": "8"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "Ffy0bhELKKOMDh/Xt7cDCopFiIw=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "lP0sRsGPUP/qdMChsuKPKdxs00g="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "7zJjRK4ygE3Uqv+8WCjg25kTq50="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "3"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "JOp4oLFCh2aVICgBGgcrNwMW3rc=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "7zJjRK4ygE3Uqv+8WCjg25kTq50="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "kyz3An/z9YWtzXYP7PEv9SQV5Ic="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "uRkYtH3WgZH9UW6247lvzwZmlcg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "7zJjRK4ygE3Uqv+8WCjg25kTq50="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "WHl6ibIpFrSVsz6tw2+sLUXGs+g="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "7d47TFeIAKAZ9VaQWSjFP4PHM7Y=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "lP0sRsGPUP/qdMChsuKPKdxs00g="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "8zRogFNAss/YyXx5pnslrlKvL1k="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "4"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "8IqhbL+eP+ppJwATubleeCLIGxU=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "8zRogFNAss/YyXx5pnslrlKvL1k="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "sA2ruKc42HEG/cWzNFu5JTL1AFg="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "Y6zZ2KFm5HD3HO1uV0wDMpKjuKA=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "8zRogFNAss/YyXx5pnslrlKvL1k="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "09W4OpGQjY7hmxUucRGsSgvXSDo="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "ci9ylt5JSKh4V1QnWGMJtlzOxVo=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "8zRogFNAss/YyXx5pnslrlKvL1k="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "aGJto2nlpOp/NhKUN5nIpLSmCfw="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "zY37foZzUqXUru4DCTwWeGmZo1I=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "wFfRLf/+XkY2s8VgjS2mTARv4Uw="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "1+Qc6SshZeafFN3PedwV4IlJzCg="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "2"
+       },
+       {
+        "key": "Total Reports",
+        "value": "5"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "xgRXCN70pPRcoO67T9H6ahg7lCQ=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "1+Qc6SshZeafFN3PedwV4IlJzCg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "2eI40+dXiQGTNp+HeiRfR5yweOk="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "b56EKIpcP42PB1D7gx8YEUm6egY=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "1+Qc6SshZeafFN3PedwV4IlJzCg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "9UT7KvdS1lGcDLWCDLmlm2e4rEE="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "/x5PXDN5Ky2pyz/q8Na+wCFmZ7U=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "1+Qc6SshZeafFN3PedwV4IlJzCg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "UweiPjKBMabbZdfXBLEkDDH4OOg="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "3"
+       },
+       {
+        "key": "Total Reports",
+        "value": "2"
+       }
+      ],
+      "linkedData": []
+     },
+     {
+      "id": "lJooLW2vB8402SPV+tlqtnzjO1o=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "UweiPjKBMabbZdfXBLEkDDH4OOg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "55WV+TBh34FnTQ1ctHFE8jj/E2k="
+      },
+      "textAreas": [],
+      "customData": [
+       {
+        "key": "Direct Reports",
+        "value": "1"
+       },
+       {
+        "key": "Tier",
+        "value": "4"
+       },
+       {
+        "key": "Total Reports",
+        "value": "1"
+       }
+      ],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": [
+   {
+    "id": "t7BaUvbpYO9Zuo++ZCjcPShumbE=_b",
+    "name": "Org Chart Data",
+    "primaryKey": [
+     "Employee ID"
+    ]
+   }
+  ]
+ },
+ "accountId": 218308185
+}

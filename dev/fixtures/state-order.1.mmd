@@ -1,0 +1,19 @@
+stateDiagram-v2
+  state "Pending" as s1
+  state "Paid" as s2
+  state "Cancelled" as s3
+  state "Packed" as s4
+  state "Refunded" as s5
+  state "Shipped" as s6
+  state "Delivered" as s7
+  [*] --> s1 : place order
+  s1 --> s2 : payment received [authorized]
+  s1 --> s3 : cancel [before payment]
+  s2 --> s3 : cancel [before packing]
+  s2 --> s4 : pack order [inventory available]
+  s3 --> s5 : refund [payment captured]
+  s4 --> s6 : ship [carrier assigned]
+  s5 --> [*] : complete
+  s6 --> s7 : deliver [delivery confirmed]
+  s7 --> s5 : refund request [approved]
+  %% transition with a loose end: cancel [before packing]
