@@ -1,0 +1,13 @@
+flowchart TD
+  n1["Receive request"]
+  n2{"Valid?"}
+  n3["Process order"]
+  n4["Process"]
+  n5["Reject with reason"]
+  n6["Process"]
+  n1 --> n2
+  n2 -->|"No"| n3
+  n2 -->|"No"| n5
+  n3 --> n4
+  n3 --> n6
+  %% connector with a loose end
