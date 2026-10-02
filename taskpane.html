@@ -71,7 +71,7 @@
   <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work inside Word">&#8599;</button>
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v33</span>
+  <span id="build">build v34</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -517,13 +517,13 @@ async function exportDiagram(ids, page, shownPt, report = say) {
     if (!base64) throw new Error(`The browser couldn't make a ${canvas.width}x${canvas.height} picture of "${m.title}".`);
     console.log("drew", m.title, "v" + m.version, "from Mermaid at", canvas.width + "x" + canvas.height);
     report("Placing in document...");
-    return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, naturalPt, shownPt: widthPt,
+    return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length, naturalPt, shownPt: widthPt,
       base64, width: canvas.width, height: canvas.height, drawnHere: true };
   }
   report("Exporting from Lucid...");
   const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))]);
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
-  Object.assign(d, { mermaid: m.mermaid, page: m.page });
+  Object.assign(d, { mermaid: m.mermaid, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length });
   const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
   Object.assign(d, await plainPng(d.base64, maxWidthPx, [ids.documentId, d.page, d.version, maxWidthPx].join("@")));
   report("Placing in document...");
@@ -611,6 +611,12 @@ async function addCaption(ctx, para, title) {
   }
 }
 
+// What a figure's caption calls it: the diagram's title, and for a document
+// with several pages, the page's title too when it has a real one (not Lucid's
+// "Page 2"): "Order system – Checkout".
+const PAGE_DASH = " – ";
+const figureTitle = d => d.pageCount > 1 && d.pageTitle && !/^Page \d+$/i.test(d.pageTitle) ? d.title + PAGE_DASH + d.pageTitle : d.title;
+
 // The title part of a caption in this add-in's form ("Figure 3: Login flow" ->
 // "Login flow"); null for any other paragraph, which is never touched.
 const captionTitle = text => {
@@ -691,7 +697,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
     para.alignment = Word.Alignment.centered;
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
     await ctx.sync();
-    await addCaption(ctx, para, d.title);
+    await addCaption(ctx, para, figureTitle(d));
     // The cursor goes below the figure, so typing, or the next Insert, carries on there.
     after.getRange(Word.RangeLocation.start).select();
     await ctx.sync();
@@ -720,7 +726,8 @@ async function replacePicture(ctx, pic, range, found, d, ids) {
   dress((range || pic).insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
     { documentId: ids.documentId, embedId }, tag, widthPt);
   await ctx.sync();
-  if (!caption.isNullObject && oldTitle && oldTitle !== d.title && captionTitle(caption.text) === oldTitle && oldTitle.length <= 255) {
+  const was = !caption.isNullObject && captionTitle(caption.text);
+  if (was != null && oldTitle && oldTitle !== d.title && (was === oldTitle || was.startsWith(oldTitle + PAGE_DASH)) && oldTitle.length <= 255) {
     try {
       caption.search(oldTitle, { matchCase: true }).getFirst().insertText(d.title, Word.InsertLocation.replace);
       await ctx.sync();

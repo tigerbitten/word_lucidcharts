@@ -74,7 +74,9 @@ title still matches the old name changes. Update never adds or removes
 captions. A picture inserted before Mermaid support also shows as out of date,
 and Update adds the Mermaid.
 
-Captions are real Word captions (Caption style, numbered by a field that Word
+A caption names the diagram, and for a document with several pages also the
+page when it has a real title ("Figure 2: Order system – Checkout"; Lucid's
+"Page 2" doesn't count). Captions are real Word captions (Caption style, numbered by a field that Word
 renumbers and lists in a Table of Figures) where Word allows. Word on the web
 has neither, so there they look the same but are typed: small italic text,
 numbered in document order, and renumbered whenever a figure is inserted
