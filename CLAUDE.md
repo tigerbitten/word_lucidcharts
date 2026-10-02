@@ -74,6 +74,9 @@ Two stages:
   (`lucid-version:`); comparing it with `/info` is how the pane says a picture
   is out of date. The backend caches the last PNG per document keyed on that
   version (and DPI), which is what makes repeat inserts fast. Export DPI adapts so a picture has ~400 ppi at its width in Word (BASE_DPI/TARGET_PPI in server.js).
+- Getting the Mermaid to an LLM: the pane's MD view writes the open document as
+  Markdown with each diagram's Mermaid in place (Office.js paragraphs, tables,
+  pictures); `docx2md.py` does the same for a saved .docx. Keep the two alike.
 - The pane also runs in a plain browser with the Word buttons disabled, which
   is how the Lucid side can be tested without Word.
 
