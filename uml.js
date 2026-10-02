@@ -417,9 +417,21 @@ function componentToMermaid(shapes, lines) {
   return out.join("\n");
 }
 
+// A page is one of these kinds when at least half its shapes (frames and
+// free text aside) come from that kind's library: one class box on a
+// flowchart doesn't make the flowchart a class diagram. Lifelines and a mind
+// map's root are unmistakable on their own.
 function umlToMermaid(shapes, lines) {
-  return sequenceToMermaid(shapes, lines) || erToMermaid(shapes, lines) || classToMermaid(shapes, lines)
-    || stateToMermaid(shapes, lines) || mindmapToMermaid(shapes, lines) || timelineToMermaid(shapes) || componentToMermaid(shapes, lines);
+  const real = shapes.filter(s => !/Frame|Text/.test(s.class));
+  const mostly = re => real.filter(s => re.test(s.class)).length * 2 >= real.length;
+  return sequenceToMermaid(shapes, lines)
+    || (mostly(/^ERD/) && erToMermaid(shapes, lines))
+    || (mostly(/^UML(Class|Interface|Enum)/) && classToMermaid(shapes, lines))
+    || (mostly(/^UML(State|Start|End|Initial|Final)/) && stateToMermaid(shapes, lines))
+    || mindmapToMermaid(shapes, lines)
+    || (mostly(/^Timeline/) && timelineToMermaid(shapes))
+    || (mostly(/^UML(Component|\w*Interface)/) && componentToMermaid(shapes, lines))
+    || null;
 }
 
 module.exports = { umlToMermaid };
