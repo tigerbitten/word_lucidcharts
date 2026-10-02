@@ -16,12 +16,24 @@ const SHAPES = [
 ];
 
 // Mermaid labels are quoted, so quotes become entities and line breaks <br>.
-// A shape with no text still needs a label, so it gets a space.
+// A container or connector with no text still needs a label, so it gets a space.
 function label(text) {
   return text.split("\n").map(l => l.trim()).filter(Boolean).join("<br>").replace(/"/g, "#quot;") || " ";
 }
 
-const textOf = item => (item.textAreas || []).map(t => t.text || "").join("\n").trim();
+// A "Placeholder" text area holds the hint Lucid shows in an empty text box
+// ("Type something"), not the diagram's text.
+const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder").map(t => t.text || "").join("\n").trim();
+
+// A shape with no text (mostly an icon whose title was cleared) is named after
+// its class, so the meaning survives: "AzureCosmosDBAzure2024" -> "Azure Cosmos
+// DB", "AECloudBlock" -> "AE Cloud". Library suffixes seen so far: Block,
+// Azure2024; AWS/GCP ones are a guess until a real example shows up.
+function className(cls) {
+  const base = cls.replace(/Block$/, "");
+  const name = base.replace(/(AWS|Azure|GCP)\d*$/, "") || base;
+  return name.replace(/([a-z\d])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2");
+}
 
 function pageToMermaid(page) {
   const shapes = (page.items && page.items.shapes) || [];
@@ -114,7 +126,7 @@ function pageToMermaid(page) {
       out.push(`${pad}end`);
     } else {
       const [open, close] = (SHAPES.find(([re]) => re.test(s.class)) || [null, '["', '"]']).slice(1);
-      out.push(`${pad}${ids.get(id)}${open}${label(textOf(s))}${close}`);
+      out.push(`${pad}${ids.get(id)}${open}${label(textOf(s) || className(s.class))}${close}`);
     }
   }
   for (const id of order.filter(id => !parent.has(id) || !ids.has(parent.get(id))).sort((x, y) => firstRank(x) - firstRank(y))) emit(id, 1);

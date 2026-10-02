@@ -115,7 +115,9 @@ of the Lucid document the picture shows.
 `mermaid.js` translates the picture's Lucid page into a Mermaid flowchart:
 every shape with text becomes a node (decision, terminator, database and other
 shapes map to Mermaid's matching node shapes), every connector an arrow with
-its label and direction, and containers (frames, swimlanes) subgraphs.
+its label and direction, and containers (frames, swimlanes) subgraphs. A
+connected shape with no text, typically an icon whose title was cleared, is
+named after its Lucid class (`AzureCosmosDBAzure2024` → "Azure Cosmos DB").
 Free-standing text and connectors with a loose end become `%%` comments.
 Lucid's API gives no positions, so it's the structure that's preserved; nodes
 are listed in the order the arrows flow, and Mermaid lays them out itself.
