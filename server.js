@@ -169,6 +169,7 @@ const routes = {
     // make the diagram look smaller than it is: such sizes aren't remembered.
     if (png.readUInt32BE(16) * png.readUInt32BE(20) < 9e6) sizes.set(key, size);
     else sizes.delete(key); // so the next export learns the size again from BASE_DPI
+    fs.writeFileSync(SIZES_FILE, JSON.stringify([...sizes]));
     const { shownPt } = plan(size);
     const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
     console.log(`   export ${width}x${height} at ${dpi}dpi, ${Math.round(width / (shownPt / 72))}ppi at ${Math.round(shownPt)}pt wide`);
@@ -210,7 +211,9 @@ const routes = {
 // Lucid results that only change when the document does, cached with the version they came from.
 const cache = new Map();
 // The last natural size seen per document page, { naturalPt, aspect }, whatever its version (/export).
-const sizes = new Map();
+// Kept on disk, so a restarted server doesn't export every diagram twice again. Gitignored.
+const SIZES_FILE = ".lucid-sizes.json";
+const sizes = new Map(fs.existsSync(SIZES_FILE) ? JSON.parse(fs.readFileSync(SIZES_FILE, "utf8")) : []);
 
 async function versioned(key, version, fetch) {
   const c = cache.get(key);

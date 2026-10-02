@@ -87,7 +87,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v45</span>
+  <span id="build">build v46</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -553,8 +553,12 @@ async function exportDiagram(ids, page, shownPt, report = say) {
     return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length, naturalPt, shownPt: widthPt,
       base64, width: canvas.width, height: canvas.height, drawnHere: true };
   }
+  // A big diagram takes Lucid ten seconds or more; a running count shows it's still going.
+  const started = Date.now();
   report("Exporting from Lucid...");
-  const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))]);
+  const tick = setInterval(() => report(`Exporting from Lucid... ${Math.round((Date.now() - started) / 1000)}s`), 1000);
+  const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))])
+    .finally(() => clearInterval(tick));
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
   Object.assign(d, { mermaid: m.mermaid, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length });
   const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);

@@ -91,7 +91,8 @@ above others.
 Lucid only exports PNG (no SVG), so pictures are made sharp by pixel count:
 each export is sized for about 400 pixels per inch at the width the picture
 has in Word. The DPI comes from the diagram's last known size, so one export
-is usually enough (the very first one exports twice, to learn the size); a big
+is usually enough (a diagram's very first one exports twice, to learn the size,
+which the backend keeps in `.lucid-sizes.json` across restarts); a big
 changed diagram still takes several seconds, which is Lucid's rendering. Anything far sharper
 than 600 ppi is scaled down in the pane with high-quality resampling.
 **Update** always re-exports for the picture's current width, so after
