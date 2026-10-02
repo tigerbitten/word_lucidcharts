@@ -77,7 +77,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v35</span>
+  <span id="build">build v36</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -178,6 +178,7 @@ function refreshButtons() {
   const noMermaid = t && t.mermaid === false;
   const stale = changed || renamed || noMermaid;
   $("insert").disabled = !ready || !current;
+  $("insert").title = current ? "Insert the diagram in the editor as a new picture below the cursor" : "Open a diagram first, with the menu at the top";
   $("replace").disabled = !ready || !current || !t;
   $("replace").textContent = !t || !current || same ? "Update" : "Replace";
   $("replace").title = !t ? "Select a diagram picture in the document to update it"
@@ -222,7 +223,9 @@ function renderMenu() {
   const seen = new Set(current ? [current.documentId] : []);
   const pick = list => list.filter(d => !seen.has(d.documentId) && seen.add(d.documentId));
   const groups = [["In this document", pick(docDiagrams), "doc"], ["Recent", pick(recent()), "recent"]];
-  const key = JSON.stringify([current && current.title, groups.map(([, l]) => l.map(d => d.documentId + d.title))]);
+  // A diagram in this document with an out-of-date picture says so.
+  const name = (d, kind) => d.title + (kind === "doc" && docPictures.some(p => p.documentId === d.documentId && isStale(p)) ? " (out of date)" : "");
+  const key = JSON.stringify([current && current.title, groups.map(([, l, kind]) => l.map(d => d.documentId + name(d, kind)))]);
   if (key === menuKey) return;
   menuKey = key;
   const sel = $("diagram");
@@ -231,7 +234,7 @@ function renderMenu() {
   for (const [label, list, kind] of groups) {
     if (!list.length) continue;
     const g = Object.assign(document.createElement("optgroup"), { label });
-    for (const d of list) g.append(new Option(d.title, kind + ":" + d.documentId));
+    for (const d of list) g.append(new Option(name(d, kind), kind + ":" + d.documentId));
     sel.append(g);
   }
   sel.append(new Option("Browse or create in Lucid...", "browse"));
