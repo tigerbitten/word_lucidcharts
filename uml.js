@@ -364,11 +364,11 @@ function timelineToMermaid(shapes) {
     // "Q1 2027" + "January, February, and March": a milestone dated in one of those months (and that year, if named).
     const inside = dated.filter(m => !placed.has(m) && m.time && months.includes(month(m)) && (!/\d{4}/.test(name) || name.includes(year(m))));
     out.push(`  section ${text(name || months || "period")}`);
-    for (const m of inside) { placed.add(m); out.push(`    ${text(m.date)} : ${text(m.name)}`); }
+    for (const m of inside) { placed.add(m); out.push(`    ${text(m.date)} : ${text(m.name || "milestone")}`); }
   }
   const rest = dated.filter(m => !placed.has(m));
   if (rest.length && periods.length) out.push("  section Other dates");
-  for (const m of rest) out.push(`    ${text(m.date || "no date")} : ${text(m.name)}`);
+  for (const m of rest) out.push(`    ${text(m.date || "no date")} : ${text(m.name || "milestone")}`);
   return out.join("\n");
 }
 
@@ -396,7 +396,13 @@ function componentToMermaid(shapes, lines) {
   const seen = new Set();
   for (const l of lines) {
     let [a, b] = [l.endpoint1.connectedTo, l.endpoint2.connectedTo];
-    if (ids.has(a) && ids.has(b)) { out.push(`  ${ids.get(a)} --> ${ids.get(b)}${textOf(l) ? `|"${inline(textOf(l))}"|` : ""}`); continue; }
+    if (ids.has(a) && ids.has(b)) {
+      // Towards the arrowhead; Lucid draws most lines endpoint1 -> endpoint2.
+      const head = st => !!st && st !== "None";
+      if (head(l.endpoint1.style) && !head(l.endpoint2.style)) [a, b] = [b, a];
+      out.push(`  ${ids.get(a)} -->${textOf(l) ? `|"${inline(textOf(l))}"|` : ""} ${ids.get(b)}`);
+      continue;
+    }
     if (!isInterface(a) || !isInterface(b)) continue;
     // From the requiring side to the providing one.
     if (/Provided/.test(byId.get(a).class)) [a, b] = [b, a];

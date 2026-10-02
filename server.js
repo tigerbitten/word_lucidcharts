@@ -195,7 +195,9 @@ const routes = {
     if (!p) throw new Shown(404, `Lucid's diagram has no page "${page}" any more.`);
     // The sizing numbers come along for pages the pane draws itself, so drawn and
     // exported pictures follow the same rules.
-    return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid: pageToMermaid(p),
+    // Cached per version: translating a big sequence diagram can take a second or two.
+    const mermaid = await versioned(`mermaid ${id} ${p.id}`, doc.version, async () => pageToMermaid(p));
+    return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid,
       targetPpi: TARGET_PPI, maxWidthPt: MAX_WIDTH_PT, maxHeightPt: MAX_HEIGHT_PT };
   },
 };

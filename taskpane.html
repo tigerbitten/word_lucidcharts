@@ -86,7 +86,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v41</span>
+  <span id="build">build v42</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -201,7 +201,7 @@ function refreshButtons() {
   $("insert").hidden = $("replace").hidden = !current;
   $("load").hidden = !current && selected.kind !== "ours";
   $("load").title = selected.kind === "ours" ? "Open the selected picture's diagram in the editor" : "Select a diagram picture in the document to edit its diagram";
-  $("diagram").disabled = busy;
+  $("diagram").disabled = $("mdToggle").disabled = busy;
   $("lucid").disabled = !current;
   // Reloading needs an embed to reopen; without one (pasted URL) it would show the picker.
   $("reload").disabled = busy || !current || !current.embedId;
@@ -731,7 +731,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
     const cell = anchor.parentTableCellOrNullObject;
     cell.load("columnWidth");
     await ctx.sync();
-    if (!cell.isNullObject) widthPt = Math.min(widthPt, cell.columnWidth - 12);
+    if (!cell.isNullObject) widthPt = Math.max(36, Math.min(widthPt, cell.columnWidth - 12));
     const para = anchor.text.trim() || anchor.inlinePictures.items.length ? anchor.insertParagraph("", Word.InsertLocation.after) : anchor;
     // Normal, not whatever the cursor's paragraph was: a figure after a heading mustn't become one.
     para.styleBuiltIn = Word.BuiltInStyleName.normal;
@@ -767,10 +767,12 @@ async function replacePicture(ctx, pic, range, found, d, ids) {
   dress((range || pic).insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
     { documentId: ids.documentId, embedId }, tag, widthPt);
   await ctx.sync();
-  const was = !caption.isNullObject && captionTitle(caption.text);
-  if (was != null && oldTitle && oldTitle !== d.title && (was === oldTitle || was.startsWith(oldTitle + PAGE_DASH)) && oldTitle.length <= 255) {
+  // The caption's title part, whole ("Diagram" or "Diagram – Page"), becomes the new figure title.
+  const was = caption.isNullObject ? null : captionTitle(caption.text);
+  const now = figureTitle(d);
+  if (was && oldTitle && was !== now && (was === oldTitle || was.startsWith(oldTitle + PAGE_DASH)) && was.length <= 255) {
     try {
-      caption.search(oldTitle, { matchCase: true }).getFirst().insertText(d.title, Word.InsertLocation.replace);
+      caption.search(was, { matchCase: true }).getFirst().insertText(now, Word.InsertLocation.replace);
       await ctx.sync();
     } catch (e) { console.warn("caption rename failed:", e.debugInfo || e); }
   }
@@ -982,23 +984,27 @@ async function documentMarkdown() {
     const pics = paras.items.map(p => p.inlinePictures.load("items/altTextDescription"));
     const tables = paras.items.map(p => p.tableNestingLevel > 0 ? p.parentTableOrNullObject.load("values") : null);
     await ctx.sync();
+    const picture = pic => {
+      const alt = pic.altTextDescription || "", found = parseAlt(alt);
+      const mermaid = alt.match(/^```mermaid\n([\s\S]*?)\n```/m);
+      return found && mermaid ? `Diagram: ${found.title} (https://lucid.app/lucidchart/${found.documentId}/edit)\n\n${fence}mermaid\n${mermaid[1]}\n${fence}`
+        : `[image${alt.trim() ? ": " + alt.trim().replace(/\s+/g, " ") : ""}]`;
+    };
     let inTable = false;
     paras.items.forEach((p, i) => {
-      // A table's paragraphs come one cell at a time; the table is written once, from its values.
+      // A table's paragraphs come one cell at a time; the table is written once,
+      // from its values, and a diagram in one of its cells comes after it.
       if (p.tableNestingLevel > 0) {
-        if (inTable) return;
-        inTable = true;
-        const rows = tables[i].isNullObject ? [] : tables[i].values.map(r => r.map(c => String(c).replace(/\s+/g, " ").replace(/\|/g, "\\|")));
-        if (rows.length) blocks.push([`| ${rows[0].join(" | ")} |`, "|" + "---|".repeat(rows[0].length), ...rows.slice(1).map(r => `| ${r.join(" | ")} |`)].join("\n"));
+        if (!inTable) {
+          inTable = true;
+          const rows = tables[i].isNullObject ? [] : tables[i].values.map(r => r.map(c => String(c).replace(/\s+/g, " ").replace(/\|/g, "\\|")));
+          if (rows.length) blocks.push([`| ${rows[0].join(" | ")} |`, "|" + "---|".repeat(rows[0].length), ...rows.slice(1).map(r => `| ${r.join(" | ")} |`)].join("\n"));
+        }
+        for (const pic of pics[i].items) blocks.push(picture(pic));
         return;
       }
       inTable = false;
-      for (const pic of pics[i].items) {
-        const alt = pic.altTextDescription || "", found = parseAlt(alt);
-        const mermaid = alt.match(/^```mermaid\n([\s\S]*?)\n```/m);
-        blocks.push(found && mermaid ? `Diagram: ${found.title} (https://lucid.app/lucidchart/${found.documentId}/edit)\n\n${fence}mermaid\n${mermaid[1]}\n${fence}`
-          : `[image${alt.trim() ? ": " + alt.trim().replace(/\s+/g, " ") : ""}]`);
-      }
+      for (const pic of pics[i].items) blocks.push(picture(pic));
       const text = p.text.trim();
       if (!text) return;
       const heading = (p.styleBuiltIn || "").match(/^Heading(\d)$/);
@@ -1024,7 +1030,10 @@ $("mdSelect").onclick = () => { $("mdText").focus(); $("mdText").select(); };
 $("mdClose").onclick = () => { $("md").hidden = true; };
 $("mdDownload").onclick = () => {
   // Named after the Word document ("Design.docx" -> "Design.md").
-  const name = decodeURIComponent((Office.context.document.url || "").split(/[\\/]/).pop() || "").replace(/\.docx?$/i, "") || "document";
+  const file = (Office.context.document.url || "").split(/[\\/]/).pop() || "";
+  let name = file;
+  try { name = decodeURIComponent(file); } catch {} // a local path can hold a bare "%"
+  name = name.replace(/\.docx?$/i, "") || "document";
   const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([$("mdText").value], { type: "text/markdown" })), download: name + ".md" });
   document.body.append(a);
   a.click();
@@ -1097,7 +1106,7 @@ $("retry").onclick = start;
       const [r, g, b] = bg.match(/[0-9a-f]{2}/gi).map(h => parseInt(h, 16));
       document.documentElement.classList.toggle("dark", 0.299 * r + 0.587 * g + 0.114 * b < 128);
     };
-    theme();
+    try { theme(); } catch (e) { console.warn("Word's theme not understood, staying light:", e.message); }
     // Word has no theme-change event (it throws, which mustn't stop the pane from starting).
     try { Office.context.document.addHandlerAsync(Office.EventType.OfficeThemeChanged, theme, () => {}); }
     catch (e) { console.log("no theme-change event here:", e.message); }
