@@ -36,11 +36,11 @@ const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placehold
 // its class, so the meaning survives: "AzureCosmosDBAzure2024" -> "Azure Cosmos
 // DB", "AECloudBlock" -> "AE Cloud", "ResAmazonRoute53HostedZoneAWS2024" ->
 // "Amazon Route53 Hosted Zone" (AWS 2024 icons start Res/Arch),
-// "GCP2021BigqueryIcon" -> "Bigquery" (GCP's library comes first).
-const ICON = /(AWS|Azure|GCP)\d*$|^GCP\d+/;
+// "GCP2021BigqueryIcon" -> "Bigquery" (GCP's library comes first), "NET_Switch" -> "Switch".
+const ICON = /(AWS|Azure|GCP)\d*$|^GCP\d+|^NET_/;
 function className(cls) {
   const base = cls.replace(/Block$/, "");
-  const name = base.replace(/(AWS|Azure|GCP)\d*$/, "").replace(/^GCP\d+|Icon$/g, "").replace(/^(Res|Arch)(?=[A-Z])/, "") || base;
+  const name = base.replace(/(AWS|Azure|GCP)\d*$/, "").replace(/^GCP\d+|^NET_|Icon$/g, "").replace(/^(Res|Arch)(?=[A-Z])/, "") || base;
   return name.replace(/([a-z\d])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2");
 }
 

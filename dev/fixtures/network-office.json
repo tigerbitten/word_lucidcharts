@@ -1,0 +1,1256 @@
+{
+ "id": "122c315a-0d9a-41bf-8916-2e8e4b62d08c",
+ "title": "Blank diagram",
+ "version": 1085,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "GEHzG5yVKph-",
+      "class": "NET_Switch",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Central Distribution Point"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHz73-kUnn1",
+      "class": "NET_PC",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Guest Device 2"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzEO~xNqOC",
+      "class": "NET_PC",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Office Workstation 3"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzqps8Pvfo",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Wireless"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHzDs3EkL2_",
+        "GEHzpJqdCb-W"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHzvUOYlc-V",
+      "class": "NET_WebService",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Internet / ISP"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHz8PPPAsIS",
+      "class": "NET_VoIPPhone",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "VoIP Phone 3"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzBmiew8Ei",
+      "class": "NET_VoIPPhone",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "VoIP Phone 1"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzKlBMcZdI",
+      "class": "NET_PC",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Office Workstation 1"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzDIeO5qxw",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Access Layer"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHz1.o9dFVy",
+        "GEHzsS4XI8-N"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHzDmK~Hz10",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Office Network Diagram"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHz.LdarCqV",
+        "GEHz1.o9dFVy",
+        "GEHz56vOb0ex",
+        "GEHz73-kUnn1",
+        "GEHz7jhSLkBF",
+        "GEHz8PPPAsIS",
+        "GEHzBmiew8Ei",
+        "GEHzDIeO5qxw",
+        "GEHzDs3EkL2_",
+        "GEHzEO~xNqOC",
+        "GEHzG5yVKph-",
+        "GEHzJu~AyzFz",
+        "GEHzKlBMcZdI",
+        "GEHzSGbwHzYf",
+        "GEHzSIzD_e-y",
+        "GEHzTOMdBsHh",
+        "GEHzYbMTH6oc",
+        "GEHzaksuZb43",
+        "GEHzcU3tCUu.",
+        "GEHzijTVMExe",
+        "GEHzionRvN.S",
+        "GEHzn7fqza7W",
+        "GEHzpJqdCb-W",
+        "GEHzpd5OD_4N",
+        "GEHzqps8Pvfo",
+        "GEHzsS4XI8-N",
+        "GEHzvHRnHEOy",
+        "GEHzvUOYlc-V"
+       ],
+       "lines": [
+        "GEHzSyhtdYyg",
+        "GEHzU-krYKzU",
+        "HEHz3l-538LL",
+        "HEHz3zGpIWLk",
+        "HEHz5yuePjws",
+        "HEHzAEw-mcSD",
+        "HEHzA_z_wxFu",
+        "HEHzCKknGXPv",
+        "HEHzCUIerQ9C",
+        "HEHzEVfZOKst",
+        "HEHzF1r64er4",
+        "HEHzGgE~vH5f",
+        "HEHzIXqQUbJB",
+        "HEHzMl93wymO",
+        "HEHzSSqBfWa1",
+        "HEHzSkw57qTQ",
+        "HEHzVR3pKU6A",
+        "HEHzXWTnnph9",
+        "HEHzYvUoa0Da",
+        "HEHzaH3FyawH",
+        "HEHzeJyud0rJ",
+        "HEHzhepR2d.U",
+        "HEHzsFA4XR18"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHzvHRnHEOy",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Endpoints"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHz8PPPAsIS",
+        "GEHzBmiew8Ei",
+        "GEHzEO~xNqOC",
+        "GEHzKlBMcZdI",
+        "GEHzSGbwHzYf",
+        "GEHzTOMdBsHh",
+        "GEHzYbMTH6oc"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHzionRvN.S",
+      "class": "NET_Ethernet",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Guest VLAN Segment"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzYbMTH6oc",
+      "class": "NET_PC",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Office Workstation 2"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzJu~AyzFz",
+      "class": "NET_Router",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Core Router"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHz7jhSLkBF",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Internet / Perimeter"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHz56vOb0ex",
+        "GEHzvUOYlc-V"
+       ],
+       "lines": [
+        "GEHzSyhtdYyg"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHzSGbwHzYf",
+      "class": "NET_PC",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Office Workstation 4"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHz.LdarCqV",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Guest VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHz73-kUnn1",
+        "GEHzcU3tCUu.",
+        "GEHzionRvN.S",
+        "GEHzn7fqza7W"
+       ],
+       "lines": [
+        "HEHz5yuePjws",
+        "HEHzCUIerQ9C",
+        "HEHzeJyud0rJ"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHzijTVMExe",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Internal Services"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHzSIzD_e-y",
+        "GEHzaksuZb43"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHzn7fqza7W",
+      "class": "NET_PC",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Guest Device 1"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzDs3EkL2_",
+      "class": "NET_WirelessAccessPoint",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Wireless Access Point 1"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzTOMdBsHh",
+      "class": "NET_VoIPPhone",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "VoIP Phone 2"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzaksuZb43",
+      "class": "NET_Printer",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Network Printer"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzSIzD_e-y",
+      "class": "NET_Server",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "File Server"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzcU3tCUu.",
+      "class": "NET_WirelessAccessPoint",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Guest Wireless Access"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzsS4XI8-N",
+      "class": "NET_Switch",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Access Switch 1"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHz56vOb0ex",
+      "class": "NET_Firewall",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Firewall"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzpJqdCb-W",
+      "class": "NET_WirelessAccessPoint",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Wireless Access Point 2"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "GEHzpd5OD_4N",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Core Network"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "GEHzG5yVKph-",
+        "GEHzJu~AyzFz"
+       ],
+       "lines": [
+        "HEHzGgE~vH5f"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "GEHz1.o9dFVy",
+      "class": "NET_Switch",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Access Switch 2"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "HEHzEVfZOKst",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzsS4XI8-N"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzSIzD_e-y"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHz3zGpIWLk",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHz1.o9dFVy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzSGbwHzYf"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzVR3pKU6A",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzsS4XI8-N"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzYbMTH6oc"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzXWTnnph9",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzsS4XI8-N"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzDs3EkL2_"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzAEw-mcSD",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzG5yVKph-"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzsS4XI8-N"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "LAN trunk"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzeJyud0rJ",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzionRvN.S"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzcU3tCUu."
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Isolated guest network"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzMl93wymO",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzsS4XI8-N"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzTOMdBsHh"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzIXqQUbJB",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHz1.o9dFVy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzEO~xNqOC"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzSSqBfWa1",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzionRvN.S"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzSIzD_e-y"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "No access"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzF1r64er4",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHz1.o9dFVy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzaksuZb43"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "GEHzU-krYKzU",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHz56vOb0ex"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzJu~AyzFz"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "LAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzSkw57qTQ",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzG5yVKph-"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHz1.o9dFVy"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "LAN trunk"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzYvUoa0Da",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzsS4XI8-N"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzKlBMcZdI"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzaH3FyawH",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHz1.o9dFVy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHz8PPPAsIS"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzhepR2d.U",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHz1.o9dFVy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzpJqdCb-W"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "GEHzSyhtdYyg",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzvUOYlc-V"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHz56vOb0ex"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "WAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHz5yuePjws",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzionRvN.S"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzn7fqza7W"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Guest VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzGgE~vH5f",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzJu~AyzFz"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzG5yVKph-"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "LAN trunk"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzCUIerQ9C",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzionRvN.S"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHz73-kUnn1"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Guest VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzCKknGXPv",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHz56vOb0ex"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzionRvN.S"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Guest VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHz3l-538LL",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzsS4XI8-N"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzBmiew8Ei"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Staff VLAN"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzsFA4XR18",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzionRvN.S"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzKlBMcZdI"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "No access"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HEHzA_z_wxFu",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "GEHzionRvN.S"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "GEHzaksuZb43"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "No access"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

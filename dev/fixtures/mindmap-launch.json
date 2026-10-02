@@ -1,0 +1,1365 @@
+{
+ "id": "32c1be95-0f63-4542-a43a-d2ce11f8c21a",
+ "title": "Blank diagram",
+ "version": 129,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "D9CAGv9pwI5SXxTK8AMKusT3WMg=",
+      "class": "IntelligentMindMapRootNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Mobile App Launch"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzpdCjng7l"
+         },
+         {
+          "key": "Text",
+          "value": "Mobile App Launch"
+         },
+         {
+          "key": "ParentId",
+          "value": ""
+         }
+        ],
+        "primaryKeyValue": "\"hEHzpdCjng7l\""
+       }
+      ]
+     },
+     {
+      "id": "WcnAVQLdBmQZu27/YIbHik4a6+s=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Support"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzAogxOx~1"
+         },
+         {
+          "key": "Text",
+          "value": "Support"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzpdCjng7l"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzAogxOx~1\""
+       }
+      ]
+     },
+     {
+      "id": "eukB3JNO8XMLY/hn/6x7asi4AeA=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Help center content"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzExi9dmdw"
+         },
+         {
+          "key": "Text",
+          "value": "Help center content"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzAogxOx~1"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzExi9dmdw\""
+       }
+      ]
+     },
+     {
+      "id": "BjJI5hYYAPzMU5hbK5LfQCVrOSs=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Feedback channels"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzL_uqqU1D"
+         },
+         {
+          "key": "Text",
+          "value": "Feedback channels"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzAogxOx~1"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzL_uqqU1D\""
+       }
+      ]
+     },
+     {
+      "id": "qgY6D7t+OzaaCPwDU676TZeGXSg=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Issue escalation"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzj_Et_KTe"
+         },
+         {
+          "key": "Text",
+          "value": "Issue escalation"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzAogxOx~1"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzj_Et_KTe\""
+       }
+      ]
+     },
+     {
+      "id": "DyLF8vyBfta6kbz+V2D5GhuPMAQ=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Support staffing"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzl4tBRw7F"
+         },
+         {
+          "key": "Text",
+          "value": "Support staffing"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzAogxOx~1"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzl4tBRw7F\""
+       }
+      ]
+     },
+     {
+      "id": "eEsElpWaZHt3gkgakw7Jam4b+pg=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Design"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzGs2W.pAg"
+         },
+         {
+          "key": "Text",
+          "value": "Design"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzpdCjng7l"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzGs2W.pAg\""
+       }
+      ]
+     },
+     {
+      "id": "V8dTbRK0n+KOU0CSFZX3/odqFr4=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Visual identity"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzEBeN-_m."
+         },
+         {
+          "key": "Text",
+          "value": "Visual identity"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzGs2W.pAg"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzEBeN-_m.\""
+       }
+      ]
+     },
+     {
+      "id": "NiajcEvny01Pd/LJPYwrXu+5eL0=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "UX polish"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzGnoYYiWC"
+         },
+         {
+          "key": "Text",
+          "value": "UX polish"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzGs2W.pAg"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzGnoYYiWC\""
+       }
+      ]
+     },
+     {
+      "id": "A5CXg1VgyU8xbN70pLlylZraEEY=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Onboarding flow"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzlNpqxbca"
+         },
+         {
+          "key": "Text",
+          "value": "Onboarding flow"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzGs2W.pAg"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzlNpqxbca\""
+       }
+      ]
+     },
+     {
+      "id": "s1GLWA5kMlgpT9NNXAnyROGABnA=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Accessibility"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzmx0sAlF7"
+         },
+         {
+          "key": "Text",
+          "value": "Accessibility"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzGs2W.pAg"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzmx0sAlF7\""
+       }
+      ]
+     },
+     {
+      "id": "swePM6XkCq9GAhlLVFPWdMsKfFI=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Marketing"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzH4J7MzuZ"
+         },
+         {
+          "key": "Text",
+          "value": "Marketing"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzpdCjng7l"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzH4J7MzuZ\""
+       }
+      ]
+     },
+     {
+      "id": "BKIOyBitpvanjoFmioAd+5M45jM=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "App Store optimization"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHz3tk~rBgY"
+         },
+         {
+          "key": "Text",
+          "value": "App Store optimization"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzH4J7MzuZ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHz3tk~rBgY\""
+       }
+      ]
+     },
+     {
+      "id": "sn+swW27fBio7sxBO1K5z0HicbI=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Press and influencers"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzI9B7kAmH"
+         },
+         {
+          "key": "Text",
+          "value": "Press and influencers"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzH4J7MzuZ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzI9B7kAmH\""
+       }
+      ]
+     },
+     {
+      "id": "IOvb95WB8+rw1JfZ42K4hRdVedk=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Launch campaign"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzM-6cDNJQ"
+         },
+         {
+          "key": "Text",
+          "value": "Launch campaign"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzH4J7MzuZ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzM-6cDNJQ\""
+       }
+      ]
+     },
+     {
+      "id": "SK26HsGQXeeQe4LKwZI+Fr1um8E=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Social media"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzmcN89TIj"
+         },
+         {
+          "key": "Text",
+          "value": "Social media"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzH4J7MzuZ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzmcN89TIj\""
+       }
+      ]
+     },
+     {
+      "id": "HDoBlSq++9t4/wxRXklg32ZlFaw=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Analytics"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzqoZCLzdJ"
+         },
+         {
+          "key": "Text",
+          "value": "Analytics"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzpdCjng7l"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzqoZCLzdJ\""
+       }
+      ]
+     },
+     {
+      "id": "dQD4/r2fROYucVd7evECblOz5Zg=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Conversion funnel"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzM~U2oGVK"
+         },
+         {
+          "key": "Text",
+          "value": "Conversion funnel"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzqoZCLzdJ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzM~U2oGVK\""
+       }
+      ]
+     },
+     {
+      "id": "gMyYae8Gs82tF+yx1P3sX8OKee0=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Retention metrics"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzPo3HjQlP"
+         },
+         {
+          "key": "Text",
+          "value": "Retention metrics"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzqoZCLzdJ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzPo3HjQlP\""
+       }
+      ]
+     },
+     {
+      "id": "2q6jOvJ3dlREuCaqQJARUBuDTrI=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Event tracking"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzodYsL0Jp"
+         },
+         {
+          "key": "Text",
+          "value": "Event tracking"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzqoZCLzdJ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzodYsL0Jp\""
+       }
+      ]
+     },
+     {
+      "id": "dxLd9xnP5Deq9x16sPfubxYYb+M=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Launch dashboard"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHz~_BRvgQs"
+         },
+         {
+          "key": "Text",
+          "value": "Launch dashboard"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzqoZCLzdJ"
+         }
+        ],
+        "primaryKeyValue": "\"hEHz~_BRvgQs\""
+       }
+      ]
+     },
+     {
+      "id": "DzSZjmIxxvr7tyYW/9mvj4R+PCk=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Engineering"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzyB_~j7T6"
+         },
+         {
+          "key": "Text",
+          "value": "Engineering"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzpdCjng7l"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzyB_~j7T6\""
+       }
+      ]
+     },
+     {
+      "id": "DOtFDr1siRZ1rqfvbl7cnhrXns4=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Backend and APIs"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHz8UYCKAiv"
+         },
+         {
+          "key": "Text",
+          "value": "Backend and APIs"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzyB_~j7T6"
+         }
+        ],
+        "primaryKeyValue": "\"hEHz8UYCKAiv\""
+       }
+      ]
+     },
+     {
+      "id": "KN7yaatdES3MjGY/d+38ZDOwLro=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Performance and stability"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzMmzvt5_j"
+         },
+         {
+          "key": "Text",
+          "value": "Performance and stability"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzyB_~j7T6"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzMmzvt5_j\""
+       }
+      ]
+     },
+     {
+      "id": "ZfPGf1f2F2CTyUvpxRfzDg2lcHc=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Release readiness"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzmx9VwIqU"
+         },
+         {
+          "key": "Text",
+          "value": "Release readiness"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzyB_~j7T6"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzmx9VwIqU\""
+       }
+      ]
+     },
+     {
+      "id": "efJzYfUr2iE/Sn4mKUOtIscyXss=",
+      "class": "IntelligentMindMapNodeBlock",
+      "textAreas": [
+       {
+        "label": "t_Text",
+        "text": "Monitoring and rollback"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+        "data": [
+         {
+          "key": "Id",
+          "value": "hEHzvPbN-P41"
+         },
+         {
+          "key": "Text",
+          "value": "Monitoring and rollback"
+         },
+         {
+          "key": "ParentId",
+          "value": "hEHzyB_~j7T6"
+         }
+        ],
+        "primaryKeyValue": "\"hEHzvPbN-P41\""
+       }
+      ]
+     },
+     {
+      "id": "hEHzWqDrAVBy",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Mobile App Launch Planning"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "2q6jOvJ3dlREuCaqQJARUBuDTrI=",
+        "A5CXg1VgyU8xbN70pLlylZraEEY=",
+        "BKIOyBitpvanjoFmioAd+5M45jM=",
+        "BjJI5hYYAPzMU5hbK5LfQCVrOSs=",
+        "D9CAGv9pwI5SXxTK8AMKusT3WMg=",
+        "DOtFDr1siRZ1rqfvbl7cnhrXns4=",
+        "DyLF8vyBfta6kbz+V2D5GhuPMAQ=",
+        "DzSZjmIxxvr7tyYW/9mvj4R+PCk=",
+        "HDoBlSq++9t4/wxRXklg32ZlFaw=",
+        "IOvb95WB8+rw1JfZ42K4hRdVedk=",
+        "KN7yaatdES3MjGY/d+38ZDOwLro=",
+        "NiajcEvny01Pd/LJPYwrXu+5eL0=",
+        "SK26HsGQXeeQe4LKwZI+Fr1um8E=",
+        "V8dTbRK0n+KOU0CSFZX3/odqFr4=",
+        "WcnAVQLdBmQZu27/YIbHik4a6+s=",
+        "ZfPGf1f2F2CTyUvpxRfzDg2lcHc=",
+        "dQD4/r2fROYucVd7evECblOz5Zg=",
+        "dxLd9xnP5Deq9x16sPfubxYYb+M=",
+        "eEsElpWaZHt3gkgakw7Jam4b+pg=",
+        "efJzYfUr2iE/Sn4mKUOtIscyXss=",
+        "eukB3JNO8XMLY/hn/6x7asi4AeA=",
+        "gMyYae8Gs82tF+yx1P3sX8OKee0=",
+        "qgY6D7t+OzaaCPwDU676TZeGXSg=",
+        "s1GLWA5kMlgpT9NNXAnyROGABnA=",
+        "sn+swW27fBio7sxBO1K5z0HicbI=",
+        "swePM6XkCq9GAhlLVFPWdMsKfFI="
+       ],
+       "lines": [
+        "0dxgC6UIKQd6BTVd2hCCGfxp8xE=",
+        "3eMBVdr1n/oJM/MfoideTqYg9Ao=",
+        "AUn7oKF1J+O1yeMRLt5c6d7wPII=",
+        "AUsc37m3aaw3OqchOeuRUSU7EYI=",
+        "B2vAuSgRwHnNJtaHRLMu3BIdzQY=",
+        "CofdT3+WZkBNCL6nxOblXqR2/1k=",
+        "D+wyzymtiEZ/Muc0ixjw6KgYEpQ=",
+        "D6nUvnEvt/ckagoc6kSrmJ7tIBA=",
+        "EM1k2sAFRFRAOAheksbVJKisDBo=",
+        "IKo8f52MKQb4oaMB3VX7VXOq8Rw=",
+        "JySuqaYcLILRxmHRguftWnQgZNE=",
+        "KqThmOxeVl10+0l67V0MY5+O+Yg=",
+        "MT3TL713jPqY3dXy6jQJG/x/IFQ=",
+        "NKCWyq5xeo9GlY6+0giebEmo5dQ=",
+        "QSaUL/luVuob1RPJ2xVrEJS+1tg=",
+        "TTbgR1crDtC/Y7HQNCZVKLMQtwE=",
+        "V+v+F8w37dCpDC3JPNTGwW/8HFg=",
+        "Zfzv7xPdU697AT75d16xt9E6Qa8=",
+        "fdsoeCQpid+c6Hestx6svrNX9YE=",
+        "kwPNThQkF+z8aD6nb2L+OXszOHo=",
+        "ms9XqhGwRMSNwpR4Kc1auMw/ipg=",
+        "oCamNMfUx9Q00LAJxeqgNqYPPMc=",
+        "rhEJBWVSdsGl7GIdDgmAzBdY7Rk=",
+        "t4KWPHqtkXksnQvCA1myC14TSJQ=",
+        "xA5USo2JGHBB04s5GF2SVvOYMZc="
+       ],
+       "groups": []
+      }
+     }
+    ],
+    "lines": [
+     {
+      "id": "oCamNMfUx9Q00LAJxeqgNqYPPMc=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "D9CAGv9pwI5SXxTK8AMKusT3WMg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "WcnAVQLdBmQZu27/YIbHik4a6+s="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "AUsc37m3aaw3OqchOeuRUSU7EYI=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "WcnAVQLdBmQZu27/YIbHik4a6+s="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "eukB3JNO8XMLY/hn/6x7asi4AeA="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IKo8f52MKQb4oaMB3VX7VXOq8Rw=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "WcnAVQLdBmQZu27/YIbHik4a6+s="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "BjJI5hYYAPzMU5hbK5LfQCVrOSs="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "JySuqaYcLILRxmHRguftWnQgZNE=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "WcnAVQLdBmQZu27/YIbHik4a6+s="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "qgY6D7t+OzaaCPwDU676TZeGXSg="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "3eMBVdr1n/oJM/MfoideTqYg9Ao=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "WcnAVQLdBmQZu27/YIbHik4a6+s="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "DyLF8vyBfta6kbz+V2D5GhuPMAQ="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "Zfzv7xPdU697AT75d16xt9E6Qa8=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "D9CAGv9pwI5SXxTK8AMKusT3WMg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "eEsElpWaZHt3gkgakw7Jam4b+pg="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "D+wyzymtiEZ/Muc0ixjw6KgYEpQ=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eEsElpWaZHt3gkgakw7Jam4b+pg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "V8dTbRK0n+KOU0CSFZX3/odqFr4="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "AUn7oKF1J+O1yeMRLt5c6d7wPII=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eEsElpWaZHt3gkgakw7Jam4b+pg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "NiajcEvny01Pd/LJPYwrXu+5eL0="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "QSaUL/luVuob1RPJ2xVrEJS+1tg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eEsElpWaZHt3gkgakw7Jam4b+pg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "A5CXg1VgyU8xbN70pLlylZraEEY="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "xA5USo2JGHBB04s5GF2SVvOYMZc=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "eEsElpWaZHt3gkgakw7Jam4b+pg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "s1GLWA5kMlgpT9NNXAnyROGABnA="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "t4KWPHqtkXksnQvCA1myC14TSJQ=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "D9CAGv9pwI5SXxTK8AMKusT3WMg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "swePM6XkCq9GAhlLVFPWdMsKfFI="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "EM1k2sAFRFRAOAheksbVJKisDBo=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "swePM6XkCq9GAhlLVFPWdMsKfFI="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "BKIOyBitpvanjoFmioAd+5M45jM="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "D6nUvnEvt/ckagoc6kSrmJ7tIBA=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "swePM6XkCq9GAhlLVFPWdMsKfFI="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "sn+swW27fBio7sxBO1K5z0HicbI="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "0dxgC6UIKQd6BTVd2hCCGfxp8xE=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "swePM6XkCq9GAhlLVFPWdMsKfFI="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "IOvb95WB8+rw1JfZ42K4hRdVedk="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "rhEJBWVSdsGl7GIdDgmAzBdY7Rk=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "swePM6XkCq9GAhlLVFPWdMsKfFI="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "SK26HsGQXeeQe4LKwZI+Fr1um8E="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "B2vAuSgRwHnNJtaHRLMu3BIdzQY=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "D9CAGv9pwI5SXxTK8AMKusT3WMg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "HDoBlSq++9t4/wxRXklg32ZlFaw="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "fdsoeCQpid+c6Hestx6svrNX9YE=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "HDoBlSq++9t4/wxRXklg32ZlFaw="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "dQD4/r2fROYucVd7evECblOz5Zg="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "NKCWyq5xeo9GlY6+0giebEmo5dQ=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "HDoBlSq++9t4/wxRXklg32ZlFaw="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "gMyYae8Gs82tF+yx1P3sX8OKee0="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CofdT3+WZkBNCL6nxOblXqR2/1k=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "HDoBlSq++9t4/wxRXklg32ZlFaw="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "2q6jOvJ3dlREuCaqQJARUBuDTrI="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "ms9XqhGwRMSNwpR4Kc1auMw/ipg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "HDoBlSq++9t4/wxRXklg32ZlFaw="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "dxLd9xnP5Deq9x16sPfubxYYb+M="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "TTbgR1crDtC/Y7HQNCZVKLMQtwE=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "D9CAGv9pwI5SXxTK8AMKusT3WMg="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "DzSZjmIxxvr7tyYW/9mvj4R+PCk="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "MT3TL713jPqY3dXy6jQJG/x/IFQ=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "DzSZjmIxxvr7tyYW/9mvj4R+PCk="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "DOtFDr1siRZ1rqfvbl7cnhrXns4="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "V+v+F8w37dCpDC3JPNTGwW/8HFg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "DzSZjmIxxvr7tyYW/9mvj4R+PCk="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "KN7yaatdES3MjGY/d+38ZDOwLro="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "KqThmOxeVl10+0l67V0MY5+O+Yg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "DzSZjmIxxvr7tyYW/9mvj4R+PCk="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "ZfPGf1f2F2CTyUvpxRfzDg2lcHc="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "kwPNThQkF+z8aD6nb2L+OXszOHo=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "DzSZjmIxxvr7tyYW/9mvj4R+PCk="
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "efJzYfUr2iE/Sn4mKUOtIscyXss="
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": [
+   {
+    "id": "pDPrBu/fVK/KBf9PBwAKzoNMXaw=_b",
+    "name": "Intelligent Mind Map Collection",
+    "primaryKey": [
+     "Id"
+    ]
+   }
+  ]
+ },
+ "accountId": 218308185
+}

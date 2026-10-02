@@ -1,7 +1,7 @@
-// Pages that are one of UML's (or ER's) diagram kinds rather than a
-// flowchart, translated to the matching Mermaid diagram: sequence, ER, class,
-// state. Lucid draws each from its own shape library, so a page is recognised
-// by its shape classes. The flowchart translator (mermaid.js) takes everything else.
+// Pages of a kind Mermaid has its own diagram for, rather than a flowchart:
+// UML sequence, class and state diagrams, ER diagrams and mind maps. Lucid draws
+// each from its own shape library, so a page is recognised by its shape
+// classes. The flowchart translator (mermaid.js) takes everything else.
 
 // Same as mermaid.js: a "Placeholder" text area is Lucid's hint in an empty box.
 const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder").map(t => t.text || "").join("\n").trim();
@@ -276,8 +276,33 @@ function stateToMermaid(shapes, lines) {
   return out.join("\n");
 }
 
+// A mind map: Lucid's IntelligentMindMapRootNodeBlock and its
+// IntelligentMindMapNodeBlock branches, joined by plain lines. Mermaid's mindmap
+// is the same tree, written by indentation, so it's walked out from the root.
+function mindmapToMermaid(shapes, lines) {
+  const root = shapes.find(s => /MindMapRoot/.test(s.class));
+  if (!root) return null;
+  const byId = new Map(shapes.map(s => [s.id, s]));
+  const next = id => lines.flatMap(l => l.endpoint1.connectedTo === id ? [l.endpoint2.connectedTo] : l.endpoint2.connectedTo === id ? [l.endpoint1.connectedTo] : []);
+  const out = ["mindmap", `  root(("${inline(textOf(root) || "mind map")}"))`];
+  const seen = new Set([root.id]);
+  let n = 0;
+  const walk = (id, pad) => {
+    for (const c of next(id)) {
+      if (seen.has(c) || !byId.has(c)) continue;
+      seen.add(c);
+      out.push(`${pad}m${++n}["${inline(textOf(byId.get(c)) || " ")}"]`);
+      walk(c, pad + "  ");
+    }
+  };
+  walk(root.id, "    ");
+  for (const s of shapes) if (!seen.has(s.id) && textOf(s) && !/Frame/.test(s.class)) out.push(`  %% not connected to the map: ${textOf(s).replace(/\s+/g, " ")}`);
+  return out.join("\n");
+}
+
 function umlToMermaid(shapes, lines) {
-  return sequenceToMermaid(shapes, lines) || erToMermaid(shapes, lines) || classToMermaid(shapes, lines) || stateToMermaid(shapes, lines);
+  return sequenceToMermaid(shapes, lines) || erToMermaid(shapes, lines) || classToMermaid(shapes, lines)
+    || stateToMermaid(shapes, lines) || mindmapToMermaid(shapes, lines);
 }
 
 module.exports = { umlToMermaid };

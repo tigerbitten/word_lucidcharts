@@ -1,0 +1,69 @@
+flowchart TD
+  subgraph g3["Office Network Diagram"]
+    direction TB
+    subgraph g5["Internet / Perimeter"]
+      direction TB
+      n1["Internet / ISP<br>(Web Service)"]
+      n2["Firewall"]
+    end
+    subgraph g8["Core Network"]
+      direction TB
+      n3["Core Router"]
+      n4["Central Distribution Point<br>(Switch)"]
+    end
+    subgraph g2["Access Layer"]
+      direction TB
+      n5["Access Switch 1"]
+      n7["Access Switch 2"]
+    end
+    subgraph g6["Guest VLAN"]
+      direction TB
+      n6["Guest VLAN Segment<br>(Ethernet)"]
+      n9["Guest Device 2<br>(PC)"]
+      n15["Guest Device 1<br>(PC)"]
+      n20["Guest Wireless Access"]
+    end
+    subgraph g4["Endpoints"]
+      direction TB
+      n8["Office Workstation 3<br>(PC)"]
+      n10["VoIP Phone 3"]
+      n11["VoIP Phone 1"]
+      n12["Office Workstation 1<br>(PC)"]
+      n13["Office Workstation 2<br>(PC)"]
+      n14["Office Workstation 4<br>(PC)"]
+      n17["VoIP Phone 2"]
+    end
+    subgraph g1["Wireless"]
+      direction TB
+      n16["Wireless Access Point 1"]
+      n21["Wireless Access Point 2"]
+    end
+    subgraph g7["Internal Services"]
+      direction TB
+      n18["Network Printer"]
+      n19["File Server"]
+    end
+  end
+  n1 -->|"WAN"| n2
+  n2 -->|"LAN"| n3
+  n2 -->|"Guest VLAN"| n6
+  n3 -->|"LAN trunk"| n4
+  n4 -->|"LAN trunk"| n5
+  n4 -->|"LAN trunk"| n7
+  n5 -->|"Staff VLAN"| n11
+  n5 -->|"Staff VLAN"| n12
+  n5 -->|"Staff VLAN"| n13
+  n5 -->|"Staff VLAN"| n16
+  n5 -->|"Staff VLAN"| n17
+  n5 -->|"Staff VLAN"| n19
+  n6 -->|"Guest VLAN"| n9
+  n6 -->|"No access"| n12
+  n6 -->|"Guest VLAN"| n15
+  n6 -->|"No access"| n18
+  n6 -->|"No access"| n19
+  n6 -->|"Isolated guest network"| n20
+  n7 -->|"Staff VLAN"| n8
+  n7 -->|"Staff VLAN"| n10
+  n7 -->|"Staff VLAN"| n14
+  n7 -->|"Staff VLAN"| n18
+  n7 -->|"Staff VLAN"| n21
