@@ -163,6 +163,7 @@ const routes = {
     // Lucid caps an export near 10 megapixels whatever the DPI, which would
     // make the diagram look smaller than it is: such sizes aren't remembered.
     if (png.readUInt32BE(16) * png.readUInt32BE(20) < 9e6) sizes.set(key, size);
+    else sizes.delete(key); // so the next export learns the size again from BASE_DPI
     const { shownPt } = plan(size);
     const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
     console.log(`   export ${width}x${height} at ${dpi}dpi, ${Math.round(width / (shownPt / 72))}ppi at ${Math.round(shownPt)}pt wide`);

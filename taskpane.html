@@ -71,7 +71,7 @@
   <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work inside Word">&#8599;</button>
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v32</span>
+  <span id="build">build v33</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -229,6 +229,9 @@ function renderMenu() {
 function recent() {
   try { return JSON.parse(localStorage.getItem("recentDiagrams")) || []; } catch { return []; }
 }
+function forget(documentId) {
+  try { localStorage.setItem("recentDiagrams", JSON.stringify(recent().filter(r => r.documentId !== documentId))); } catch {}
+}
 function remember(d) {
   if (!d.embedId) return;
   const list = [{ documentId: d.documentId, embedId: d.embedId, title: d.title }, ...recent().filter(r => r.documentId !== d.documentId)];
@@ -359,8 +362,14 @@ async function start() {
       // After a re-sign-in, come back to the diagram that was open; on opening
       // the pane, to the last diagram used, ready to edit with no picker.
       const back = current && current.embedId;
-      const lastUsed = !current && recent()[0];
-      await loadEditor(back ? current.embedId : lastUsed ? lastUsed.embedId : null);
+      let lastUsed = !current && recent()[0];
+      // One that won't open any more (its embed deleted, access lost) is dropped, and the picker shows instead.
+      if (lastUsed) await loadEditor(lastUsed.embedId).catch(e => {
+        console.warn("the last diagram won't open, so it leaves the recent list:", e.message);
+        forget(lastUsed.documentId);
+        lastUsed = null;
+      });
+      if (!lastUsed) await loadEditor(back ? current.embedId : null);
       if (lastUsed) setCurrent(lastUsed, lastUsed.title);
       say(back ? "Connected. Carry on editing." : lastUsed ? `Opened "${lastUsed.title}", the last diagram you used. The menu above opens others.`
         : "Pick a diagram (or New) in Lucid's window below, then Continue and Insert.");
@@ -516,7 +525,7 @@ async function exportDiagram(ids, page, shownPt, report = say) {
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
   Object.assign(d, { mermaid: m.mermaid, page: m.page });
   const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
-  Object.assign(d, await plainPng(d.base64, maxWidthPx, ids.documentId + "@" + d.version + "@" + maxWidthPx));
+  Object.assign(d, await plainPng(d.base64, maxWidthPx, [ids.documentId, d.page, d.version, maxWidthPx].join("@")));
   report("Placing in document...");
   return d;
 }
@@ -580,7 +589,9 @@ async function addCaption(ctx, para, title) {
     paras.load("items/text");
     await ctx.sync();
     const caps = paras.items.filter(p => new RegExp("^\\s*" + CAPTION + "\\s+\\d+\\s*:").test(p.text));
-    const fields = caps.map(p => p.fields.load("items"));
+    // Paragraph.fields is WordApi 1.4; without it, no caption counts as a field.
+    const hasFields = Office.context.requirements.isSetSupported("WordApi", "1.4");
+    const fields = caps.map(p => hasFields ? p.fields.load("items") : { items: [] });
     await ctx.sync();
     caps.forEach((p, i) => {
       const [now, num] = p.text.match(new RegExp("^\\s*" + CAPTION + "\\s+(\\d+)\\s*:"));
@@ -653,7 +664,10 @@ $("insert").onclick = () => act("Inserting...", async () => {
     anchor.inlinePictures.load("items");
     next.load("text");
     await ctx.sync();
+    let body = null; // with the cursor on a figure: the paragraph above it, likely body text
     if (anchor.inlinePictures.items.length && !next.isNullObject && captionTitle(next.text) != null) {
+      body = anchor.getPreviousOrNullObject();
+      body.load("text,style,alignment,font/name,font/size,font/color,font/italic,font/bold");
       anchor = next;
       next = anchor.getNextOrNullObject();
       anchor.load("text");
@@ -661,9 +675,18 @@ $("insert").onclick = () => act("Inserting...", async () => {
       await ctx.sync();
     }
     // At the end of the document there's nowhere to carry on typing below the
-    // figure, so a paragraph is made for that first: made from the cursor's
-    // paragraph, it has the body text's formatting, not the caption's.
+    // figure, so a paragraph is made for that first. Made from the cursor's
+    // paragraph it has the body text's formatting; made after a caption it would
+    // look like one, so it takes the body text's look above the figure (or plain Normal).
     const after = next.isNullObject ? anchor.insertParagraph("", Word.InsertLocation.after) : next;
+    if (next.isNullObject && body) {
+      const plain = body.isNullObject || !body.text.trim() || captionTitle(body.text) != null;
+      after.styleBuiltIn = Word.BuiltInStyleName.normal;
+      if (!plain) after.style = body.style;
+      after.alignment = plain ? Word.Alignment.left : body.alignment;
+      Object.assign(after.font, plain ? { italic: false, bold: false, color: "#000000" }
+        : { name: body.font.name, size: body.font.size, color: body.font.color, italic: body.font.italic, bold: body.font.bold });
+    }
     const para = anchor.text.trim() || anchor.inlinePictures.items.length ? anchor.insertParagraph("", Word.InsertLocation.after) : anchor;
     para.alignment = Word.Alignment.centered;
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
@@ -852,40 +875,47 @@ async function scanDocument() {
 // Every out-of-date diagram picture in the document, each to the latest of its
 // own diagram (not the editor's), keeping its width, page and caption.
 $("updateAll").onclick = () => act("Updating...", async () => {
-  // Each out-of-date picture gets a tag of its own first (a copied picture
+  // Each out-of-date picture gets a tag no other picture has (a copied picture
   // shares its original's), so it can be found again after the ones before it change.
   const stale = [];
   await word(async ctx => {
     const pics = ctx.document.body.inlinePictures;
     pics.load("items/altTextDescription,items/altTextTitle,items/width");
     await ctx.sync();
-    const seen = new Set();
+    const count = new Map();
+    for (const pic of pics.items) count.set(pic.altTextTitle, (count.get(pic.altTextTitle) || 0) + 1);
     for (const pic of pics.items) {
       const p = { ...parseAlt(pic.altTextDescription), width: pic.width };
       if (!p.documentId || !isStale(p)) continue;
-      const tag = !pic.altTextTitle.startsWith(TAG_PREFIX) || seen.has(pic.altTextTitle) ? newTag() : pic.altTextTitle;
-      pic.altTextTitle = tag;
-      seen.add(tag);
-      stale.push({ ...p, tag });
+      if (!pic.altTextTitle.startsWith(TAG_PREFIX) || count.get(pic.altTextTitle) > 1) pic.altTextTitle = newTag();
+      stale.push({ ...p, tag: pic.altTextTitle });
     }
     await ctx.sync();
   });
+  // One that can't be updated (its page deleted or emptied in Lucid) is skipped, not the end of the run.
+  const failed = [];
   let done = 0;
   for (const [i, p] of stale.entries()) {
     const report = msg => say(`${i + 1} of ${stale.length}, "${p.title}": ${msg}`);
     const ids = { documentId: p.documentId, embedId: p.embedId };
-    const d = await exportDiagram(ids, p.page, p.width, report);
-    await word(async ctx => {
-      const pics = ctx.document.body.inlinePictures;
-      pics.load("items/altTextDescription,items/altTextTitle,items/width");
-      await ctx.sync();
-      const pic = pics.items.find(x => x.altTextTitle === p.tag);
-      if (!pic) return console.warn("picture gone before its update:", p.title);
-      await replacePicture(ctx, pic, null, parseAlt(pic.altTextDescription), d, ids);
+    try {
+      const d = await exportDiagram(ids, p.page, p.width, report);
+      await word(async ctx => {
+        const pics = ctx.document.body.inlinePictures;
+        pics.load("items/altTextDescription,items/altTextTitle,items/width");
+        await ctx.sync();
+        const pic = pics.items.find(x => x.altTextTitle === p.tag);
+        if (!pic) throw new Error("its picture was removed meanwhile");
+        await replacePicture(ctx, pic, null, parseAlt(pic.altTextDescription), d, ids);
+      });
       done++;
-    });
+      if (last && last.tag === p.tag) Object.assign(last, { title: d.title, version: d.version, latest: d.version, latestTitle: d.title });
+    } catch (e) {
+      console.error("Update all:", p.title, e);
+      failed.push(`"${p.title}" (${e.message})`);
+    }
   }
-  say(`Updated ${done} picture${done === 1 ? "" : "s"} to the latest from Lucid.`);
+  say(`Updated ${done} picture${done === 1 ? "" : "s"} to the latest from Lucid.` + (failed.length ? ` Couldn't update ${failed.join("; ")}.` : ""), !!failed.length);
 });
 
 $("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };

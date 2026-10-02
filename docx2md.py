@@ -60,7 +60,7 @@ def paragraph(p):
 
 
 def table(tbl):
-    rows = [["".join(paragraph(p) for p in tc.iter(W + "p")).replace("\n", " ").replace("|", "\\|")
+    rows = [[" ".join(paragraph(p) for p in tc.iter(W + "p")).strip().replace("\n", " ").replace("|", "\\|")
              for tc in tr.findall(W + "tc")] for tr in tbl.findall(W + "tr")]
     if not rows:
         return ""
@@ -74,8 +74,18 @@ def table(tbl):
 def convert(path):
     with zipfile.ZipFile(path) as z:
         body = ET.fromstring(z.read("word/document.xml")).find(W + "body")
+    # Content controls (w:sdt) wrap ordinary paragraphs and tables; read through them.
+    def walk(parent):
+        for el in parent:
+            if el.tag == W + "sdt":
+                content = el.find(W + "sdtContent")
+                if content is not None:
+                    yield from walk(content)
+            else:
+                yield el
+
     blocks = []
-    for el in body:
+    for el in walk(body):
         block = paragraph(el) if el.tag == W + "p" else table(el) if el.tag == W + "tbl" else ""
         if not block:
             continue

@@ -182,7 +182,8 @@ function erToMermaid(shapes, lines) {
   if (!entities.length) return null;
   const ids = new Map(entities.map((s, i) => [s.id, "e" + (i + 1)]));
   const quote = t => `"${t.replace(/\s+/g, " ").trim().replace(/"/g, "#quot;")}"`;
-  const word = t => t.trim().replace(/\s+/g, "_").replace(/[^\w\-()[\],.]/g, "") || "_";
+  // One Mermaid word: no spaces or odd characters, and not starting with a digit (ER's grammar refuses that).
+  const word = t => t.trim().replace(/\s+/g, "_").replace(/[^\w\-()[\],.]/g, "").replace(/^(?=\d)/, "_") || "_";
   const out = ["erDiagram"];
   for (const s of entities) {
     const areas = s.textAreas || [];
@@ -190,7 +191,7 @@ function erToMermaid(shapes, lines) {
     out.push(`  ${ids.get(s.id)}[${quote(name)}] {`);
     const rows = new Map(); // row number -> { Key, Field, Type }
     for (const t of areas) {
-      const m = t.label.match(/^(Key|Field|Type)(\d+)$/);
+      const m = (t.label || "").match(/^(Key|Field|Type)(\d+)$/);
       if (m) rows.set(+m[2], { ...rows.get(+m[2]), [m[1]]: (t.text || "").trim() });
     }
     for (const [, r] of [...rows].sort((a, b) => a[0] - b[0])) {

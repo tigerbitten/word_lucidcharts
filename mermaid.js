@@ -39,7 +39,7 @@ const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placehold
 function tableRows(s) {
   const rows = [];
   for (const t of s.textAreas || []) {
-    const m = t.label.match(/^Cell_(\d+)[,_](\d+)$/); // "Cell_1,2"; UI mockup tables write "Cell_1_2"
+    const m = (t.label || "").match(/^Cell_(\d+)[,_](\d+)$/); // "Cell_1,2"; UI mockup tables write "Cell_1_2"
     if (m) (rows[+m[1]] = rows[+m[1]] || [])[+m[2]] = (t.text || "").replace(/\s+/g, " ").trim();
   }
   return rows.length ? rows.filter(Boolean).map(r => Array.from(r, c => c || "")) : null;
@@ -75,7 +75,9 @@ function pageToMermaid(page) {
   const lines = (page.items && page.items.lines) || [];
   // Mermaid code other than a flowchart is one picture in Lucid (svg.js).
   const picture = shapes.find(s => s.class === "LucidNativeMermaidDiagramBlock");
-  if (picture) return pictureToMermaid(picture);
+  // Anything else with text on that page is said in comments, so nothing on it goes unmentioned.
+  if (picture) return [pictureToMermaid(picture), ...shapes.filter(s => s !== picture && textOf(s))
+    .map(s => `  %% also on this page: ${textOf(s).replace(/\s+/g, " ")}`)].join("\n");
   const uml = umlToMermaid(shapes, lines);
   if (uml) return uml;
   const byId = new Map(shapes.map(s => [s.id, s]));
