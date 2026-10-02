@@ -1,0 +1,108 @@
+{
+ "id": "3b3bac15-5a2e-4e09-9187-35be1ef5d0c4",
+ "title": "code-flow",
+ "version": 65,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "page1",
+   "title": "code-flow",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "J0inWl3cc7cfyPGVif5JV1RJBtE=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Start"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "V5QhzTNH8X6/REoJy1erd4yHG4g=",
+      "class": "LucidNativeMermaidDiamondBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Ok?"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "2h5DdJzytrJ7WIfBnl5WHvtGNRU=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Done"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "0nzzLRObdDFYp9i+G9mf+UM6GIA=",
+      "class": "LucidNativeMermaidConnectionTargetBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "KDGhvSwRHLH7YvrfbcpxlAR7eg0=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "J0inWl3cc7cfyPGVif5JV1RJBtE="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "V5QhzTNH8X6/REoJy1erd4yHG4g="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "zW7D0WHy4Fypxaaupwu7rscXsYE=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "V5QhzTNH8X6/REoJy1erd4yHG4g="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "2h5DdJzytrJ7WIfBnl5WHvtGNRU="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": "yes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

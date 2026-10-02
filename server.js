@@ -149,14 +149,16 @@ const routes = {
   // a blank square. A page drawn from Mermaid code in Lucid ("diagram as code",
   // LucidNativeMermaid* shapes) exports with every shape piled in one spot:
   // Lucid's export API doesn't lay those out, so the pane draws those pages
-  // itself from their Mermaid (/mermaid below) instead of using /export.
+  // itself from their Mermaid (/mermaid below) instead of using /export. Mermaid
+  // code that isn't a flowchart is one picture (LucidNativeMermaidDiagramBlock),
+  // which exports fine.
   "/pages": async url => {
     const id = docId(url);
     const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
     return { version: doc.version, pages: contents.pages.map(p => {
       const shapes = (p.items || {}).shapes || [], lines = (p.items || {}).lines || [];
       return { id: p.id, title: p.title, empty: !shapes.length && !lines.length,
-        fromCode: shapes.some(s => /^LucidNativeMermaid/.test(s.class)) };
+        fromCode: shapes.some(s => /^LucidNativeMermaid/.test(s.class) && s.class !== "LucidNativeMermaidDiagramBlock") };
     }) };
   },
 

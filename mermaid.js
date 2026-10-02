@@ -4,6 +4,7 @@
 // Containers (frames, swimlanes) become subgraphs; everything else a node.
 // Sequence, ER, class and state diagrams get their own Mermaid forms (uml.js).
 const { umlToMermaid } = require("./uml.js");
+const { pictureToMermaid } = require("./svg.js");
 
 // Lucid shape class -> Mermaid node brackets. First match wins; default is a box.
 const SHAPES = [
@@ -58,6 +59,9 @@ function nodeLabel(s) {
 function pageToMermaid(page) {
   const shapes = (page.items && page.items.shapes) || [];
   const lines = (page.items && page.items.lines) || [];
+  // Mermaid code other than a flowchart is one picture in Lucid (svg.js).
+  const picture = shapes.find(s => s.class === "LucidNativeMermaidDiagramBlock");
+  if (picture) return pictureToMermaid(picture);
   const uml = umlToMermaid(shapes, lines);
   if (uml) return uml;
   const byId = new Map(shapes.map(s => [s.id, s]));

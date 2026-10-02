@@ -9,7 +9,7 @@
 //   node cdp.js type <urlSubstr> <text>[\n]    (into the focused element; \n = Enter)
 //   node cdp.js key <urlSubstr> <Enter|Escape|Delete|ctrl+a|...>
 //   node cdp.js mouse <urlSubstr> click|dblclick <x> <y>  /  drag <x> <y> <x2> <y2>
-//   node cdp.js file <urlSubstr> <path>        (fills the frame's file input)
+//   node cdp.js file <urlSubstr> <path>...     (fills the frame's first file input)
 //   node cdp.js shot <urlSubstr> <file.png>    (hangs while the window is minimised)
 const [, , cmd, sel, ...rest] = process.argv;
 
@@ -111,8 +111,8 @@ async function connect(substr, pageOnly) {
     const { root } = await c.send("DOM.getDocument", { depth: -1 });
     const { nodeId } = await c.send("DOM.querySelector", { nodeId: root.nodeId, selector: "input[type=file]" });
     if (!nodeId) throw new Error("no file input");
-    await c.send("DOM.setFileInputFiles", { nodeId, files: [rest[0]] });
-    console.log("set file", rest[0]);
+    await c.send("DOM.setFileInputFiles", { nodeId, files: rest });
+    console.log("set files", rest.join(", "));
   } else throw new Error("unknown command " + cmd);
   c.close();
 })().catch(e => { console.error(e.message); process.exit(1); });

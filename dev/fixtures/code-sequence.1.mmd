@@ -1,0 +1,12 @@
+sequenceDiagram
+  actor p1 as User
+  participant p2 as API
+  participant p3 as Database
+  p1->>p2: GET /orders
+  p2->>p3: SELECT orders
+  p3-->>p2: rows
+  alt cache hit
+    p2-->>p1: 200 cached
+  else miss
+    p2-->>p1: 200 fresh
+  end

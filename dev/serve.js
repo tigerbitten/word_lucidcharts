@@ -5,6 +5,7 @@
 const fs = require("fs");
 const REPO = require("path").join(__dirname, "..") + "/";
 const PREFIX = "https://tigerbitten.github.io/word_lucidcharts/";
+const WORD = /word\.cloud\.microsoft|officeapps\.live\.com|tigerbitten\.github\.io/;
 const TYPES = { html: "text/html; charset=utf-8", js: "text/javascript", png: "image/png", svg: "image/svg+xml", css: "text/css" };
 
 (async () => {
@@ -19,16 +20,21 @@ const TYPES = { html: "text/html; charset=utf-8", js: "text/javascript", png: "i
   ws.onmessage = async e => {
     const m = JSON.parse(e.data);
     if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
-    // Every page and iframe (the pane is an iframe inside Word's editor iframe)
-    // gets interception, and its own children auto-attached, paused until
+    // Word's page, its editor iframe and the pane (an iframe inside that) get
+    // interception, and their own children auto-attached, paused until
     // interception is on so a new pane's first requests can't slip past.
+    // Everything else (Lucid's tabs and iframes, workers) is let go at once:
+    // held on to, Lucid's pages fail to load ("error loading your documents").
     if (m.method === "Target.attachedToTarget") {
-      const s = m.params.sessionId, type = m.params.targetInfo.type;
-      if (type === "page" || type === "iframe") {
+      const s = m.params.sessionId, { type, url } = m.params.targetInfo;
+      const word = (type === "page" || type === "iframe") && WORD.test(url);
+      if (word) {
         await send("Fetch.enable", { patterns: [{ urlPattern: PREFIX + "*" }] }, s).catch(e => console.log(e.message));
         await send("Target.setAutoAttach", { autoAttach: true, waitForDebuggerOnStart: true, flatten: true }, s).catch(e => console.log(e.message));
       }
-      return send("Runtime.runIfWaitingForDebugger", {}, s).catch(() => {});
+      await send("Runtime.runIfWaitingForDebugger", {}, s).catch(() => {});
+      if (!word) send("Target.detachFromTarget", { sessionId: s }).catch(() => {});
+      return;
     }
     if (m.method !== "Fetch.requestPaused") return;
     const { requestId, request } = m.params;

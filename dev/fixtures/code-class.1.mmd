@@ -1,0 +1,11 @@
+classDiagram
+  class c1["Animal"] {
+    +String name
+    +eat() : void
+  }
+  class c2["Dog"] {
+    +bark() : void
+  }
+  class c3["Bone"]
+  c1 <|-- c2
+  c2 --> c3 : chews
