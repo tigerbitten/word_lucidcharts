@@ -52,7 +52,7 @@ The buttons at the bottom act on whatever is selected in Word, and the line
 above them says what that is and whether it's up to date with Lucid:
 
 - **Insert** puts the editor's diagram below the cursor (below the caption, if
-  the cursor is on a figure).
+  the cursor is on a figure; inside a table cell, sized to fit the cell).
 - **Update** brings the selected picture up to date with the editor's diagram.
   It turns blue when the picture is out of date. It keeps the picture's width,
   so resizing in Word sticks.

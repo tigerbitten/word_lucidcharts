@@ -77,7 +77,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v37</span>
+  <span id="build">build v38</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -678,6 +678,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
   const ids = current;
   const d = await exportDiagram(ids, current.page);
   const tag = newTag();
+  let widthPt = d.shownPt;
   await word(async ctx => {
     // The figure goes after the cursor's paragraph, or into it if it's empty;
     // after a figure's caption when the cursor is on the figure's picture.
@@ -712,19 +713,24 @@ $("insert").onclick = () => act("Inserting...", async () => {
     }
     // After a heading, the next paragraph is body text (as pressing Enter there gives).
     else if (next.isNullObject && /^(Heading\d|Title)$/.test(anchor.styleBuiltIn)) after.styleBuiltIn = Word.BuiltInStyleName.normal;
+    // In a table cell, the picture fits the cell (less its padding) rather than the page.
+    const cell = anchor.parentTableCellOrNullObject;
+    cell.load("columnWidth");
+    await ctx.sync();
+    if (!cell.isNullObject) widthPt = Math.min(widthPt, cell.columnWidth - 12);
     const para = anchor.text.trim() || anchor.inlinePictures.items.length ? anchor.insertParagraph("", Word.InsertLocation.after) : anchor;
     // Normal, not whatever the cursor's paragraph was: a figure after a heading mustn't become one.
     para.styleBuiltIn = Word.BuiltInStyleName.normal;
     para.alignment = Word.Alignment.centered;
-    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
+    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag, widthPt);
     await ctx.sync();
     await addCaption(ctx, para, figureTitle(d));
     // The cursor goes below the figure, so typing, or the next Insert, carries on there.
     after.getRange(Word.RangeLocation.start).select();
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: d.shownPt, page: d.page };
-  say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(d.shownPt, d));
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
+  say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(widthPt, d));
 });
 
 // Puts `d` (an export of diagram `ids`) in place of picture `pic` (through
