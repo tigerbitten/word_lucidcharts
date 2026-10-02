@@ -86,7 +86,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v43</span>
+  <span id="build">build v44</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -309,6 +309,7 @@ async function quietly(path) {
 
 // Runs one button's work: one thing at a time, and errors land in the status line.
 async function act(label, fn) {
+  if (busy) return; // the pasted-URL box isn't disabled while busy, unlike the buttons
   busy = true; refreshButtons(); say(label);
   try { await fn(); }
   catch (e) {
@@ -799,6 +800,10 @@ $("replace").onclick = () => act("Updating...", async () => {
   await word(async ctx => {
     const s = await inspectSelection(ctx, true);
     if (s.kind === "other") throw new Error("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
+    // The export was made for the target's page and width; a picture selected
+    // (or deselected) during it would get the wrong one.
+    if (s.kind === "ours" ? s.found.documentId !== t.documentId || s.found.page !== t.page : t !== last)
+      throw new Error("The selection moved while the diagram was exporting. Select the picture to update and click Update again.");
     let pic, found, viaRange = false;
     if (s.kind === "ours") {
       pic = s.pic; found = s.found; viaRange = s.alone;
@@ -1046,7 +1051,8 @@ $("mdDownload").onclick = () => {
 
 $("docUrl").oninput = () => {
   const m = $("docUrl").value.match(new RegExp(UUID));
-  if (!m) return;
+  // Every keystroke after a paste fires this too.
+  if (!m || (current && current.documentId === m[0])) return;
   act("Opening the pasted diagram...", async () => {
     // In the editor if Lucid allows an embed of it; otherwise only linked, for the buttons.
     const embedId = ((await quietly("/embed?doc=" + m[0])) || {}).embedId || null;

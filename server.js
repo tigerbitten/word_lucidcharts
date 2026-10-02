@@ -57,7 +57,7 @@ async function tokenRequest(body) {
   console.log("oauth2/token", body.grant_type, r.status, r.ok ? json.scopes || json.scope : json);
   if (!r.ok) return null;
   tokens = { access: json.access_token, refresh: json.refresh_token, expires: Date.now() + json.expires_in * 1000 };
-  fs.writeFileSync(TOKEN_FILE, JSON.stringify(tokens));
+  fs.writeFileSync(TOKEN_FILE, JSON.stringify(tokens), { mode: 0o600 }); // a Lucid sign-in: owner only (no effect on Windows)
   return tokens;
 }
 
