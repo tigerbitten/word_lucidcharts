@@ -26,6 +26,10 @@ const PANE_ORIGIN = "https://tigerbitten.github.io";
 const BASE_DPI = 192;
 const TARGET_PPI = 400;
 const MAX_DPI = 800;
+// A planned export stays under this, clear of Lucid's ~10 MP cap: rounding the
+// DPI up used to push page-sized diagrams over it, which made Lucid shrink the
+// export and the size check below forget the diagram (two exports every time).
+const PLAN_PIXELS = 8.9e6;
 const MAX_WIDTH_PT = 468; // 6.5in: new pictures fit the text width of a Letter page with 1in margins
 // 8.5in: and its 9in text height, leaving room for the caption line under the picture.
 const MAX_HEIGHT_PT = 612;
@@ -142,7 +146,8 @@ const routes = {
     const plan = ({ naturalPt, aspect }) => {
       const shownPt = +url.searchParams.get("shownPt") || Math.min(naturalPt, MAX_WIDTH_PT, MAX_HEIGHT_PT / aspect);
       // Rounded up to a multiple of 32 so nearby sizes share a cached export.
-      return { shownPt, dpi: Math.min(MAX_DPI, Math.max(BASE_DPI, Math.ceil(TARGET_PPI * shownPt / naturalPt / 32) * 32)) };
+      const dpi = Math.min(MAX_DPI, Math.max(BASE_DPI, Math.ceil(TARGET_PPI * shownPt / naturalPt / 32) * 32));
+      return { shownPt, dpi: Math.min(dpi, Math.floor(72 * Math.sqrt(PLAN_PIXELS / aspect) / naturalPt)) };
     };
     // Only an export tells the natural size, which then decides the DPI. It
     // hardly changes between edits, so the last one seen picks the DPI and one

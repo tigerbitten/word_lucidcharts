@@ -86,7 +86,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v42</span>
+  <span id="build">build v43</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -679,7 +679,11 @@ async function plainPng(base64, maxWidthPx, key) {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  canvas.getContext("2d").drawImage(bitmap, 0, 0);
+  // Drawn at the target size too: a browser that ignores createImageBitmap's
+  // resize options (older WebKit, Word for Mac) would otherwise crop the picture.
+  const g = canvas.getContext("2d");
+  g.imageSmoothingQuality = "high";
+  g.drawImage(bitmap, 0, 0, width, height);
   if (scale < 1) console.log("downscaled", full.width + "x" + full.height, "->", width + "x" + height);
   plainCache = { key, result: { base64: canvas.toDataURL("image/png").split(",")[1], width, height } };
   return plainCache.result;

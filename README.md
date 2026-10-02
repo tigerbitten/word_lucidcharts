@@ -96,6 +96,12 @@ than 600 ppi is scaled down in the pane with high-quality resampling.
 enlarging a picture in Word, Update makes it sharp again. New pictures fit
 the page both ways: at most 6.5in wide and 8.5in tall.
 
+Desktop Word can throw those pixels away when it saves: unless File > Options >
+Advanced > Image Size and Quality has **Do not compress images in file** ticked
+or **Default resolution** set to High fidelity, it downsamples every picture to
+that default (often 220 ppi). That's Word's setting, per document; the add-in
+can't change it.
+
 **Flowcharts made from Mermaid code in Lucid** ("diagram as code") are the exception: Lucid's export piles their shapes on top of each other, so the add-in draws those pages itself from their Mermaid, at the same ~400 ppi, in Mermaid's own style (which is how Lucid draws them too). The page chooser marks them "(Mermaid code)". Other Mermaid code (sequence, class, state...) is a single picture in Lucid and exports normally.
 
 A big diagram squeezed onto the page has physically small text, which no
