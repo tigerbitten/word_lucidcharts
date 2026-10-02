@@ -206,6 +206,13 @@ function pageToMermaid(page) {
 
   edges.sort((x, y) => rank.get(x.from) - rank.get(y.from) || rank.get(x.to) - rank.get(y.to));
   for (const e of edges) out.push(`  ${ids.get(e.from)} ${e.kind}${e.text ? `|"${label(e.text)}"|` : ""} ${ids.get(e.to)}`);
+  // A shape's hyperlink (a runbook, a ticket): Mermaid can attach one to a node;
+  // one on a group or a note is said in a comment.
+  for (const s of shapes.filter(s => /^https?:\/\//.test(s.linkUrl || ""))) {
+    const url = s.linkUrl.replace(/"/g, "%22");
+    if (ids.has(s.id) && !isGroup(s)) out.push(`  click ${ids.get(s.id)} href "${url}" _blank`);
+    else out.push(`  %% link${textOf(s) ? ` on "${textOf(s).replace(/\s+/g, " ")}"` : ""}: ${url}`);
+  }
   for (const t of notes) out.push(`  %% note: ${t.replace(/\s+/g, " ")}`);
   for (const rows of shapes.map(tableRows).filter(Boolean)) {
     out.push("  %% table:");

@@ -1,0 +1,9 @@
+flowchart TD
+  subgraph g1["Release"]
+    direction TB
+    n1["Deploy"]
+    n2["Verify"]
+  end
+  n1 --> n2
+  click n1 href "https://wiki.example.com/runbooks/deploy?env=prod&x=%22y%22" _blank
+  %% link on "Release": https://jira.example.com/browse/REL-42

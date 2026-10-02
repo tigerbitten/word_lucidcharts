@@ -593,6 +593,67 @@
      }
     ]
    }
+  },
+  {
+   "id": "p5",
+   "title": "links",
+   "items": {
+    "shapes": [
+     {
+      "id": "a",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Deploy"
+       }
+      ],
+      "linkUrl": "https://wiki.example.com/runbooks/deploy?env=prod&x=\"y\""
+     },
+     {
+      "id": "b",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Verify"
+       }
+      ]
+     },
+     {
+      "id": "f",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Release"
+       }
+      ],
+      "contains": {
+       "shapes": [
+        "a",
+        "b"
+       ],
+       "lines": []
+      },
+      "linkUrl": "https://jira.example.com/browse/REL-42"
+     }
+    ],
+    "lines": [
+     {
+      "id": "l",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "a"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b"
+      },
+      "textAreas": []
+     }
+    ]
+   }
   }
  ]
 }
