@@ -60,7 +60,8 @@ Two stages:
   with plain SVG labels so the canvas isn't tainted, capped to WebKit's canvas
   limits. `mermaid.js` gives each shape at the end of a code subgraph's connectors
   to the subgraph listing most of its connectors.
-- Captions: added after the picture is committed, so they can't cost an
+- Captions (unless the Caption box by Insert is unticked; remembered in
+  localStorage): added after the picture is committed, so they can't cost an
   insert. Caption style and SEQ Figure field where Word allows; Word on the web
   accepts `styleBuiltIn = Caption` without error but ignores it (so it's read
   back) and refuses fields, so there the caption is hand formatted (after its

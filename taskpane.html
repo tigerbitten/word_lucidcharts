@@ -77,6 +77,7 @@
   #target .fresh { color: var(--fresh); }
   #docLine { flex-basis: 100%; font-size: 0.78rem; color: var(--stale); display: flex; align-items: center; gap: 0.4rem; }
   #docLine button { flex: none; font-size: 0.78rem; padding: 0.1rem 0.5rem; }
+  #captionOpt { flex: none; display: flex; align-items: center; gap: 0.2rem; font-size: 0.8rem; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -86,7 +87,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v44</span>
+  <span id="build">build v45</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -127,6 +128,7 @@
   <div id="status">Starting...</div>
   <div id="target"></div>
   <div id="docLine" hidden><span id="docCount"></span> <button id="updateAll" title="Update every out-of-date diagram picture in the document to the latest of its own diagram">Update all</button></div>
+  <label id="captionOpt" title="Insert puts a &quot;Figure N: title&quot; caption under the picture"><input type="checkbox" id="caption"> Caption</label>
   <button id="insert" class="primary" title="Insert the diagram in the editor as a new picture below the cursor">Insert</button>
   <button id="replace">Update</button>
   <button id="load" title="Open the selected picture's diagram in the editor">Edit selected</button>
@@ -198,7 +200,7 @@ function refreshButtons() {
   // While Lucid's picker shows (no diagram open), Insert and Update can't do
   // anything, and the picker needs the room: only Edit selected stays, when a
   // diagram picture is selected (it opens that picture's diagram).
-  $("insert").hidden = $("replace").hidden = !current;
+  $("insert").hidden = $("replace").hidden = $("captionOpt").hidden = !current;
   $("load").hidden = !current && selected.kind !== "ours";
   $("load").title = selected.kind === "ours" ? "Open the selected picture's diagram in the editor" : "Select a diagram picture in the document to edit its diagram";
   $("diagram").disabled = $("mdToggle").disabled = busy;
@@ -693,8 +695,13 @@ async function plainPng(base64, maxWidthPx, key) {
 // Said after an insert or update of a page the pane drew itself.
 const drawnNote = d => d.drawnHere ? " (This page is Mermaid code in Lucid, which Lucid can't export, so the add-in drew it from that code.)" : "";
 
+// Captions or not, remembered in this browser; on unless turned off.
+try { $("caption").checked = localStorage.getItem("addCaption") !== "no"; } catch { $("caption").checked = true; }
+$("caption").onchange = () => { try { localStorage.setItem("addCaption", $("caption").checked ? "yes" : "no"); } catch {} };
+
 $("insert").onclick = () => act("Inserting...", async () => {
   const ids = current;
+  const withCaption = $("caption").checked;
   const d = await exportDiagram(ids, current.page);
   const tag = newTag();
   let widthPt = d.shownPt;
@@ -743,7 +750,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
     para.alignment = Word.Alignment.centered;
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag, widthPt);
     await ctx.sync();
-    await addCaption(ctx, para, figureTitle(d));
+    if (withCaption) await addCaption(ctx, para, figureTitle(d));
     // The cursor goes below the figure, so typing, or the next Insert, carries on there.
     after.getRange(Word.RangeLocation.start).select();
     await ctx.sync();

@@ -1,7 +1,7 @@
 // The pane's main flows, run in the test Word (dev/chrome.ps1, with
 // dev/serve.js and server.js running): clears Claude's test doc, then checks
 // Insert (picture, caption, cursor), Insert after a heading and into a table
-// cell, Update of an unchanged picture, and the MD view. Uses the "small test"
+// cell, Insert without a caption, Update of an unchanged picture, and the MD view. Uses the "small test"
 // / "Order intake flow" Lucid document. Prints PASS / FAIL per check.
 //   node dev/e2e.js
 const { execFileSync } = require("child_process");
@@ -57,6 +57,16 @@ const check = (name, ok, detail) => { console.log(`${ok ? "PASS" : "FAIL"} ${nam
   ps = paragraphs();
   const cellPic = ps.find(p => p.table && p.pictures.length);
   check("Insert into a table cell fits the picture to the cell", cellPic && cellPic.pictures[0].width <= 234, cellPic);
+
+  // Caption unticked: a picture and no caption.
+  pane(`document.getElementById("caption").click(), 1`);
+  run("word.js", "end"); await sleep(1500);
+  const counts = ps => [ps.filter(p => p.pictures.length).length, ps.filter(p => /^Figure \d+:/.test(p.text)).length];
+  const before = counts(ps);
+  click("insert"); await settle();
+  ps = paragraphs();
+  check("Insert with Caption unticked adds the picture only", counts(ps).join() === [before[0] + 1, before[1]].join(), counts(ps));
+  pane(`document.getElementById("caption").click(), 1`);
 
   pane(`Word.run(async ctx => { ctx.document.body.inlinePictures.getFirst().select(); await ctx.sync(); return 1; })`);
   await sleep(2500);

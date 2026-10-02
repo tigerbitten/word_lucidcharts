@@ -5,7 +5,8 @@ Lucid account, draw, and insert the diagram into the document as a picture.
 Each picture's alt text links back to its Lucid diagram, so it can be reopened
 and updated later, and carries the diagram as Mermaid, so an LLM reading the
 `.docx` understands the diagram instead of guessing from pixels. A Word figure
-caption ("Figure 3: Login flow") goes under each picture.
+caption ("Figure 3: Login flow") goes under each picture, unless **Caption**
+(next to Insert) is unticked.
 
 Prototype.
 
@@ -23,7 +24,8 @@ client secret. Moving that to Azure Functions / AWS Lambda comes later.
    opens straight on the last diagram you used.
 3. Draw. Lucid saves as you go.
 4. **Insert** puts the diagram below the cursor, centred and scaled to fit the
-   page, with a figure caption under it, and leaves the cursor below the figure.
+   page, with a figure caption under it (untick **Caption** for none), and
+   leaves the cursor below the figure.
 
 ### How editing works
 
