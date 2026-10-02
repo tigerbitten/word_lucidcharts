@@ -63,7 +63,7 @@
 <body>
 <div id="top">
   <span id="status">Starting...</span>
-  <span id="build">build v28</span>
+  <span id="build">build v29</span>
 </div>
 <div id="diagramBar">
   <span id="diagramName"></span>
@@ -438,7 +438,7 @@ async function exportDiagram(ids, page, shownPt) {
     if (!viewBox) throw new Error(`Mermaid couldn't draw "${m.title}" (its drawing has no size).`);
     const [, , widthPx, heightPx] = viewBox.split(/[\s,]+/).map(Number);
     const naturalPt = widthPx * 0.75; // SVG user units are CSS pixels, 96 to the inch
-    const widthPt = shownPt || Math.min(naturalPt, m.maxWidthPt);
+    const widthPt = shownPt || Math.min(naturalPt, m.maxWidthPt, m.maxHeightPt * widthPx / heightPx);
     // Very large pictures get fewer pixels per inch rather than a canvas the browser refuses.
     const scale = Math.min(widthPt / 72 * m.targetPpi / widthPx,
       CANVAS_MAX_SIDE / Math.max(widthPx, heightPx), Math.sqrt(CANVAS_MAX_PIXELS / (widthPx * heightPx)));
@@ -493,24 +493,26 @@ function loadMermaid() {
 
 // "Figure 3: Login flow" under the picture. Where Word allows it, that's a real
 // Word caption: the Caption style, the number a SEQ field so Word renumbers it
-// and lists it in a Table of Figures. Word on the web refuses the Caption style
-// (it has no captions feature) and may refuse fields, so each part is tried in
-// its own sync, and what's refused falls back to a lookalike: centred small
+// and lists it in a Table of Figures. Word on the web ignores the Caption style
+// (it has no captions feature) and refuses fields, so each part is tried in
+// its own sync, and what doesn't take falls back to a lookalike: centred small
 // italic text with the number counted from the captions above it. Called after
 // the picture is committed, so a caption problem can never cost the picture.
 const CAPTION = "Figure";
+const CAPTION_FONT = { italic: true, size: 9, color: "#44546A" }; // the look of Word's Caption style
 async function addCaption(ctx, para, title) {
   const cap = para.insertParagraph("", Word.InsertLocation.after);
   cap.alignment = Word.Alignment.centered;
   await ctx.sync();
+  // Word on the web takes the Caption style without an error and leaves the
+  // paragraph Normal, so the style is read back rather than trusted.
+  let styled = false;
   try {
     cap.styleBuiltIn = Word.BuiltInStyleName.caption;
+    cap.load("styleBuiltIn");
     await ctx.sync();
-  } catch (e) {
-    console.warn("Caption style refused, formatting by hand:", e.debugInfo || e);
-    Object.assign(cap.font, { italic: true, size: 9, color: "#44546A" });
-    await ctx.sync();
-  }
+    styled = cap.styleBuiltIn === Word.BuiltInStyleName.caption;
+  } catch (e) { console.warn("Caption style refused:", e.debugInfo || e); }
   try {
     if (!Office.context.requirements.isSetSupported("WordApi", "1.5")) throw new Error("no WordApi 1.5");
     cap.insertText(CAPTION + " ", Word.InsertLocation.start);
@@ -519,12 +521,32 @@ async function addCaption(ctx, para, title) {
     await ctx.sync();
   } catch (e) {
     console.warn("Caption number field refused, numbering by hand:", e.debugInfo || e);
-    // Count the captions above this one: everything from the start of the document to here.
-    const above = ctx.document.body.getRange(Word.RangeLocation.start).expandTo(cap.getRange(Word.RangeLocation.start)).paragraphs;
-    above.load("items/text");
+    cap.insertText(`${CAPTION} 0: ${title}`, Word.InsertLocation.replace);
     await ctx.sync();
-    const n = 1 + above.items.filter(p => new RegExp("^\\s*" + CAPTION + "\\s+\\d+\\s*:").test(p.text)).length;
-    cap.insertText(`${CAPTION} ${n}: ${title}`, Word.InsertLocation.replace);
+    // A figure inserted above others shifts their numbers, which hand-typed
+    // numbers don't follow, so every "Figure N:" caption is renumbered in
+    // document order. One whose number is a real field (made in desktop Word)
+    // keeps it: editing a field's result would break the field.
+    const paras = ctx.document.body.paragraphs;
+    paras.load("items/text");
+    await ctx.sync();
+    const caps = paras.items.filter(p => new RegExp("^\\s*" + CAPTION + "\\s+\\d+\\s*:").test(p.text));
+    const fields = caps.map(p => p.fields.load("items"));
+    await ctx.sync();
+    caps.forEach((p, i) => {
+      const [now, num] = p.text.match(new RegExp("^\\s*" + CAPTION + "\\s+(\\d+)\\s*:"));
+      if (+num === i + 1 || fields[i].items.length) return;
+      const r = p.search(now.trim(), { matchCase: true }).getFirst().insertText(`${CAPTION} ${i + 1}:`, Word.InsertLocation.replace);
+      // Replaced text loses the hand formatting, which is what Word on the web has.
+      if (!styled) Object.assign(r.font, CAPTION_FONT);
+    });
+    await ctx.sync();
+  }
+  // Last, once the text is in: text inserted later doesn't take formatting set
+  // on the empty paragraph.
+  if (!styled) {
+    console.warn("No Caption style here, formatting the caption by hand");
+    Object.assign(cap.font, CAPTION_FONT);
     await ctx.sync();
   }
 }
@@ -574,11 +596,33 @@ $("insert").onclick = () => act("Inserting...", async () => {
   const d = await exportDiagram(ids, current.page);
   const tag = newTag();
   await word(async ctx => {
-    const para = ctx.document.getSelection().paragraphs.getLast().insertParagraph("", Word.InsertLocation.after);
+    // The figure goes after the cursor's paragraph, or into it if it's empty;
+    // after a figure's caption when the cursor is on the figure's picture.
+    let anchor = ctx.document.getSelection().paragraphs.getLast();
+    let next = anchor.getNextOrNullObject();
+    anchor.load("text");
+    anchor.inlinePictures.load("items");
+    next.load("text");
+    await ctx.sync();
+    if (anchor.inlinePictures.items.length && !next.isNullObject && captionTitle(next.text) != null) {
+      anchor = next;
+      next = anchor.getNextOrNullObject();
+      anchor.load("text");
+      anchor.inlinePictures.load("items");
+      await ctx.sync();
+    }
+    // At the end of the document there's nowhere to carry on typing below the
+    // figure, so a paragraph is made for that first: made from the cursor's
+    // paragraph, it has the body text's formatting, not the caption's.
+    const after = next.isNullObject ? anchor.insertParagraph("", Word.InsertLocation.after) : next;
+    const para = anchor.text.trim() || anchor.inlinePictures.items.length ? anchor.insertParagraph("", Word.InsertLocation.after) : anchor;
     para.alignment = Word.Alignment.centered;
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
     await ctx.sync();
     await addCaption(ctx, para, d.title);
+    // The cursor goes below the figure, so typing, or the next Insert, carries on there.
+    after.getRange(Word.RangeLocation.start).select();
+    await ctx.sync();
   });
   last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: d.shownPt, page: d.page };
   say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(d.shownPt, d));

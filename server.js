@@ -27,6 +27,8 @@ const BASE_DPI = 192;
 const TARGET_PPI = 400;
 const MAX_DPI = 800;
 const MAX_WIDTH_PT = 468; // 6.5in: new pictures fit the text width of a Letter page with 1in margins
+// 8.5in: and its 9in text height, leaving room for the caption line under the picture.
+const MAX_HEIGHT_PT = 612;
 // Tokens survive restarts so you don't sign in every time. Gitignored.
 const TOKEN_FILE = ".lucid-token.json";
 
@@ -119,8 +121,8 @@ const routes = {
   },
 
   // `shownPt` is the width the picture will have in Word (an updated picture
-  // keeps its width); without it, a new picture's width: natural size capped to
-  // the page. `page` is a Lucid page id; without it, the first page. The pane
+  // keeps its width); without it, a new picture's width: natural size capped so
+  // the picture fits the page. `page` is a Lucid page id; without it, the first page. The pane
   // calls this when the pointer reaches its buttons, so by the click the PNG is
   // usually cached already.
   "/export": async url => {
@@ -128,7 +130,8 @@ const routes = {
     // The base export is the slow call (~1s), so it starts alongside the info call.
     const { doc, value: base } = await withDoc(id, `png ${id} ${page} ${BASE_DPI}`, signal => fetchPng(id, page, BASE_DPI, signal));
     const naturalPt = base.readUInt32BE(16) * 72 / BASE_DPI;
-    const shownPt = +url.searchParams.get("shownPt") || Math.min(naturalPt, MAX_WIDTH_PT);
+    const aspect = base.readUInt32BE(20) / base.readUInt32BE(16);
+    const shownPt = +url.searchParams.get("shownPt") || Math.min(naturalPt, MAX_WIDTH_PT, MAX_HEIGHT_PT / aspect);
     const basePpi = base.readUInt32BE(16) / (shownPt / 72);
     let png = base, dpi = BASE_DPI;
     if (basePpi < TARGET_PPI) {
@@ -166,7 +169,7 @@ const routes = {
     // The sizing numbers come along for pages the pane draws itself, so drawn and
     // exported pictures follow the same rules.
     return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid: pageToMermaid(p),
-      targetPpi: TARGET_PPI, maxWidthPt: MAX_WIDTH_PT };
+      targetPpi: TARGET_PPI, maxWidthPt: MAX_WIDTH_PT, maxHeightPt: MAX_HEIGHT_PT };
   },
 };
 

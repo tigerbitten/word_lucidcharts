@@ -15,8 +15,8 @@ const [, , cmd, sel, ...rest] = process.argv;
 
 async function targets() { return (await fetch("http://127.0.0.1:9222/json/list")).json(); }
 
-async function connect(substr) {
-  const t = (await targets()).find(t => (t.type === "page" || t.type === "iframe") && t.url.includes(substr));
+async function connect(substr, pageOnly) {
+  const t = (await targets()).find(t => (t.type === "page" || (!pageOnly && t.type === "iframe")) && t.url.includes(substr));
   if (!t) throw new Error("no target matching " + substr);
   const ws = new WebSocket(t.webSocketDebuggerUrl);
   await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; });
@@ -47,7 +47,8 @@ async function connect(substr) {
     console.log("closed", t.url.slice(0, 100));
     return;
   }
-  const c = await connect(sel);
+  // Screenshots only work on a tab, not an iframe whose URL happens to match.
+  const c = await connect(sel, cmd === "shot");
   if (cmd === "eval") {
     const r = await c.send("Runtime.evaluate", { expression: rest.join(" "), awaitPromise: true, returnByValue: true, timeout: 60000 });
     if (r.exceptionDetails) { console.error("EXCEPTION", JSON.stringify(r.exceptionDetails.exception?.description || r.exceptionDetails)); process.exitCode = 1; }
