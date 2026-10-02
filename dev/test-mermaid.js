@@ -13,7 +13,12 @@ const render = process.argv[2] === "--render" ? process.argv[3] : null;
 // `--check a.mmd b.mmd`: only parse those files (trying out Mermaid syntax).
 const check = process.argv[2] === "--check" ? process.argv.slice(3) : null;
 
-const outputs = check ? check.map(f => ({ name: f, out: f, mmd: fs.readFileSync(f, "utf8"), title: "" })) : [];
+// The pane's script must at least compile: a syntax error there only shows as
+// every function being undefined in Word.
+const pane = fs.readFileSync(path.join(__dirname, "..", "taskpane.html"), "utf8");
+new (require("vm").Script)(pane.slice(pane.lastIndexOf("<script>") + 8, pane.lastIndexOf("</script>")), { filename: "taskpane.html <script>" });
+
+const outputs = check ?check.map(f => ({ name: f, out: f, mmd: fs.readFileSync(f, "utf8"), title: "" })) : [];
 if (!check) for (const file of fs.readdirSync(DIR).filter(f => f.endsWith(".json")).sort()) {
   const name = file.slice(0, -5);
   const doc = JSON.parse(fs.readFileSync(path.join(DIR, file)));

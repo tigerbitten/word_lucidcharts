@@ -61,6 +61,8 @@
   #target:empty { display: none; }
   #target .stale { color: #b45309; font-weight: 600; }
   #target .fresh { color: #15803d; }
+  #docLine { flex-basis: 100%; font-size: 0.78rem; color: #b45309; display: flex; align-items: center; gap: 0.4rem; }
+  #docLine button { flex: none; font-size: 0.78rem; padding: 0.1rem 0.5rem; }
 </style>
 </head>
 <body>
@@ -69,7 +71,7 @@
   <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work inside Word">&#8599;</button>
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v30</span>
+  <span id="build">build v31</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -102,6 +104,7 @@
 <div id="actions">
   <div id="status">Starting...</div>
   <div id="target"></div>
+  <div id="docLine" hidden><span id="docCount"></span> <button id="updateAll" title="Update every out-of-date diagram picture in the document to the latest of its own diagram">Update all</button></div>
   <button id="insert" class="primary" title="Insert the diagram in the editor as a new picture below the cursor">Insert</button>
   <button id="replace">Update</button>
   <button id="load" title="Open the selected picture's diagram in the editor">Edit selected</button>
@@ -152,6 +155,9 @@ function updateTarget() {
 function refreshButtons() {
   const ready = inWord && !busy;
   const t = updateTarget();
+  // The newest word from Lucid on the target's diagram, from whichever check asked last.
+  const l = t && latestOf.get(t.documentId);
+  if (l && !(t.latest > l.version)) { t.latest = l.version; t.latestTitle = l.title; }
   const same = t && current && t.documentId === current.documentId;
   const changed = t && t.version != null && t.latest != null && t.version < t.latest;
   const renamed = t && t.latestTitle != null && t.latestTitle !== t.title;
@@ -173,6 +179,10 @@ function refreshButtons() {
   $("reload").disabled = busy || !current || !current.embedId;
   $("pageRow").hidden = !current || !current.pages || current.pages.length < 2;
   renderMenu();
+  const outOfDate = docPictures.filter(isStale).length;
+  $("docLine").hidden = !inWord || !outOfDate;
+  $("docCount").textContent = `${outOfDate} diagram picture${outOfDate === 1 ? " is" : "s are"} out of date in this document.`;
+  $("updateAll").disabled = !ready;
 
   const line = $("target");
   line.innerHTML = "";
@@ -300,15 +310,6 @@ async function syncPages() {
   if (r && current === c) applyPages(c, r);
 }
 
-// Which pages are empty or Mermaid code decides how a picture is made, and any
-// edit can change that (a new document starts empty), so the list is fetched
-// fresh before every picture. The backend caches it per Lucid version, so an
-// unchanged diagram costs one quick info call.
-async function freshPages() {
-  const c = current;
-  applyPages(c, await backend("/pages?doc=" + c.documentId));
-}
-
 function applyPages(c, r) {
   c.pages = r.pages;
   c.pagesVersion = r.version;
@@ -344,6 +345,7 @@ async function syncLucid() {
       // Pages may have been added, emptied or filled since the chooser was filled.
       if (current.pages && current.pagesVersion !== info.version) syncPages();
     }
+    latestOf.set(id, info);
     if (t && t.documentId === id && updateTarget() === t) { t.latest = info.version; t.latestTitle = info.title; }
   });
   refreshButtons();
@@ -461,9 +463,15 @@ function onSelectionChanged() {
 const exportPath = (documentId, page, shownPt) => `/export?doc=${documentId}&page=${page}` + (shownPt ? "&shownPt=" + Math.round(shownPt) : "");
 const mermaidPath = (documentId, page) => `/mermaid?doc=${documentId}&page=${page}`;
 
-async function exportDiagram(ids, page, shownPt) {
-  await freshPages();
-  const info = pageInfo(page);
+// `report`: where progress goes (the status line; Update all prefixes its count).
+async function exportDiagram(ids, page, shownPt, report = say) {
+  // Which pages are empty or Mermaid code decides how a picture is made, and any
+  // edit can change that (a new document starts empty), so the list is fetched
+  // fresh before every picture. The backend caches it per Lucid version, so an
+  // unchanged diagram costs one quick info call.
+  const pages = await backend("/pages?doc=" + ids.documentId);
+  if (current && current.documentId === ids.documentId) applyPages(current, pages);
+  const info = pages.pages.find(p => p.id === (page || pages.pages[0].id));
   if (!info) throw new Error("That page has been deleted from the Lucid document, so this picture can't be updated. Insert another page as a new picture instead.");
   if (info.empty) throw new Error(`"${info.title}" is empty in Lucid. Pick another page under Page for Word.`);
   if (info.fromCode) {
@@ -471,7 +479,7 @@ async function exportDiagram(ids, page, shownPt) {
     // Lucid's export, which piles its shapes on top of each other. Lucid draws
     // those pages with Mermaid itself, so the pane does the same with the page's
     // Mermaid (mermaid.js) and turns the SVG into a PNG at the backend's ppi.
-    say("Drawing the diagram from its Mermaid...");
+    report("Drawing the diagram from its Mermaid...");
     const [m, mermaid] = await Promise.all([backend(mermaidPath(ids.documentId, page)), loadMermaid()]);
     const { svg } = await mermaid.render("lucidPage" + Date.now(), m.mermaid);
     const root = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
@@ -499,17 +507,17 @@ async function exportDiagram(ids, page, shownPt) {
     const base64 = canvas.toDataURL("image/png").split(",")[1];
     if (!base64) throw new Error(`The browser couldn't make a ${canvas.width}x${canvas.height} picture of "${m.title}".`);
     console.log("drew", m.title, "v" + m.version, "from Mermaid at", canvas.width + "x" + canvas.height);
-    say("Placing in document...");
+    report("Placing in document...");
     return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, naturalPt, shownPt: widthPt,
       base64, width: canvas.width, height: canvas.height, drawnHere: true };
   }
-  say("Exporting from Lucid...");
+  report("Exporting from Lucid...");
   const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))]);
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
   Object.assign(d, { mermaid: m.mermaid, page: m.page });
   const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
   Object.assign(d, await plainPng(d.base64, maxWidthPx, ids.documentId + "@" + d.version + "@" + maxWidthPx));
-  say("Placing in document...");
+  report("Placing in document...");
   return d;
 }
 
@@ -669,6 +677,35 @@ $("insert").onclick = () => act("Inserting...", async () => {
   say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(d.shownPt, d));
 });
 
+// Puts `d` (an export of diagram `ids`) in place of picture `pic` (through
+// `range` when the picture is all that's selected: the sibling add-in found
+// that swaps it cleanly in place), keeping its width and tag. `pic` needs
+// altTextTitle and width loaded; `found` is its parsed alt text.
+async function replacePicture(ctx, pic, range, found, d, ids) {
+  const tag = tagOf(pic); // a picture from before tags gets one now
+  // A diagram linked by pasted URL has no embed id; keep the picture's own if it's the same diagram.
+  const embedId = ids.embedId || (found && found.documentId === ids.documentId ? found.embedId : null);
+  const oldTitle = found && found.title;
+  const sameDiagram = found && found.documentId === ids.documentId;
+  const outcome = !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : !found.mermaid ? "mermaid" : "refreshed";
+  const widthPt = pic.width;
+  // The caption under the picture follows a rename, unless it was reworded by
+  // hand: only a caption whose title part is still the old title changes.
+  const caption = pic.paragraph.getNextOrNullObject();
+  caption.load("text");
+  await ctx.sync();
+  dress((range || pic).insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
+    { documentId: ids.documentId, embedId }, tag, widthPt);
+  await ctx.sync();
+  if (!caption.isNullObject && oldTitle && oldTitle !== d.title && captionTitle(caption.text) === oldTitle && oldTitle.length <= 255) {
+    try {
+      caption.search(oldTitle, { matchCase: true }).getFirst().insertText(d.title, Word.InsertLocation.replace);
+      await ctx.sync();
+    } catch (e) { console.warn("caption rename failed:", e.debugInfo || e); }
+  }
+  return { tag, outcome, oldTitle, widthPt };
+}
+
 // Updates the selected diagram picture (or the one last inserted/loaded, when
 // nothing is selected) to the diagram in the editor. If the picture shows a
 // different diagram, this replaces it with the editor's.
@@ -701,28 +738,7 @@ $("replace").onclick = () => act("Updating...", async () => {
       }
       found = parseAlt(pic.altTextDescription);
     }
-    tag = tagOf(pic); // a picture from before tags gets one now
-    // A diagram linked by pasted URL has no embed id; keep the picture's own if it's the same diagram.
-    const embedId = ids.embedId || (found && found.documentId === ids.documentId ? found.embedId : null);
-    oldTitle = found && found.title;
-    const sameDiagram = found && found.documentId === ids.documentId;
-    outcome = !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : !found.mermaid ? "mermaid" : "refreshed";
-    widthPt = pic.width;
-    // The caption under the picture follows a rename, unless it was reworded by
-    // hand: only a caption whose title part is still the old title changes.
-    const caption = pic.paragraph.getNextOrNullObject();
-    caption.load("text");
-    await ctx.sync();
-    const target = viaRange ? s.range : pic;
-    dress(target.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d,
-      { documentId: ids.documentId, embedId }, tag, widthPt);
-    await ctx.sync();
-    if (!caption.isNullObject && oldTitle && oldTitle !== d.title && captionTitle(caption.text) === oldTitle && oldTitle.length <= 255) {
-      try {
-        caption.search(oldTitle, { matchCase: true }).getFirst().insertText(d.title, Word.InsertLocation.replace);
-        await ctx.sync();
-      } catch (e) { console.warn("caption rename failed:", e.debugInfo || e); }
-    }
+    ({ tag, outcome, oldTitle, widthPt } = await replacePicture(ctx, pic, viaRange ? s.range : null, found, d, ids));
   });
   last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
   say((outcome === "refreshed" ? `"${d.title}" was already up to date; refreshed it at full resolution for its size.`
@@ -810,20 +826,67 @@ $("diagram").onchange = () => {
   });
 };
 
-// The Lucid diagrams in this document, for the menu: one entry per Lucid document.
+// The Lucid diagram pictures in this document: for the menu (one entry per
+// Lucid document) and for Update all, with what Lucid says each diagram is now.
+let docPictures = [];
+const latestOf = new Map(); // documentId -> { version, title } from /info
+const isStale = p => { const l = latestOf.get(p.documentId); return !!l && (p.version < l.version || p.title !== l.title || !p.mermaid); };
 async function scanDocument() {
   if (!inWord) return;
   try {
     await word(async ctx => {
       const pics = ctx.document.body.inlinePictures;
-      pics.load("items/altTextDescription");
+      pics.load("items/altTextDescription,items/altTextTitle,items/width");
       await ctx.sync();
-      const found = pics.items.map(p => parseAlt(p.altTextDescription)).filter(Boolean);
-      docDiagrams = found.filter((d, i) => found.findIndex(x => x.documentId === d.documentId) === i);
+      docPictures = pics.items.map(p => ({ ...parseAlt(p.altTextDescription), tag: p.altTextTitle, width: p.width }))
+        .filter(p => p.documentId);
+      docDiagrams = docPictures.filter((d, i) => docPictures.findIndex(x => x.documentId === d.documentId) === i);
     });
+    const ids = docDiagrams.map(d => d.documentId);
+    const infos = await Promise.all(ids.map(id => quietly("/info?doc=" + id)));
+    ids.forEach((id, i) => infos[i] && latestOf.set(id, infos[i]));
   } catch (e) { console.warn("reading the document's diagrams:", e); }
   refreshButtons();
 }
+
+// Every out-of-date diagram picture in the document, each to the latest of its
+// own diagram (not the editor's), keeping its width, page and caption.
+$("updateAll").onclick = () => act("Updating...", async () => {
+  // Each out-of-date picture gets a tag of its own first (a copied picture
+  // shares its original's), so it can be found again after the ones before it change.
+  const stale = [];
+  await word(async ctx => {
+    const pics = ctx.document.body.inlinePictures;
+    pics.load("items/altTextDescription,items/altTextTitle,items/width");
+    await ctx.sync();
+    const seen = new Set();
+    for (const pic of pics.items) {
+      const p = { ...parseAlt(pic.altTextDescription), width: pic.width };
+      if (!p.documentId || !isStale(p)) continue;
+      const tag = !pic.altTextTitle.startsWith(TAG_PREFIX) || seen.has(pic.altTextTitle) ? newTag() : pic.altTextTitle;
+      pic.altTextTitle = tag;
+      seen.add(tag);
+      stale.push({ ...p, tag });
+    }
+    await ctx.sync();
+  });
+  let done = 0;
+  for (const [i, p] of stale.entries()) {
+    const report = msg => say(`${i + 1} of ${stale.length}, "${p.title}": ${msg}`);
+    const ids = { documentId: p.documentId, embedId: p.embedId };
+    const d = await exportDiagram(ids, p.page, p.width, report);
+    await word(async ctx => {
+      const pics = ctx.document.body.inlinePictures;
+      pics.load("items/altTextDescription,items/altTextTitle,items/width");
+      await ctx.sync();
+      const pic = pics.items.find(x => x.altTextTitle === p.tag);
+      if (!pic) return console.warn("picture gone before its update:", p.title);
+      await replacePicture(ctx, pic, null, parseAlt(pic.altTextDescription), d, ids);
+      done++;
+    });
+  }
+  say(`Updated ${done} picture${done === 1 ? "" : "s"} to the latest from Lucid.`);
+});
 
 $("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };
 
