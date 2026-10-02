@@ -77,7 +77,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v36</span>
+  <span id="build">build v37</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -576,6 +576,7 @@ const CAPTION = "Figure";
 const CAPTION_FONT = { italic: true, size: 9, color: "#44546A" }; // the look of Word's Caption style
 async function addCaption(ctx, para, title) {
   const cap = para.insertParagraph("", Word.InsertLocation.after);
+  cap.styleBuiltIn = Word.BuiltInStyleName.normal; // stays, where the Caption style doesn't take
   cap.alignment = Word.Alignment.centered;
   await ctx.sync();
   // Word on the web takes the Caption style without an error and leaves the
@@ -682,7 +683,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
     // after a figure's caption when the cursor is on the figure's picture.
     let anchor = ctx.document.getSelection().paragraphs.getLast();
     let next = anchor.getNextOrNullObject();
-    anchor.load("text");
+    anchor.load("text,styleBuiltIn");
     anchor.inlinePictures.load("items");
     next.load("text");
     await ctx.sync();
@@ -692,7 +693,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
       body.load("text,style,alignment,font/name,font/size,font/color,font/italic,font/bold");
       anchor = next;
       next = anchor.getNextOrNullObject();
-      anchor.load("text");
+      anchor.load("text,styleBuiltIn");
       anchor.inlinePictures.load("items");
       await ctx.sync();
     }
@@ -709,7 +710,11 @@ $("insert").onclick = () => act("Inserting...", async () => {
       Object.assign(after.font, plain ? { italic: false, bold: false, color: "#000000" }
         : { name: body.font.name, size: body.font.size, color: body.font.color, italic: body.font.italic, bold: body.font.bold });
     }
+    // After a heading, the next paragraph is body text (as pressing Enter there gives).
+    else if (next.isNullObject && /^(Heading\d|Title)$/.test(anchor.styleBuiltIn)) after.styleBuiltIn = Word.BuiltInStyleName.normal;
     const para = anchor.text.trim() || anchor.inlinePictures.items.length ? anchor.insertParagraph("", Word.InsertLocation.after) : anchor;
+    // Normal, not whatever the cursor's paragraph was: a figure after a heading mustn't become one.
+    para.styleBuiltIn = Word.BuiltInStyleName.normal;
     para.alignment = Word.Alignment.centered;
     dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag);
     await ctx.sync();
