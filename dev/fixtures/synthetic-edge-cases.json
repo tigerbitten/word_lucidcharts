@@ -1,0 +1,507 @@
+{
+ "title": "synthetic edge cases",
+ "pages": [
+  {
+   "id": "p1",
+   "title": "edge cases",
+   "items": {
+    "shapes": [
+     {
+      "id": "title",
+      "class": "DefaultTextBlockNew",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "System overview (draft)"
+       }
+      ]
+     },
+     {
+      "id": "outer",
+      "class": "SwimLaneBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Backend"
+       }
+      ],
+      "contains": {
+       "shapes": [
+        "api",
+        "inner",
+        "db",
+        "q"
+       ],
+       "lines": []
+      }
+     },
+     {
+      "id": "inner",
+      "class": "ContainerBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Workers"
+       }
+      ],
+      "contains": {
+       "shapes": [
+        "q"
+       ],
+       "lines": []
+      }
+     },
+     {
+      "id": "start",
+      "class": "TerminatorBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Start"
+       }
+      ]
+     },
+     {
+      "id": "api",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Parse \"request\""
+       }
+      ]
+     },
+     {
+      "id": "dec",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Valid?"
+       }
+      ]
+     },
+     {
+      "id": "db",
+      "class": "DatabaseBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Orders DB"
+       }
+      ]
+     },
+     {
+      "id": "q",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Queue\n worker"
+       }
+      ]
+     },
+     {
+      "id": "err",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Reject"
+       }
+      ]
+     },
+     {
+      "id": "blank",
+      "class": "ProcessBlock",
+      "textAreas": []
+     },
+     {
+      "id": "deco",
+      "class": "RectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": ""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "l1",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "start"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "api"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "l2",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "api"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "dec"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "l3",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "dec"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q"
+      },
+      "textAreas": [
+       {
+        "label": "t",
+        "text": "yes"
+       }
+      ]
+     },
+     {
+      "id": "l4",
+      "endpoint1": {
+       "style": "Arrow",
+       "connectedTo": "err"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "dec"
+      },
+      "textAreas": [
+       {
+        "label": "t",
+        "text": "no"
+       }
+      ]
+     },
+     {
+      "id": "l5",
+      "endpoint1": {
+       "style": "Arrow",
+       "connectedTo": "q"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "db"
+      },
+      "textAreas": [
+       {
+        "label": "t",
+        "text": "read/write"
+       }
+      ]
+     },
+     {
+      "id": "l6",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "db"
+      },
+      "endpoint2": {
+       "style": "None",
+       "connectedTo": "blank"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "l7",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": null
+      },
+      "textAreas": [
+       {
+        "label": "t",
+        "text": "dangling"
+       }
+      ]
+     },
+     {
+      "id": "l8",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "err"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "start"
+      },
+      "textAreas": [
+       {
+        "label": "t",
+        "text": "retry"
+       }
+      ]
+     },
+     {
+      "id": "l9",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "start"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "inner"
+      },
+      "textAreas": []
+     }
+    ]
+   }
+  },
+  {
+   "id": "p2",
+   "title": "code groups",
+   "items": {
+    "shapes": [
+     {
+      "id": "A",
+      "class": "LucidNativeMermaidSubgraphBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Alpha"
+       }
+      ],
+      "contains": {
+       "shapes": [],
+       "lines": [
+        "x1",
+        "x2",
+        "x3",
+        "xa"
+       ]
+      }
+     },
+     {
+      "id": "B",
+      "class": "LucidNativeMermaidSubgraphBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Beta"
+       }
+      ],
+      "contains": {
+       "shapes": [],
+       "lines": [
+        "y1",
+        "x2",
+        "xb"
+       ]
+      }
+     },
+     {
+      "id": "a1",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "a one"
+       }
+      ]
+     },
+     {
+      "id": "a2",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "a two"
+       }
+      ]
+     },
+     {
+      "id": "b1",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "b one"
+       }
+      ]
+     },
+     {
+      "id": "b2",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "b two"
+       }
+      ]
+     },
+     {
+      "id": "top",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "outside"
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "x1",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "a1"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "a2"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "x2",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "a1"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b1"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "x3",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "a2"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "a1"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "y1",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b1"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "b2"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "xa",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "a2"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "B"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "xb",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "b2"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "A"
+      },
+      "textAreas": []
+     },
+     {
+      "id": "z",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "top"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "a1"
+      },
+      "textAreas": []
+     }
+    ]
+   }
+  },
+  {
+   "id": "p3",
+   "title": "frame",
+   "items": {
+    "shapes": [
+     {
+      "id": "F",
+      "class": "FrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Frame"
+       }
+      ],
+      "contains": {
+       "shapes": [],
+       "lines": [
+        "c"
+       ]
+      }
+     },
+     {
+      "id": "p",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "P"
+       }
+      ]
+     },
+     {
+      "id": "q",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Q"
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "c",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "p"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q"
+      },
+      "textAreas": []
+     }
+    ]
+   }
+  }
+ ]
+}

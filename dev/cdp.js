@@ -3,8 +3,12 @@
 // runs), wordeditorframe (Word's ribbon and dialogs), word.cloud.microsoft (the
 // whole window, for screenshots), documents/picker or embeds (Lucid).
 //   node cdp.js targets
+//   node cdp.js open <url>  /  close <urlSubstr>   (tabs)
 //   node cdp.js eval <urlSubstr> <js>          (await-able; result printed as JSON)
 //   node cdp.js click <urlSubstr> <text|css:selector>
+//   node cdp.js type <urlSubstr> <text>[\n]    (into the focused element; \n = Enter)
+//   node cdp.js key <urlSubstr> <Enter|Escape|Delete|ctrl+a|...>
+//   node cdp.js mouse <urlSubstr> click|dblclick <x> <y>  /  drag <x> <y> <x2> <y2>
 //   node cdp.js file <urlSubstr> <path>        (fills the frame's file input)
 //   node cdp.js shot <urlSubstr> <file.png>    (hangs while the window is minimised)
 const [, , cmd, sel, ...rest] = process.argv;
@@ -30,12 +34,27 @@ async function connect(substr) {
     for (const t of await targets()) if (t.type === "page" || t.type === "iframe") console.log(t.type.padEnd(7), t.url.slice(0, 160));
     return;
   }
+  if (cmd === "open") {
+    // A new background tab; `shot` brings a tab to the front first.
+    const r = await fetch("http://127.0.0.1:9222/json/new?" + encodeURI(sel), { method: "PUT" });
+    console.log("opened", (await r.json()).url);
+    return;
+  }
+  if (cmd === "close") {
+    const t = (await targets()).find(t => t.type === "page" && t.url.includes(sel));
+    if (!t) throw new Error("no tab matching " + sel);
+    await fetch("http://127.0.0.1:9222/json/close/" + t.id);
+    console.log("closed", t.url.slice(0, 100));
+    return;
+  }
   const c = await connect(sel);
   if (cmd === "eval") {
     const r = await c.send("Runtime.evaluate", { expression: rest.join(" "), awaitPromise: true, returnByValue: true, timeout: 60000 });
     if (r.exceptionDetails) { console.error("EXCEPTION", JSON.stringify(r.exceptionDetails.exception?.description || r.exceptionDetails)); process.exitCode = 1; }
     else console.log(JSON.stringify(r.result.value, null, 1));
   } else if (cmd === "shot") {
+    // Only the visible tab paints, so bring this one to the front (no-op for an iframe).
+    await c.send("Page.bringToFront").catch(() => {});
     const r = await c.send("Page.captureScreenshot", { format: "png" });
     require("fs").writeFileSync(rest[0], Buffer.from(r.data, "base64"));
     console.log("wrote", rest[0]);
@@ -53,6 +72,36 @@ async function connect(substr) {
     for (const type of ["mouseMoved", "mousePressed", "mouseReleased"])
       await c.send("Input.dispatchMouseEvent", { type, x: p.x, y: p.y, button: "left", clickCount: 1 });
     console.log("clicked", rest[0], "at", Math.round(p.x), Math.round(p.y));
+  } else if (cmd === "type") {
+    // Types into whatever has focus (click it first); a trailing "\n" presses Enter.
+    const text = rest.join(" ");
+    await c.send("Input.insertText", { text: text.replace(/\\n$/, "") });
+    if (text.endsWith("\\n")) for (const type of ["keyDown", "keyUp"])
+      await c.send("Input.dispatchKeyEvent", { type, key: "Enter", code: "Enter", windowsVirtualKeyCode: 13, text: type === "keyDown" ? "\r" : undefined });
+    console.log("typed", text);
+  } else if (cmd === "key") {
+    // One key press: Enter, Escape, Delete, Backspace, Tab, or a letter with ctrl+ (ctrl+a).
+    const [mod, name] = rest[0].includes("+") ? rest[0].split("+") : [null, rest[0]];
+    const codes = { Enter: 13, Escape: 27, Delete: 46, Backspace: 8, Tab: 9, ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39 };
+    const vk = codes[name] || name.toUpperCase().charCodeAt(0);
+    const modifiers = mod === "ctrl" ? 2 : mod === "shift" ? 8 : 0;
+    for (const type of ["rawKeyDown", "keyUp"])
+      await c.send("Input.dispatchKeyEvent", { type, key: name, code: codes[name] ? name : "Key" + name.toUpperCase(), windowsVirtualKeyCode: vk, modifiers });
+    console.log("pressed", rest[0]);
+  } else if (cmd === "mouse") {
+    // Raw mouse at x,y (frame coordinates): click, dblclick, or drag to x2,y2.
+    const [action, x, y, x2, y2] = rest; const X = +x, Y = +y;
+    const ev = (type, px, py, extra = {}) => c.send("Input.dispatchMouseEvent", { type, x: px, y: py, button: "left", ...extra });
+    if (action === "drag") {
+      await ev("mouseMoved", X, Y); await ev("mousePressed", X, Y, { clickCount: 1 });
+      for (let i = 1; i <= 10; i++) await ev("mouseMoved", X + (x2 - X) * i / 10, Y + (y2 - Y) * i / 10, { buttons: 1 });
+      await ev("mouseReleased", +x2, +y2, { clickCount: 1 });
+    } else {
+      const n = action === "dblclick" ? 2 : 1;
+      await ev("mouseMoved", X, Y);
+      for (let i = 1; i <= n; i++) { await ev("mousePressed", X, Y, { clickCount: i }); await ev("mouseReleased", X, Y, { clickCount: i }); }
+    }
+    console.log(action, rest.slice(1).join(","));
   } else if (cmd === "file") {
     // Fills the frame's file input without the OS file dialog.
     const { root } = await c.send("DOM.getDocument", { depth: -1 });

@@ -1,0 +1,733 @@
+{
+ "id": "5dfaee2c-cb98-4b83-932b-a972a22e37db",
+ "title": "icons test",
+ "version": 388,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "IwGz3FhwcEQB",
+      "class": "FreehandDrawingBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "0wGz3o3P6GG5",
+      "class": "TrafficManagerProfilesAzure2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGziSLnBZJ8",
+      "class": "GCPContainerColoDCOnPremises",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Subnet/Tier"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "IwGzV02AUWke"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "IwGzdq6n22Ds",
+      "class": "CustomShapeBankBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Azure (2024) shapes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzs~rK1OLI",
+      "class": "AzureCosmosDBAzure2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Azure Cosmos DB"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UtGzYeTlWVNC",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "🔒"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IwGzhP5-QBl8",
+      "class": "UserImage2Block",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": [],
+      "image": {
+       "type": "user",
+       "url": "https://images.lucid.app/images/c3427cf4-7af7-4ef2-bd10-7c80879799b0/content"
+      }
+     },
+     {
+      "id": "IwGzbbRvpd66",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzZNX7ffrp",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Automatically visualize your cloud infrastructure. Click here to learn more about how Lucidscale helps you automatically create diagrams of your existing cloud architecture."
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGz8XDRyztN",
+      "class": "FreehandDrawingBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzV02AUWke",
+      "class": "VMImagesClassicAzure2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "VM Images (Classic)"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGz6Rb7MYwg",
+      "class": "FreehandDrawingBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGz1U7i~3Ve",
+      "class": "AECloudBlock",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzuPWjM7VY",
+      "class": "FreehandBlock",
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGz6XIPQ~Tr",
+      "class": "LoadBalancersAzure2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Load Balancers"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UtGzyV5FQelc",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "✅ Done"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "auGzP9lTpPt1",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Process"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "XwGzZq4eq0Nw",
+      "class": "LoadBalancersAzure2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Load Balancers"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UtGzY-r51qMG",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "📄 Input"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "UtGzvAx3qZip",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Five-Icon Visual Flow"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "UtGzEMXBUDig",
+        "UtGzY-r51qMG",
+        "UtGzYeTlWVNC",
+        "UtGzbEDJye42",
+        "UtGzyV5FQelc",
+        "auGzP9lTpPt1"
+       ],
+       "lines": [
+        "UtGz3c-VsmQ_",
+        "UtGzQj00~EOd",
+        "UtGzb7zkige_",
+        "UtGzg.dBr5KK",
+        "auGzhPgfSG1-"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "IwGzN3HrTGt0",
+      "class": "GCPContainerColoDCOnPremises",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Subnet/Tier"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "IwGzvGcV6Bif"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "IwGzPBbC~S8j",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Azure (2024) framework"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "IwGz1U7i~3Ve",
+        "IwGz6XIPQ~Tr",
+        "IwGzB~D4PmNS",
+        "IwGzN3HrTGt0",
+        "IwGzV02AUWke",
+        "IwGzbbRvpd66",
+        "IwGziSLnBZJ8",
+        "IwGzpb9CTwku",
+        "IwGzs~rK1OLI",
+        "IwGzuPWjM7VY",
+        "IwGzvGcV6Bif"
+       ],
+       "lines": [
+        "IwGzR.haY9v6",
+        "IwGzhEFn8Zvs"
+       ],
+       "groups": [
+        "IwGz1BYIn4iY",
+        "IwGz2S2qpy9k"
+       ]
+      }
+     },
+     {
+      "id": "IwGz-aaHUmAo",
+      "class": "ActionBlock",
+      "textAreas": [
+       {
+        "label": "ReadonlyTextArea",
+        "text": "Summarize"
+       },
+       {
+        "label": "SettingsButtonTextArea",
+        "text": "Customize"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UtGzbEDJye42",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "⚙️ Process"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "UtGzEMXBUDig",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "🟢"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "IwGzvGcV6Bif",
+      "class": "VMImagesClassicAzure2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "VM Images (Classic)"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzB~D4PmNS",
+      "class": "TrafficManagerProfilesAzure2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Traffic Manager Profiles"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzDmaWsOm-",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Lucidscale"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzd3Nph.dU",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Add another shape to the shape bank by simply dragging and dropping it inside!"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGz7276OQWu",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "IwGzDmaWsOm-",
+        "IwGzZNX7ffrp"
+       ],
+       "lines": [],
+       "groups": []
+      },
+      "linkUrl": "https://lucidscale.com/?utm_source=lucidchart-template&utm_campaign=cloud-template"
+     },
+     {
+      "id": "IwGz-Gy8AwdA",
+      "class": "SparkRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzpb9CTwku",
+      "class": "FreehandBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "UtGzg.dBr5KK",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "UtGzEMXBUDig"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "UtGzY-r51qMG"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzhEFn8Zvs",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IwGzB~D4PmNS"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IwGz6XIPQ~Tr"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UtGzQj00~EOd",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "UtGzYeTlWVNC"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "UtGzyV5FQelc"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UtGzb7zkige_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "UtGzY-r51qMG"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "UtGzbEDJye42"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9wGzQh7d_0Ha",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XwGzZq4eq0Nw"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "0wGz3o3P6GG5"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "~wGzIYBCbtce",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XwGzZq4eq0Nw"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IwGzPBbC~S8j"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "auGzhPgfSG1-",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "UtGzY-r51qMG"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "auGzP9lTpPt1"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UtGz3c-VsmQ_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "UtGzbEDJye42"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "UtGzYeTlWVNC"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzR.haY9v6",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "IwGz1U7i~3Ve"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IwGzB~D4PmNS"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [
+     {
+      "id": "IwGzuWuR3VGQ",
+      "members": [
+       "IwGzhP5-QBl8",
+       "IwGz-Gy8AwdA"
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGz1BYIn4iY",
+      "members": [
+       "IwGzuPWjM7VY",
+       "IwGzpb9CTwku"
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGz2S2qpy9k",
+      "members": [
+       "IwGzbbRvpd66"
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGznfIEcchu",
+      "members": [
+       "IwGz8XDRyztN",
+       "IwGz6Rb7MYwg",
+       "IwGz3FhwcEQB"
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IwGzkOi9h4aa",
+      "members": [
+       "IwGznfIEcchu",
+       "IwGzuWuR3VGQ",
+       "IwGzd3Nph.dU"
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

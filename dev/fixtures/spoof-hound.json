@@ -1,0 +1,760 @@
+{
+ "title": "Spoof Hound",
+ "id": "98f1f819-3b6f-4393-8dcc-996bc9b8be9f",
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "6ArzDYo.36AW",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Output reports run_summary.txt and other output files"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArzPttavE9C",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Spoof Hound"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "2Drzc6CgnomE",
+        "6ArzDYo.36AW",
+        "6ArzH7n3BGze",
+        "6ArzJFla4ubN",
+        "6ArzVO9HNLwB",
+        "6ArzZiicqvTQ",
+        "6ArzgtzQvjmm",
+        "6ArzkOE~oVDN",
+        "6ArznYjb47fK"
+       ],
+       "lines": [
+        "2DrzpqZt3C7o",
+        "6Arz3iqNuOgD",
+        "6Arz7bBsrZL4",
+        "6ArzIMZlxMiu",
+        "6ArzL2D~e5e5",
+        "6Arzf_.ytuCm",
+        "6ArzqbNzweJG",
+        "6ArzzjFIOfy5",
+        "qGrzffGKjGUj"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "2Drzc6CgnomE",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "daim_dpi.so"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArzJFla4ubN",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "EDA converters (fsdb2vcd or simvisdbutils)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArzZiicqvTQ",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Waveform input (.fsdb or .trn)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArzkOE~oVDN",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Read Monitor\n decodes read events; validates with C validator"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArznYjb47fK",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Shared library VCD loading, ADC sampling, preamble detection, interpolator"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArzgtzQvjmm",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Servo Monitor decodes servo events; validates against srv_fdi bus"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArzVO9HNLwB",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Run Summary and Register Dump assigns Pass/Fail; records failure reason; diffs registers for failures"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "6ArzH7n3BGze",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "main.py orchestrator runs selected monitors"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "6ArzqbNzweJG",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArzgtzQvjmm"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzVO9HNLwB"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "qGrzffGKjGUj",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArznYjb47fK"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzH7n3BGze"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "6Arzf_.ytuCm",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArzkOE~oVDN"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzVO9HNLwB"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "6ArzIMZlxMiu",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArzH7n3BGze"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzkOE~oVDN"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "6ArzzjFIOfy5",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArzZiicqvTQ"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzJFla4ubN"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "6ArzL2D~e5e5",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArzVO9HNLwB"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzDYo.36AW"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "6Arz7bBsrZL4",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArzJFla4ubN"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArznYjb47fK"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "6Arz3iqNuOgD",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "6ArzH7n3BGze"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzgtzQvjmm"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "2DrzpqZt3C7o",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "2Drzc6CgnomE"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "6ArzkOE~oVDN"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  },
+  {
+   "id": "XSqzquyxogsy",
+   "title": "Page 2",
+   "index": 1,
+   "items": {
+    "shapes": [
+     {
+      "id": "X47b6J6oJ8xx8AIzbz/uVmm7Upo=",
+      "class": "LucidNativeMermaidSubgraphBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Spoof Hound"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [],
+       "lines": [
+        "54cFdi4hh9aG4rU+0fnTUvLUIl0=",
+        "EnGfk2IbV7NtPKYrAT/yYVOHB8A=",
+        "Qus7xkIjOcd/A/Enm982FxUrDpg=",
+        "VI9H66h8ohdrAXaBI5b9p47ffAQ=",
+        "arsXewAbM7V6UKYQ7cCMwRnb+o0=",
+        "kawNYJgEEWTqRtWb3TuERfBNcRg=",
+        "rIWUvy1elfVy/QD7BEVgLa+SNkM=",
+        "siG+QqvNe4iBZggnGqnhMYp7k1E=",
+        "vLZcnTKsSe7ZUfLvsS12YAu53BY="
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "zM57i/C+Nuchk+ekaBi8bYcVALY=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Waveform input (.fsdb or .trn)"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "XPWoSShcn2Y4YA9M3H99Iq5pXYk=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "EDA converters (fsdb2vcd or simvisdbutils)"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "/GLtfdKm7A0XPjejOLU/0KVLgCs=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Shared library VCD loading, ADC sampling, preamble detection, interpolator"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "BIzkl4gDAcZOmrbMwFt8qdGnKn0=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "main.py orchestrator runs selected monitors"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "C5jipq0cFoXg/T4/kHTu7+AnFnE=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "daim_dpi.so"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "4RUqqLy/XDoRD02x+LmorSWX/9o=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Read Monitor\ndecodes read events; validates with C validator"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "mZRXW+zD32cJgRBXErwLnb0f/RU=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Servo Monitor decodes servo events; validates against srv_fdi bus"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "iH968Xwa5MzTUIzTzs/d6kyViHc=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Run Summary and Register Dump assigns Pass/Fail; records failure reason; diffs registers for failures"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "IsjM3OWq/T1JNb0wopZFMp3los4=",
+      "class": "LucidNativeMermaidRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Output reports run_summary.txt and other output files"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "cHzJwXZSQu/diEqeLdXPtLIH3NM=",
+      "class": "LucidNativeMermaidConnectionTargetBlock",
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "54cFdi4hh9aG4rU+0fnTUvLUIl0=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "zM57i/C+Nuchk+ekaBi8bYcVALY="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "XPWoSShcn2Y4YA9M3H99Iq5pXYk="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "Qus7xkIjOcd/A/Enm982FxUrDpg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "XPWoSShcn2Y4YA9M3H99Iq5pXYk="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "/GLtfdKm7A0XPjejOLU/0KVLgCs="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "EnGfk2IbV7NtPKYrAT/yYVOHB8A=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "/GLtfdKm7A0XPjejOLU/0KVLgCs="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "BIzkl4gDAcZOmrbMwFt8qdGnKn0="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "arsXewAbM7V6UKYQ7cCMwRnb+o0=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "BIzkl4gDAcZOmrbMwFt8qdGnKn0="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "4RUqqLy/XDoRD02x+LmorSWX/9o="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "siG+QqvNe4iBZggnGqnhMYp7k1E=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "BIzkl4gDAcZOmrbMwFt8qdGnKn0="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "mZRXW+zD32cJgRBXErwLnb0f/RU="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "kawNYJgEEWTqRtWb3TuERfBNcRg=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "C5jipq0cFoXg/T4/kHTu7+AnFnE="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "4RUqqLy/XDoRD02x+LmorSWX/9o="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "vLZcnTKsSe7ZUfLvsS12YAu53BY=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "4RUqqLy/XDoRD02x+LmorSWX/9o="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "iH968Xwa5MzTUIzTzs/d6kyViHc="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "VI9H66h8ohdrAXaBI5b9p47ffAQ=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "mZRXW+zD32cJgRBXErwLnb0f/RU="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "iH968Xwa5MzTUIzTzs/d6kyViHc="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "rIWUvy1elfVy/QD7BEVgLa+SNkM=",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "iH968Xwa5MzTUIzTzs/d6kyViHc="
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "IsjM3OWq/T1JNb0wopZFMp3los4="
+      },
+      "textAreas": [
+       {
+        "label": "MermaidLabel",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

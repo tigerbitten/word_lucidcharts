@@ -1,0 +1,24 @@
+flowchart TD
+  subgraph g1["Backend"]
+    direction TB
+    subgraph g2["Workers"]
+      direction TB
+      n4["Queue<br>worker"]
+    end
+    n2["Parse #quot;request#quot;"]
+    n6[("Orders DB")]
+  end
+  n1(["Start"])
+  n3{"Valid?"}
+  n5["Reject"]
+  n7["Process"]
+  n1 --> g2
+  n1 --> n2
+  n2 --> n3
+  n3 -->|"yes"| n4
+  n3 -->|"no"| n5
+  n4 <-->|"read/write"| n6
+  n5 -->|"retry"| n1
+  n6 --- n7
+  %% note: System overview (draft)
+  %% connector with a loose end: dangling

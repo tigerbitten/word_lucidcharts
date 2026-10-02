@@ -1,0 +1,22 @@
+flowchart TD
+  subgraph g1["Spoof Hound"]
+    direction TB
+    n1["Waveform input (.fsdb or .trn)"]
+    n2["EDA converters (fsdb2vcd or simvisdbutils)"]
+    n3["Shared library VCD loading, ADC sampling, preamble detection, interpolator"]
+    n4["main.py orchestrator runs selected monitors"]
+    n5["daim_dpi.so"]
+    n6["Read Monitor<br>decodes read events; validates with C validator"]
+    n7["Servo Monitor decodes servo events; validates against srv_fdi bus"]
+    n8["Run Summary and Register Dump assigns Pass/Fail; records failure reason; diffs registers for failures"]
+    n9["Output reports run_summary.txt and other output files"]
+  end
+  n1 --> n2
+  n2 --> n3
+  n3 --> n4
+  n4 --> n6
+  n4 --> n7
+  n5 --> n6
+  n6 --> n8
+  n7 --> n8
+  n8 --> n9

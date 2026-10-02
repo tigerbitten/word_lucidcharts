@@ -101,15 +101,23 @@ function pageToMermaid(page) {
   // subgraph shapes don't).
   const notes = [];
   const isNode = s => !isContainer(s) && (connected.has(s.id) || (textOf(s) && !/text|subgraph/i.test(s.class)));
-  for (const s of shapes) if (!isContainer(s) && !isNode(s) && textOf(s)) notes.push(textOf(s));
+  // A container is only a subgraph if something it holds is a node, or a
+  // connector ends on it; one holding only freehand strokes, pictures or
+  // untitled scraps would be an empty box, so it's a note too.
+  const kept = new Set();
+  const keep = id => { for (let p = id; p && !kept.has(p); p = parent.get(p)) kept.add(p); };
+  for (const s of shapes) if (isNode(s)) keep(parent.get(s.id));
+  for (const id of connected) if (isContainer(byId.get(id))) keep(id);
+  const isGroup = s => isContainer(s) && kept.has(s.id);
+  for (const s of shapes) if (!isGroup(s) && !isNode(s) && textOf(s)) notes.push(textOf(s));
 
   // Reading order: follow the arrows from the sources (topological order),
   // ties and cycles falling back to Lucid's own order. Mermaid lays out in
   // declaration order, so this also keeps the drawing's flow.
-  const order = topoOrder(shapes.filter(s => isNode(s) || isContainer(s)).map(s => s.id), edges);
+  const order = topoOrder(shapes.filter(s => isNode(s) || isGroup(s)).map(s => s.id), edges);
   const ids = new Map();
   let n = 0, g = 0;
-  for (const id of order) ids.set(id, isContainer(byId.get(id)) ? "g" + ++g : "n" + ++n);
+  for (const id of order) ids.set(id, isGroup(byId.get(id)) ? "g" + ++g : "n" + ++n);
 
   const out = ["flowchart TD"];
   // A container sits where its first member sits in reading order.
@@ -118,7 +126,7 @@ function pageToMermaid(page) {
   function childrenOf(id) { return order.filter(c => parent.get(c) === id); }
   function emit(id, indent) {
     const s = byId.get(id), pad = "  ".repeat(indent);
-    if (isContainer(s)) {
+    if (isGroup(s)) {
       out.push(`${pad}subgraph ${ids.get(id)}["${label(textOf(s))}"]`);
       // Without this, Mermaid lays a subgraph's contents out left to right.
       out.push(`${pad}  direction TB`);

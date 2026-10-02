@@ -1,0 +1,41 @@
+flowchart TD
+  subgraph g2["Five-Icon Visual Flow"]
+    direction TB
+    n1["🟢"]
+    n2["📄 Input"]
+    n3["⚙️ Process"]
+    n6["🔒"]
+    n13["✅ Done"]
+    n14["Process"]
+  end
+  subgraph g4["Azure (2024) framework"]
+    direction TB
+    n4["AE Cloud"]
+    n5["Traffic Manager Profiles"]
+    subgraph g1["Subnet/Tier"]
+      direction TB
+      n11["VM Images (Classic)"]
+    end
+    n10["Azure Cosmos DB"]
+    n12["Load Balancers"]
+    subgraph g3["Subnet/Tier"]
+      direction TB
+      n16["VM Images (Classic)"]
+    end
+  end
+  n7["Load Balancers"]
+  n8["Traffic Manager Profiles"]
+  n9["Azure (2024) shapes"]
+  n15["Summarize<br>Customize"]
+  n1 --> n2
+  n2 --> n3
+  n2 --> n14
+  n3 --> n6
+  n4 --> n5
+  n5 --> n12
+  n6 --> n13
+  n7 --> n8
+  n7 --> g4
+  %% note: Automatically visualize your cloud infrastructure. Click here to learn more about how Lucidscale helps you automatically create diagrams of your existing cloud architecture.
+  %% note: Lucidscale
+  %% note: Add another shape to the shape bank by simply dragging and dropping it inside!
