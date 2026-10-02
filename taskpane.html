@@ -18,55 +18,64 @@
 </script>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <style>
+  /* Colours follow Word's theme: light here, dark (class "dark" on <html>, set from Office's theme) below. */
+  :root { --bg: #fff; --fg: #000; --muted: #555; --faint: #999; --bar: #f6f8fc; --line: #e0e0e0;
+    --btn: #f5f5f5; --btn-line: #bbb; --btn-hover: #e9eefb; --btn-off: #aaa; --help: #fffbea; --help-line: #eadfa8;
+    --err: #b42318; --stale: #b45309; --fresh: #15803d; }
+  :root.dark { --bg: #1b1a19; --fg: #d2d0ce; --muted: #b3b0ad; --faint: #8a8886; --bar: #252423; --line: #3b3a39;
+    --btn: #2d2c2b; --btn-line: #605e5c; --btn-hover: #3b3a39; --btn-off: #6e6c6a; --help: #2f2a1c; --help-line: #5c5230;
+    --err: #f87171; --stale: #fbbf24; --fresh: #4ade80; }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   body { font-family: "Segoe UI", Calibri, system-ui, sans-serif; font-size: 14px; margin: 0;
-    height: 100vh; display: flex; flex-direction: column; background: #fff; color: #000; }
-  button { font: inherit; padding: 0.35rem 0.7rem; border: 1px solid #bbb; border-radius: 4px;
-    background: #f5f5f5; cursor: pointer; }
-  button:hover:not(:disabled) { background: #e9eefb; }
-  button:disabled { color: #aaa; cursor: default; }
+    height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); }
+  button { font: inherit; padding: 0.35rem 0.7rem; border: 1px solid var(--btn-line); border-radius: 4px;
+    background: var(--btn); color: var(--fg); cursor: pointer; }
+  button:hover:not(:disabled) { background: var(--btn-hover); }
+  button:disabled { color: var(--btn-off); cursor: default; }
   button.primary { background: #2563eb; border-color: #1d4ed8; color: #fff; }
   button.primary:disabled { background: #9db5ef; border-color: #9db5ef; color: #fff; }
+  :root.dark button.primary:disabled { background: #2b3d66; border-color: #2b3d66; color: #9aa7c2; }
   button.icon { padding: 0.1rem 0.45rem; font-size: 0.95rem; line-height: 1.3; flex: none; }
-  select { font: inherit; font-size: 0.85rem; padding: 0.15rem 0.2rem; border: 1px solid #bbb; border-radius: 4px; background: #fff; }
+  select, input, textarea { font: inherit; border: 1px solid var(--btn-line); border-radius: 4px; background: var(--bg); color: var(--fg); }
+  select { font-size: 0.85rem; padding: 0.15rem 0.2rem; }
 
   /* The editor gets every pixel the bar and the buttons don't need. */
-  #bar { display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.4rem; background: #f6f8fc;
-    border-bottom: 1px solid #e0e0e0; flex: none; }
+  #bar { display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.4rem; background: var(--bar);
+    border-bottom: 1px solid var(--line); flex: none; }
   #diagram { flex: 1; min-width: 0; font-weight: 600; }
-  #build { color: #999; font-size: 0.7rem; flex: none; }
-  #pageRow { display: flex; align-items: center; gap: 0.3rem; padding: 0 0.4rem 0.3rem; background: #f6f8fc;
-    border-bottom: 1px solid #e0e0e0; font-size: 0.8rem; color: #555; flex: none; }
+  #build { color: var(--faint); font-size: 0.7rem; flex: none; }
+  #pageRow { display: flex; align-items: center; gap: 0.3rem; padding: 0 0.4rem 0.3rem; background: var(--bar);
+    border-bottom: 1px solid var(--line); font-size: 0.8rem; color: var(--muted); flex: none; }
   #page { flex: 1; min-width: 0; }
-  #help { padding: 0.5rem 0.7rem; background: #fffbea; border-bottom: 1px solid #eadfa8;
+  #help { padding: 0.5rem 0.7rem; background: var(--help); border-bottom: 1px solid var(--help-line);
     font-size: 0.82rem; line-height: 1.45; flex: none; max-height: 60vh; overflow: auto; }
   #help p { margin: 0 0 0.4rem; }
   #help p:last-child { margin: 0; }
-  #help input { width: 100%; margin-top: 0.2rem; font: inherit; padding: 0.2rem; }
+  #help input { width: 100%; margin-top: 0.2rem; padding: 0.2rem; }
   /* Over the editor, which keeps its state underneath. */
-  #md { position: absolute; inset: 0; background: #fff; display: flex; flex-direction: column; gap: 0.35rem; padding: 0.4rem; z-index: 1; }
-  #md p { margin: 0; font-size: 0.8rem; color: #444; }
+  #md { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; gap: 0.35rem; padding: 0.4rem; z-index: 1; }
+  #md p { margin: 0; font-size: 0.8rem; color: var(--muted); }
   #mdText { flex: 1; min-height: 0; width: 100%; font: 0.75rem/1.35 Consolas, monospace; resize: none; }
   #md div { display: flex; gap: 0.35rem; }
 
   #main { flex: 1; min-height: 0; position: relative; }
   #frame { width: 100%; height: 100%; border: 0; display: block; }
-  #card { position: absolute; inset: 0; padding: 2rem 1.2rem; text-align: center; background: #fff; }
-  #card p { color: #444; line-height: 1.45; max-width: 26rem; margin: 0 auto 1rem; }
+  #card { position: absolute; inset: 0; padding: 2rem 1.2rem; text-align: center; background: var(--bg); }
+  #card p { color: var(--muted); line-height: 1.45; max-width: 26rem; margin: 0 auto 1rem; }
 
-  #actions { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.4rem; border-top: 1px solid #e0e0e0; flex: none; }
+  #actions { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.4rem; border-top: 1px solid var(--line); flex: none; }
   #actions button { flex: 1 1 auto; padding: 0.3rem 0.5rem; }
   /* Long messages stay three lines; the whole text is in the tooltip. */
-  #status { flex-basis: 100%; font-size: 0.8rem; color: #333; line-height: 1.35;
+  #status { flex-basis: 100%; font-size: 0.8rem; line-height: 1.35;
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   #status:empty { display: none; }
-  #status.err { color: #b42318; }
-  #target { flex-basis: 100%; font-size: 0.78rem; color: #555; line-height: 1.35; }
+  #status.err { color: var(--err); }
+  #target { flex-basis: 100%; font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
   #target:empty { display: none; }
-  #target .stale { color: #b45309; font-weight: 600; }
-  #target .fresh { color: #15803d; }
-  #docLine { flex-basis: 100%; font-size: 0.78rem; color: #b45309; display: flex; align-items: center; gap: 0.4rem; }
+  #target .stale { color: var(--stale); font-weight: 600; }
+  #target .fresh { color: var(--fresh); }
+  #docLine { flex-basis: 100%; font-size: 0.78rem; color: var(--stale); display: flex; align-items: center; gap: 0.4rem; }
   #docLine button { flex: none; font-size: 0.78rem; padding: 0.1rem 0.5rem; }
 </style>
 </head>
@@ -77,7 +86,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v38</span>
+  <span id="build">build v39</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -1077,6 +1086,14 @@ $("retry").onclick = start;
     inWord = info.host === Office.HostType.Word;
   } catch (e) { console.warn(e.message); }
   if (inWord) {
+    // Word's theme: dark colours when its background is dark, again whenever it changes (where Office says so).
+    const theme = () => {
+      const bg = (Office.context.officeTheme || {}).bodyBackgroundColor || "#ffffff";
+      const [r, g, b] = bg.match(/[0-9a-f]{2}/gi).map(h => parseInt(h, 16));
+      document.documentElement.classList.toggle("dark", 0.299 * r + 0.587 * g + 0.114 * b < 128);
+    };
+    theme();
+    Office.context.document.addHandlerAsync(Office.EventType.OfficeThemeChanged, theme, () => {});
     Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, onSelectionChanged,
       r => console.log("selection handler:", r.status, r.error && r.error.message));
   } else console.warn("not running inside Word: Insert/Update/Edit selected are disabled");

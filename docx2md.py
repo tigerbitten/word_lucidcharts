@@ -53,7 +53,8 @@ def paragraph(p):
             text = "# " + text
         elif p.find(f"{W}pPr/{W}numPr") is not None or re.match(r"(?i)list", style):
             text = "- " + text
-        elif re.match(r"(?i)caption", style):
+        elif re.match(r"(?i)caption", style) or re.match(r"Figure\s*\d+\s*:", text):
+            # The add-in's captions are typed where Word has no Caption style (Word on the web).
             text = f"*{text}*"
         blocks.append(text)
     return "\n\n".join(blocks)
