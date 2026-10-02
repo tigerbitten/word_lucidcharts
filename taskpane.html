@@ -28,65 +28,68 @@
   button:disabled { color: #aaa; cursor: default; }
   button.primary { background: #2563eb; border-color: #1d4ed8; color: #fff; }
   button.primary:disabled { background: #9db5ef; border-color: #9db5ef; color: #fff; }
-  button.small { padding: 0.15rem 0.5rem; font-size: 0.8rem; }
-  select.small { font: inherit; font-size: 0.8rem; padding: 0.1rem; max-width: 12rem; }
-  #pageLabel { font-size: 0.8rem; color: #555; }
+  button.icon { padding: 0.1rem 0.45rem; font-size: 0.95rem; line-height: 1.3; flex: none; }
+  select { font: inherit; font-size: 0.85rem; padding: 0.15rem 0.2rem; border: 1px solid #bbb; border-radius: 4px; background: #fff; }
 
-  #top { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.4rem 0.6rem;
+  /* The editor gets every pixel the bar and the buttons don't need. */
+  #bar { display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.4rem; background: #f6f8fc;
     border-bottom: 1px solid #e0e0e0; flex: none; }
-  #status { flex: 1; min-width: 0; color: #444; font-size: 0.85rem; }
-  #status.err { color: #b42318; }
-  #build { color: #999; font-size: 0.75rem; flex: none; }
-
-  #diagramBar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem;
-    background: #f6f8fc; border-bottom: 1px solid #e0e0e0; flex: none; font-size: 0.85rem; }
-  #diagramName { flex: 1; min-width: 8rem; }
+  #diagram { flex: 1; min-width: 0; font-weight: 600; }
+  #build { color: #999; font-size: 0.7rem; flex: none; }
+  #pageRow { display: flex; align-items: center; gap: 0.3rem; padding: 0 0.4rem 0.3rem; background: #f6f8fc;
+    border-bottom: 1px solid #e0e0e0; font-size: 0.8rem; color: #555; flex: none; }
+  #page { flex: 1; min-width: 0; }
   #help { padding: 0.5rem 0.7rem; background: #fffbea; border-bottom: 1px solid #eadfa8;
-    font-size: 0.82rem; line-height: 1.45; flex: none; }
+    font-size: 0.82rem; line-height: 1.45; flex: none; max-height: 60vh; overflow: auto; }
   #help p { margin: 0 0 0.4rem; }
   #help p:last-child { margin: 0; }
+  #help input { width: 100%; margin-top: 0.2rem; font: inherit; padding: 0.2rem; }
 
   #main { flex: 1; min-height: 0; position: relative; }
   #frame { width: 100%; height: 100%; border: 0; display: block; }
   #card { position: absolute; inset: 0; padding: 2rem 1.2rem; text-align: center; background: #fff; }
   #card p { color: #444; line-height: 1.45; max-width: 26rem; margin: 0 auto 1rem; }
 
-  #actions { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.6rem;
-    border-top: 1px solid #e0e0e0; flex: none; }
-  #target { flex-basis: 100%; font-size: 0.8rem; color: #555; line-height: 1.4; }
+  #actions { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.4rem; border-top: 1px solid #e0e0e0; flex: none; }
+  #actions button { flex: 1 1 auto; padding: 0.3rem 0.5rem; }
+  /* Long messages stay three lines; the whole text is in the tooltip. */
+  #status { flex-basis: 100%; font-size: 0.8rem; color: #333; line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  #status:empty { display: none; }
+  #status.err { color: #b42318; }
+  #target { flex-basis: 100%; font-size: 0.78rem; color: #555; line-height: 1.35; }
+  #target:empty { display: none; }
   #target .stale { color: #b45309; font-weight: 600; }
   #target .fresh { color: #15803d; }
-  #fallback { flex-basis: 100%; font-size: 0.8rem; color: #666; }
-  #fallback input { width: 100%; margin-top: 0.3rem; font: inherit; padding: 0.25rem; }
 </style>
 </head>
 <body>
-<div id="top">
-  <span id="status">Starting...</span>
-  <span id="build">build v29</span>
+<div id="bar">
+  <select id="diagram" title="The diagram in the editor. Open another: one already in this document, a recent one, or any in Lucid"></select>
+  <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work inside Word">&#8599;</button>
+  <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
+  <button id="helpToggle" class="icon" title="How this works">?</button>
+  <span id="build">build v30</span>
 </div>
-<div id="diagramBar">
-  <span id="diagramName"></span>
-  <label id="pageLabel" hidden>Page for Word:
-    <select id="page" class="small" title="Which page of this diagram Insert new puts in the document. Lucid's editor doesn't tell the add-in which page you're viewing, so it's chosen here."></select></label>
-  <button id="lucid" class="small" title="Open this diagram on lucid.app in a browser tab: more room, and Lucid features that don't work inside Word">Open in Lucid &#8599;</button>
-  <button id="reload" class="small" title="Reload the editor so it shows the latest version, e.g. after editing on lucid.app">&#8635; Reload</button>
-  <button id="new" class="small" title="Back to Lucid's document picker">Switch diagram</button>
-  <button id="helpToggle" class="small" title="How editing works">?</button>
+<div id="pageRow" hidden>
+  <label for="page">Page for Word:</label>
+  <select id="page" title="Which page of this diagram Insert puts in the document. Lucid's editor doesn't tell the add-in which page you're viewing, so it's chosen here."></select>
 </div>
 <div id="help" hidden>
   <p><b>There's one copy of each diagram, in your Lucid account.</b> This editor and lucid.app
     are two windows onto that same diagram: edit in either, and every change saves to Lucid by itself.</p>
-  <p><b>Open in Lucid &#8599;</b> gives you more room and the Lucid features that don't work inside
-    Word, like Create with AI. It's the same diagram, so <b>Update selected</b> always puts the latest
-    into Word. If the editor here doesn't show changes made there, click <b>&#8635; Reload</b>.</p>
-  <p><b>The pictures in Word are snapshots.</b> They only change when you click <b>Update selected</b>.
-    The line above the buttons says whether the selected picture is up to date.</p>
-  <p>If the editor asks you to log in, log in to lucid.app in a browser tab (it can't be done
-    inside Word), then click <b>Switch diagram</b>.</p>
-  <p><b>Page for Word</b> (for diagrams with several pages) picks the page that goes into the
-    document. It's separate from the page tabs in the editor because Lucid's editor doesn't tell
-    the add-in which page you're looking at.</p>
+  <p><b>The pictures in Word are snapshots.</b> <b>Insert</b> adds the diagram as a new picture below the
+    cursor; <b>Update</b> brings the selected picture up to date. The line above the buttons says whether
+    it is. <b>Edit selected</b> opens the selected picture's diagram here.</p>
+  <p><b>The menu at the top</b> switches diagrams: the ones already in this document, your recent ones,
+    or <i>Browse or create in Lucid</i>. <b>&#8599;</b> opens the diagram on lucid.app for more room and the
+    Lucid features that don't work inside Word, like Create with AI; <b>&#8635;</b> reloads the editor here.</p>
+  <p><b>Page for Word</b> (for diagrams with several pages) picks the page that goes into the document:
+    Lucid's editor doesn't tell the add-in which page you're looking at.</p>
+  <p>If the editor asks you to log in, log in to lucid.app in a browser tab (it can't be done inside Word),
+    then pick the diagram again from the menu.</p>
+  <p>Diagram not detected? Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
+    <input id="docUrl" placeholder="https://lucid.app/lucidchart/..."></p>
 </div>
 <div id="main">
   <iframe id="frame" allow="clipboard-read; clipboard-write; fullscreen" hidden></iframe>
@@ -97,15 +100,11 @@
   </div>
 </div>
 <div id="actions">
+  <div id="status">Starting...</div>
   <div id="target"></div>
-  <button id="insert" class="primary" title="Insert the diagram in the editor below the cursor">Insert new</button>
-  <button id="replace">Update selected</button>
-  <button id="load" title="Open the selected diagram picture in the editor">Load selected</button>
-  <details id="fallback">
-    <summary>Diagram not detected?</summary>
-    Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
-    <input id="docUrl" placeholder="https://lucid.app/lucidchart/...">
-  </details>
+  <button id="insert" class="primary" title="Insert the diagram in the editor as a new picture below the cursor">Insert</button>
+  <button id="replace">Update</button>
+  <button id="load" title="Open the selected picture's diagram in the editor">Edit selected</button>
 </div>
 <script>
 // Hardcoded: the prototype backend runs on this machine only (see server.js).
@@ -140,6 +139,7 @@ let signInTimer = null;
 
 function say(msg, isError) {
   $("status").textContent = msg;
+  $("status").title = msg; // the line is clamped to three lines; this shows all of it
   $("status").className = isError ? "err" : "";
   (isError ? console.error : console.log)("status:", msg);
 }
@@ -160,34 +160,69 @@ function refreshButtons() {
   const stale = changed || renamed || noMermaid;
   $("insert").disabled = !ready || !current;
   $("replace").disabled = !ready || !current || !t;
-  $("replace").textContent = !t || !current || same ? "Update selected" : "Replace selected";
-  $("replace").title = !t || !current || same ? "Bring the picture up to date with the diagram in the editor"
-    : `Swap the picture for the diagram in the editor${current ? ` ("${current.title}")` : ""}`;
+  $("replace").textContent = !t || !current || same ? "Update" : "Replace";
+  $("replace").title = !t ? "Select a diagram picture in the document to update it"
+    : !current || same ? "Bring the selected picture up to date with the diagram in the editor"
+    : `Put the diagram in the editor ("${current.title}") in place of the selected picture`;
   $("replace").className = same && stale ? "primary" : "";
   $("load").disabled = !ready || selected.kind !== "ours";
-  $("new").disabled = busy;
+  $("load").title = selected.kind === "ours" ? "Open the selected picture's diagram in the editor" : "Select a diagram picture in the document to edit its diagram";
+  $("diagram").disabled = busy;
   $("lucid").disabled = !current;
   // Reloading needs an embed to reopen; without one (pasted URL) it would show the picker.
   $("reload").disabled = busy || !current || !current.embedId;
-  $("pageLabel").hidden = !current || !current.pages || current.pages.length < 2;
-  $("diagramName").innerHTML = "";
-  $("diagramName").append(...(current
-    ? ["In the editor: ", Object.assign(document.createElement("b"), { textContent: current.title })]
-    : ["No diagram open. Pick or create one below, choose Edit, then click Lucid's Insert."]));
+  $("pageRow").hidden = !current || !current.pages || current.pages.length < 2;
+  renderMenu();
 
   const line = $("target");
   line.innerHTML = "";
   if (!inWord) return;
   const add = (text, cls) => line.append(Object.assign(document.createElement("span"), { textContent: text, className: cls || "" }));
-  if (selected.kind === "other") return add("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
-  if (!t) return add("Select a diagram picture in the document to load, update or replace it.");
-  add(selected.kind === "ours" ? `Selected: "${t.title}".` : `Nothing selected, so the buttons use the picture you last inserted or loaded: "${t.title}".`);
-  if (changed) add(" It's out of date: the diagram changed in Lucid since this picture was made"
-    + (renamed ? `, and was renamed "${t.latestTitle}".` : "."), "stale");
-  else if (renamed) add(` It's out of date: the diagram was renamed "${t.latestTitle}" in Lucid.`, "stale");
-  else if (noMermaid) add(" It has no Mermaid text for LLMs yet (it was inserted by an older version): Update selected adds it.", "stale");
-  else if (t.version != null && t.latest != null) add(" It's up to date with Lucid.", "fresh");
-  if (current && !same) add(` It's a different diagram from the one in the editor: Load selected to edit it, or Replace selected to turn it into "${current.title}".`);
+  if (selected.kind === "other") return add("The selected picture isn't one of this add-in's diagrams, so it's left alone.");
+  if (!t) return; // the disabled buttons' tooltips say to select a picture
+  add(selected.kind === "ours" ? `Selected: "${t.title}"` : `Last inserted: "${t.title}"`);
+  if (changed) add(renamed ? ` is out of date: changed and renamed "${t.latestTitle}" in Lucid.` : " is out of date: changed in Lucid.", "stale");
+  else if (renamed) add(` is out of date: renamed "${t.latestTitle}" in Lucid.`, "stale");
+  else if (noMermaid) add(" has no Mermaid text for LLMs yet: Update adds it.", "stale");
+  else if (t.version != null && t.latest != null) add(" is up to date.", "fresh");
+  else add(".");
+  if (current && !same) add(` It's a different diagram from the editor's: Edit selected opens it; Replace puts "${current.title}" in its place.`);
+}
+
+// The diagram menu: the editor's diagram, then others to open: the ones in
+// this document and recently used ones (each opens straight in the editor,
+// no picker), and Lucid's picker for the rest. Rebuilt only when its entries
+// change, so the 10-second refresh doesn't snap it shut while it's open.
+let docDiagrams = []; // from the document's pictures, one per Lucid document
+let menuKey = "";
+function renderMenu() {
+  const seen = new Set(current ? [current.documentId] : []);
+  const pick = list => list.filter(d => !seen.has(d.documentId) && seen.add(d.documentId));
+  const groups = [["In this document", pick(docDiagrams), "doc"], ["Recent", pick(recent()), "recent"]];
+  const key = JSON.stringify([current && current.title, groups.map(([, l]) => l.map(d => d.documentId + d.title))]);
+  if (key === menuKey) return;
+  menuKey = key;
+  const sel = $("diagram");
+  sel.innerHTML = "";
+  sel.append(new Option(current ? current.title : "Choose a diagram...", ""));
+  for (const [label, list, kind] of groups) {
+    if (!list.length) continue;
+    const g = Object.assign(document.createElement("optgroup"), { label });
+    for (const d of list) g.append(new Option(d.title, kind + ":" + d.documentId));
+    sel.append(g);
+  }
+  sel.append(new Option("Browse or create in Lucid...", "browse"));
+  sel.value = "";
+}
+
+// Diagrams opened here, newest first, so they reopen without the picker (this browser only).
+function recent() {
+  try { return JSON.parse(localStorage.getItem("recentDiagrams")) || []; } catch { return []; }
+}
+function remember(d) {
+  if (!d.embedId) return;
+  const list = [{ documentId: d.documentId, embedId: d.embedId, title: d.title }, ...recent().filter(r => r.documentId !== d.documentId)];
+  try { localStorage.setItem("recentDiagrams", JSON.stringify(list.slice(0, 8))); } catch {}
 }
 
 function showCard(text, { signIn = false, retry = false } = {}) {
@@ -239,7 +274,7 @@ async function act(label, fn) {
     say(e instanceof Error && !e.code ? e.message
       : "Word error: " + [e && e.code, e && e.message, e && e.debugInfo && JSON.stringify(e.debugInfo)].filter(Boolean).join(" | "), true);
   }
-  finally { busy = false; refreshButtons(); readSelection(); }
+  finally { busy = false; refreshButtons(); readSelection(); scanDocument(); }
 }
 
 async function loadEditor(embedId) {
@@ -252,6 +287,7 @@ async function loadEditor(embedId) {
 // Sets the editor's diagram, then fills in its real title and its pages from Lucid.
 function setCurrent(ids, title, page) {
   current = { documentId: ids.documentId, embedId: ids.embedId, title: title || "this diagram", page: page || "", pages: null };
+  if (title) remember(current);
   refreshButtons();
   syncLucid();
   return syncPages();
@@ -298,11 +334,12 @@ async function syncLucid() {
     if (!info) return;
     if (current && current.documentId === id) {
       current.title = info.title;
+      remember(current);
       current.version = info.version;
       // Back from editing on lucid.app: the diagram changed there, so say how to bring it here and into Word.
       if (current.lucidVersion != null && info.version !== current.lucidVersion && !busy) {
         current.lucidVersion = null;
-        say(`"${info.title}" was changed in Lucid. If the editor here doesn't show it yet, click ↻ Reload; Update selected puts it in Word.`);
+        say(`"${info.title}" was changed in Lucid. If the editor here doesn't show it yet, click ↻; Update puts it in Word.`);
       }
       // Pages may have been added, emptied or filled since the chooser was filled.
       if (current.pages && current.pagesVersion !== info.version) syncPages();
@@ -317,10 +354,14 @@ async function start() {
   say("Connecting...");
   try {
     if ((await backend("/status")).signedIn) {
-      // After a re-sign-in, come back to the diagram that was open.
-      const embedId = current && current.embedId;
-      await loadEditor(embedId);
-      say(embedId ? "Signed in. Carry on editing." : "");
+      // After a re-sign-in, come back to the diagram that was open; on opening
+      // the pane, to the last diagram used, ready to edit with no picker.
+      const back = current && current.embedId;
+      const last = !current && recent()[0];
+      await loadEditor(back ? current.embedId : last ? last.embedId : null);
+      if (last) setCurrent(last, last.title);
+      say(back ? "Signed in. Carry on editing." : last ? `Opened "${last.title}", the last diagram you used. The menu above opens others.`
+        : "Pick a diagram (or New) in Lucid's window below, then Continue and Insert.");
     } else {
       showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });
       say("Not signed in.");
@@ -334,7 +375,7 @@ function onLucidMessage(data) {
   console.log("lucid message", data);
   if (data && data.type === "LucidEmbedEvent" && data.event === "EmbedCreated") {
     setCurrent({ documentId: data.documentId, embedId: data.embedId });
-    say(inWord ? "Ready. Edit the diagram, then Insert new or Update selected." : "Diagram ready (open in Word to insert).");
+    say(inWord ? "Ready. Edit the diagram, then Insert it, or Update the selected picture." : "Diagram ready (open in Word to insert).");
   }
 }
 
@@ -691,7 +732,9 @@ $("replace").onclick = () => act("Updating...", async () => {
     : `Replaced "${oldTitle}" with "${d.title}".`) + drawnNote(d) + shrinkNote(widthPt, d));
 });
 
-$("load").onclick = () => act("Loading...", async () => {
+// Opens the selected picture's diagram in the editor (Edit selected, and the
+// menu's "In this document" entries).
+async function openSelected() {
   let found, tag, width;
   await word(async ctx => {
     const s = await inspectSelection(ctx, false);
@@ -702,20 +745,23 @@ $("load").onclick = () => act("Loading...", async () => {
     width = s.pic.width;
     if (tag !== s.pic.altTextTitle) { s.pic.altTextTitle = tag; await ctx.sync(); }
   });
-  // Without an embed id (inserted via a pasted URL) the editor can't jump straight to it.
+  // A picture linked by pasted URL has no embed; one is made if Lucid allows,
+  // else the editor shows the picker. Update records it in the picture.
+  if (!found.embedId) found.embedId = ((await quietly("/embed?doc=" + found.documentId)) || {}).embedId || null;
   await loadEditor(found.embedId);
   last = { kind: "ours", ...found, tag, width };
-  const msg = found.embedId ? `Loaded "${found.title}". Edit it, then Update selected.`
-    : `Linked to "${found.title}". Pick it in the editor to edit, then Update selected.`;
+  const msg = found.embedId ? `Opened "${found.title}". Edit it, then Update.`
+    : `Linked to "${found.title}". Pick it in Lucid's window to edit it, then Update.`;
   say(msg);
   // Lucid's editor always opens on the first page (notes.md). Once the page list
   // is in, say so if the picture shows another page and nothing else has been said since.
   setCurrent(found, found.title, found.page).then(() => {
     const page = found.embedId && pageInfo(found.page);
     if (page && current.pages.indexOf(page) > 0 && $("status").textContent === msg)
-      say(msg + ` The picture shows "${page.title}", but Lucid's editor opens on the first page: click its "${page.title}" tab, or use Open in Lucid, which opens on "${page.title}".`);
+      say(msg + ` The picture shows "${page.title}", but Lucid's editor opens on the first page: click its "${page.title}" tab, or use ↗ (Open in Lucid), which opens on "${page.title}".`);
   });
-});
+}
+$("load").onclick = () => act("Opening...", openSelected);
 
 function openInBrowser(url) {
   if (inWord && Office.context.requirements.isSetSupported("OpenBrowserWindowApi", "1.1")) Office.context.ui.openBrowserWindow(url);
@@ -726,7 +772,7 @@ $("lucid").onclick = () => {
   // lucid.app's editor takes ?page=, so this opens on the page chosen under Page for Word.
   openInBrowser(`https://lucid.app/lucidchart/${current.documentId}/edit` + (current.page ? `?page=${encodeURIComponent(current.page)}` : ""));
   current.lucidVersion = current.version; // syncLucid notices when it moves
-  say(`"${current.title}" opened in Lucid. It's the same diagram: Update selected puts your changes there into Word.`);
+  say(`"${current.title}" opened in Lucid. It's the same diagram: Update puts your changes there into Word.`);
 };
 
 $("reload").onclick = () => act("Reloading the editor...", async () => {
@@ -735,19 +781,62 @@ $("reload").onclick = () => act("Reloading the editor...", async () => {
   say(`Editor reloaded with the latest "${current.title}".`);
 });
 
-$("new").onclick = () => act("Loading...", async () => {
-  current = null;
-  await loadEditor();
-  say("");
-});
+$("diagram").onchange = () => {
+  const [kind, id] = $("diagram").value.split(":");
+  $("diagram").value = "";
+  if (kind === "browse") return act("Opening Lucid's document picker...", async () => {
+    current = null;
+    await loadEditor();
+    say("Pick a diagram (or New) in Lucid's window below, then Continue and Insert.");
+  });
+  // A diagram from this document: select its picture, so the buttons act on it, and open it.
+  if (kind === "doc") return act("Opening...", async () => {
+    await word(async ctx => {
+      const pics = ctx.document.body.inlinePictures;
+      pics.load("items/altTextDescription");
+      await ctx.sync();
+      const pic = pics.items.find(p => (parseAlt(p.altTextDescription) || {}).documentId === id);
+      if (!pic) throw new Error("That diagram's picture isn't in the document any more.");
+      pic.select();
+      await ctx.sync();
+    });
+    await openSelected();
+  });
+  if (kind === "recent") return act("Opening...", async () => {
+    const d = recent().find(r => r.documentId === id);
+    await loadEditor(d.embedId);
+    setCurrent(d, d.title);
+    say(`Opened "${d.title}".`);
+  });
+};
+
+// The Lucid diagrams in this document, for the menu: one entry per Lucid document.
+async function scanDocument() {
+  if (!inWord) return;
+  try {
+    await word(async ctx => {
+      const pics = ctx.document.body.inlinePictures;
+      pics.load("items/altTextDescription");
+      await ctx.sync();
+      const found = pics.items.map(p => parseAlt(p.altTextDescription)).filter(Boolean);
+      docDiagrams = found.filter((d, i) => found.findIndex(x => x.documentId === d.documentId) === i);
+    });
+  } catch (e) { console.warn("reading the document's diagrams:", e); }
+  refreshButtons();
+}
 
 $("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };
 
 $("docUrl").oninput = () => {
   const m = $("docUrl").value.match(new RegExp(UUID));
   if (!m) return;
-  setCurrent({ documentId: m[0], embedId: null });
-  say("Using the pasted document.");
+  act("Opening the pasted diagram...", async () => {
+    // In the editor if Lucid allows an embed of it; otherwise only linked, for the buttons.
+    const embedId = ((await quietly("/embed?doc=" + m[0])) || {}).embedId || null;
+    if (embedId) await loadEditor(embedId);
+    setCurrent({ documentId: m[0], embedId });
+    say(embedId ? "Opened the pasted diagram." : "Using the pasted diagram: Lucid won't show it in the editor here until it's picked once in Lucid's window (the menu's Browse).");
+  });
 };
 
 // The moment before a click: warm the backend's export cache, and re-check
@@ -770,7 +859,7 @@ $("actions").addEventListener("pointerenter", () => {
   syncLucid();
 });
 // Back from a lucid.app tab: edits made there may have made the picture stale.
-window.addEventListener("focus", onSelectionChanged);
+window.addEventListener("focus", () => { onSelectionChanged(); scanDocument(); });
 
 $("signIn").onclick = () => {
   // Lucid's sign-in page refuses to load in a frame, so it gets a real browser tab.
@@ -800,8 +889,9 @@ $("retry").onclick = start;
   if (inWord) {
     Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, onSelectionChanged,
       r => console.log("selection handler:", r.status, r.error && r.error.message));
-  } else console.warn("not running inside Word: Insert/Update/Load are disabled");
+  } else console.warn("not running inside Word: Insert/Update/Edit selected are disabled");
   readSelection();
+  scanDocument();
   await start();
 })();
 </script>

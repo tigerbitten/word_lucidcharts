@@ -114,6 +114,16 @@ const routes = {
     return { token: await r.text() };
   },
 
+  // A new editable embed of a document, for a picture that has none (linked by
+  // pasted URL), so it opens straight in the editor. Lucid only allows this for
+  // documents picked in its picker at some point (403 otherwise: the pane then
+  // shows the picker).
+  "/embed": async url => {
+    const r = await lucid(`/documents/${docId(url)}/embeds`, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embedVersion: "latest-version", accessLevel: "edit" }) });
+    return { embedId: (await r.json()).embedId };
+  },
+
   // Title and version (bumped on every saved edit), so the pane can tell whether a picture is out of date.
   "/info": async url => {
     const doc = await docInfo(docId(url));
