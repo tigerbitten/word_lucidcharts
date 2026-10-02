@@ -240,6 +240,7 @@ Page As).
 | Lucid refused the request (403) | Either your account can't open that diagram, or a scope is missing on the OAuth client (add it, then sign in again). |
 | The editor says "only signed in users… can access" | Log in to lucid.app in a browser tab (the embed uses that session), then pick the diagram again from the menu. |
 | A Lucid button in the editor does nothing (e.g. Create with AI) | Use **↗** (Open in Lucid); the full editor has everything. Same diagram, so **Update** picks the result up. |
+| A diagram made on lucid.app (e.g. with Create with AI) won't open in the editor here | Pick it once with the menu's **Browse or create in Lucid...**: Lucid only lets the add-in open diagrams that have been picked there. After that it opens straight from the menu. |
 | Update put in an older version | Lucid saves edits a second or two after you make them. Wait a moment and update again; the status line shows when a picture is out of date. |
 | Word didn't respond | Retry. If it repeats, reload the add-in. In Word on the web, this one is still being chased. |
 | The build marker isn't the latest | Word cached the old pane. Re-download and re-upload the manifest, or use a private window. |
