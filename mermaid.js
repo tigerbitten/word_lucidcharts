@@ -35,9 +35,138 @@ function className(cls) {
   return name.replace(/([a-z\d])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2");
 }
 
+// Sequence-diagram text: no line breaks, and ";" / "#" are statement and
+// entity syntax there, so they become entities too.
+const seqText = text => text.split("\n").map(l => l.trim()).filter(Boolean).join("<br>")
+  .replace(/#/g, "#35;").replace(/;/g, "#59;").replace(/"/g, "#quot;");
+
+// A UML sequence diagram, as Lucid draws one: each participant is a pair of
+// heads (UMLObjectBlock, or UMLActorBlock for an actor) joined by an arrowless
+// line, the lifeline. Messages are lines from a lifeline or an activation bar
+// (UMLActivationBlock) to another. Fragments (UMLOptionLoopBlock: loop, opt...;
+// UMLAlternativeBlock2: alt) list the messages inside them. Lucid lists lines
+// in the order they were drawn, which is the order the messages happen.
+// Returns null when the page has no lifelines.
+function sequenceToMermaid(shapes, lines) {
+  const byId = new Map(shapes.map(s => [s.id, s]));
+  const isHead = id => byId.has(id) && /^UML(Object|Actor)/.test(byId.get(id).class);
+  const lifelines = lines.filter(l => isHead(l.endpoint1.connectedTo) && isHead(l.endpoint2.connectedTo)
+    && textOf(byId.get(l.endpoint1.connectedTo)) === textOf(byId.get(l.endpoint2.connectedTo)));
+  if (!lifelines.length) return null;
+  // Participants in the order Lucid lists their heads (left to right, as drawn).
+  const owner = new Map(); // lifeline, head or activation id -> participant index
+  const participants = [];
+  for (const s of shapes.filter(s => isHead(s.id))) {
+    const l = lifelines.find(l => l.endpoint1.connectedTo === s.id || l.endpoint2.connectedTo === s.id);
+    if (!l || owner.has(l.id)) continue;
+    owner.set(l.id, participants.length);
+    owner.set(l.endpoint1.connectedTo, participants.length);
+    owner.set(l.endpoint2.connectedTo, participants.length);
+    participants.push({ name: textOf(s), actor: /Actor/.test(s.class) });
+  }
+  const activations = shapes.filter(s => /^UMLActivation/.test(s.class)).map(s => s.id);
+  const isEnd = id => owner.has(id) || activations.includes(id);
+  const messages = lines.filter(l => !lifelines.includes(l) && isEnd(l.endpoint1.connectedTo) && isEnd(l.endpoint2.connectedTo));
+
+  // Which lifeline an activation bar sits on is only in the drawing, so it's
+  // inferred: a bar isn't on the lifeline it exchanges messages with (a
+  // message from a bar to itself is a self call), every participant takes
+  // part in something, and Lucid lists bars lifeline by lifeline, left to
+  // right. The first placement (leftmost first) meeting all three wins; if
+  // none does, each bar goes on the first lifeline that's not at the other
+  // end of its messages.
+  const others = id => messages.flatMap(m => m.endpoint1.connectedTo === id && m.endpoint2.connectedTo !== id ? [m.endpoint2.connectedTo]
+    : m.endpoint2.connectedTo === id && m.endpoint1.connectedTo !== id ? [m.endpoint1.connectedTo] : []);
+  const direct = new Set(messages.flatMap(m => [m.endpoint1.connectedTo, m.endpoint2.connectedTo]).filter(id => owner.has(id)).map(id => owner.get(id)));
+  const fits = (a, p, placed) => others(a).every(o => (owner.has(o) ? owner.get(o) : placed.get(o)) !== p);
+  const place = (i, from, placed) => {
+    if (i === activations.length) {
+      const used = new Set([...direct, ...placed.values()]);
+      return participants.every((_, p) => used.has(p)) ? placed : null;
+    }
+    for (let p = from; p < participants.length; p++) {
+      if (!fits(activations[i], p, placed)) continue;
+      const done = place(i + 1, p, new Map(placed).set(activations[i], p));
+      if (done) return done;
+    }
+    return null;
+  };
+  let placed = activations.length <= 40 && place(0, 0, new Map());
+  if (!placed) {
+    placed = new Map();
+    for (const a of activations) placed.set(a, Math.max(0, participants.findIndex((_, p) => fits(a, p, placed))));
+  }
+  const who = id => owner.has(id) ? owner.get(id) : placed.get(id);
+
+  // A message back to a participant whose call is still unanswered is the
+  // reply to it (Lucid draws those dashed, but the API doesn't say so). An
+  // open arrowhead is an asynchronous message.
+  const fragments = shapes.filter(s => /^UML(OptionLoop|Alternative)/.test(s.class) && s.contains)
+    .map(s => ({ s, msgs: messages.filter(m => s.contains.lines.includes(m.id)) })).filter(f => f.msgs.length);
+  const out = ["sequenceDiagram"];
+  const titles = [...new Set(shapes.filter(s => /Frame|Text/.test(s.class) && textOf(s)).map(textOf))];
+  if (titles.length === 1) out.push(`  title ${seqText(titles[0])}`);
+  participants.forEach((p, i) => out.push(`  ${p.actor ? "actor" : "participant"} p${i + 1} as ${seqText(p.name)}`));
+
+  // Messages in drawing order; a fragment opens at its first message and
+  // holds all of its own, a fragment inside it being one whose messages are a
+  // subset. An alt's branches aren't recorded either: a branch starts where a
+  // message repeats the sender and receiver of the alt's first one.
+  function emit(msgs, frags, pad, calls) {
+    const done = new Set();
+    for (const m of msgs) {
+      if (done.has(m)) continue;
+      const f = frags.find(f => f.msgs.includes(m) && !frags.some(g => g !== f && g.msgs.length > f.msgs.length && f.msgs.every(x => g.msgs.includes(x))));
+      if (f) {
+        const inner = frags.filter(g => g !== f && g.msgs.every(x => f.msgs.includes(x)));
+        const areas = f.s.textAreas || [];
+        const title = (areas.find(t => t.label === "Title") || {}).text || "";
+        const cond = t => (t || "").replace(/^\s*\[|\]\s*$/g, "").trim();
+        if (/^UMLAlternative/.test(f.s.class)) {
+          const conds = areas.filter(t => /^(Condition|Else\d+)$/.test(t.label)).map(t => cond(t.text));
+          const first = f.msgs[0];
+          const branches = [[]];
+          for (const x of f.msgs) {
+            if (x !== first && branches.length < conds.length && who(x.endpoint1.connectedTo) === who(first.endpoint1.connectedTo)
+              && who(x.endpoint2.connectedTo) === who(first.endpoint2.connectedTo)) branches.push([]);
+            branches[branches.length - 1].push(x);
+          }
+          conds.forEach((c, i) => {
+            out.push(`${pad}${i ? "else" : "alt"} ${seqText(c)}`);
+            emit(branches[i] || [], inner, pad + "  ", [...calls]);
+          });
+        } else {
+          const kind = (title.match(/^\s*(loop|opt|par|break|critical)/i) || [, "opt"])[1].toLowerCase();
+          const text = (areas.find(t => t.label === "Text") || {}).text;
+          out.push(`${pad}${kind} ${seqText(cond(text) || (kind === "opt" && !/^\s*opt/i.test(title) ? title : ""))}`);
+          emit(f.msgs, inner, pad + "  ", calls);
+        }
+        out.push(`${pad}end`);
+        f.msgs.forEach(x => done.add(x));
+        continue;
+      }
+      let [a, b] = [m.endpoint1, m.endpoint2];
+      if (a.style && a.style !== "None" && (!b.style || b.style === "None")) [a, b] = [b, a];
+      const from = who(a.connectedTo), to = who(b.connectedTo);
+      const open = calls.lastIndexOf(`${to}>${from}`);
+      const async = /open/i.test(b.style || "");
+      const arrow = from !== to && open >= 0 && !async ? "-->>" : async ? "-)" : "->>";
+      if (arrow === "-->>") calls.splice(open, 1);
+      else if (from !== to) calls.push(`${from}>${to}`);
+      out.push(`${pad}p${from + 1}${arrow}p${to + 1}: ${seqText(textOf(m))}`);
+      done.add(m);
+    }
+  }
+  emit(messages, fragments, "  ", []);
+  for (const s of shapes) if (/Text|Note/.test(s.class) && textOf(s) && !titles.includes(textOf(s))) out.push(`  %% note: ${textOf(s).replace(/\s+/g, " ")}`);
+  return out.join("\n");
+}
+
 function pageToMermaid(page) {
   const shapes = (page.items && page.items.shapes) || [];
   const lines = (page.items && page.items.lines) || [];
+  const sequence = sequenceToMermaid(shapes, lines);
+  if (sequence) return sequence;
   const byId = new Map(shapes.map(s => [s.id, s]));
   const linesById = new Map(lines.map(l => [l.id, l]));
   // A container's members are the shapes it lists.
@@ -127,9 +256,17 @@ function pageToMermaid(page) {
   function emit(id, indent) {
     const s = byId.get(id), pad = "  ".repeat(indent);
     if (isGroup(s)) {
-      out.push(`${pad}subgraph ${ids.get(id)}["${label(textOf(s))}"]`);
+      // Lucid's swimlane is one shape: the lanes' titles are its text areas
+      // (Primary_0, Primary_1, ...) and it lists every step at once. Which lane
+      // a step is in only shows in the drawing (the API has no positions), so
+      // the lanes are named and that's said.
+      const lanes = (s.textAreas || []).filter(t => /^(Primary|Secondary)_\d+$/.test(t.label) && (t.text || "").trim());
+      const title = lanes.length ? (s.textAreas.find(t => /Title/.test(t.label)) || {}).text : textOf(s);
+      const name = [title, lanes.length && `lanes: ${lanes.map(t => t.text.trim()).join(", ")}`].filter(t => t && t.trim()).join(" - ");
+      out.push(`${pad}subgraph ${ids.get(id)}["${label(name || "")}"]`);
       // Without this, Mermaid lays a subgraph's contents out left to right.
       out.push(`${pad}  direction TB`);
+      if (lanes.length) out.push(`${pad}  %% Lucid's API doesn't say which lane each step below is in`);
       for (const c of childrenOf(id).sort((x, y) => firstRank(x) - firstRank(y))) emit(c, indent + 1);
       out.push(`${pad}end`);
     } else {
@@ -149,7 +286,7 @@ function pageToMermaid(page) {
 // Kahn's algorithm. Of the nodes ready next, the one heading the longest chain
 // goes first, so the main flow reads top to bottom and a side input lands just
 // before the step it feeds; on a tie, the step that continues from the node
-// just placed, then `ids` order. Whatever a cycle leaves behind follows in `ids` order.
+// just placed, then `ids` order.
 function topoOrder(ids, edges) {
   const inDegree = new Map(ids.map(id => [id, 0]));
   for (const e of edges) if (inDegree.has(e.to) && inDegree.has(e.from)) inDegree.set(e.to, inDegree.get(e.to) + 1);
@@ -169,7 +306,11 @@ function topoOrder(ids, edges) {
   const best = candidates => candidates.reduce((a, b) => (score(b) > score(a) ? b : a), candidates[0]);
   while (order.length < ids.length) {
     const ready = ids.filter(id => !done.has(id) && inDegree.get(id) === 0);
-    const next = ready.length ? best(ready) : ids.find(id => !done.has(id));
+    // Stuck in a loop (a "fix it and resubmit" arrow back): carry on with a
+    // step something already placed points to, rather than jumping to
+    // whichever shape Lucid happens to list first.
+    const reached = ids.filter(id => !done.has(id) && edges.some(e => e.to === id && done.has(e.from)));
+    const next = ready.length ? best(ready) : reached.length ? best(reached) : ids.find(id => !done.has(id));
     done.add(next); order.push(next);
     for (const e of edges) if (e.from === next && !done.has(e.to) && inDegree.has(e.to)) inDegree.set(e.to, inDegree.get(e.to) - 1);
   }

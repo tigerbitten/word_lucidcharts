@@ -85,8 +85,11 @@ async function connect(substr) {
     const codes = { Enter: 13, Escape: 27, Delete: 46, Backspace: 8, Tab: 9, ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39 };
     const vk = codes[name] || name.toUpperCase().charCodeAt(0);
     const modifiers = mod === "ctrl" ? 2 : mod === "shift" ? 8 : 0;
-    for (const type of ["rawKeyDown", "keyUp"])
-      await c.send("Input.dispatchKeyEvent", { type, key: name, code: codes[name] ? name : "Key" + name.toUpperCase(), windowsVirtualKeyCode: vk, modifiers });
+    // Enter needs its "\r" text, or forms and chat boxes don't see a submit.
+    for (const type of ["keyDown", "keyUp"])
+      await c.send("Input.dispatchKeyEvent", { type: type === "keyDown" && name !== "Enter" ? "rawKeyDown" : type, key: name,
+        code: codes[name] ? name : "Key" + name.toUpperCase(), windowsVirtualKeyCode: vk, modifiers,
+        text: type === "keyDown" && name === "Enter" ? "\r" : undefined });
     console.log("pressed", rest[0]);
   } else if (cmd === "mouse") {
     // Raw mouse at x,y (frame coordinates): click, dblclick, or drag to x2,y2.

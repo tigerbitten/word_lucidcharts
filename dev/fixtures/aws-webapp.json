@@ -1,0 +1,838 @@
+{
+ "id": "ef8bc8bf-898b-4920-afd5-3ca801bb3dab",
+ "title": "Blank diagram",
+ "version": 764,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "q8GzJZNdZGPw",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "AWS Cloud Architecture"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8Gz0luS78ZS",
+        "q8Gz19X7j6E8",
+        "q8Gz4T949aub",
+        "q8Gz63vH41r.",
+        "q8Gz8gRgWlMq",
+        "q8Gz8mVkLJbs",
+        "q8GzA1UbeyNs",
+        "q8GzKK1GsOFm",
+        "q8GzKp4FMigE",
+        "q8GzVj_41iY6",
+        "q8GzX1utCebK",
+        "q8GzXew1Z6eP",
+        "q8GzYRGnvVi4",
+        "q8Gz_gwTCFNj",
+        "q8GzeUL__lzp",
+        "q8GzfaZnwbKN",
+        "q8GzgVe8wQOp",
+        "q8GzhJdavKq3",
+        "q8Gzk9w~Y3Mv",
+        "q8GzsvsI1rps",
+        "q8Gzu34yD_z6",
+        "q8Gz~fHKoIrg"
+       ],
+       "lines": [
+        "q8Gz2CfHX~j.",
+        "q8GzHroJphED",
+        "q8GzIEzjZHCF",
+        "q8GzLbpJCtDc",
+        "q8GzMSDS90S8",
+        "q8GzUYYYzL3o",
+        "q8GzVNEkL_~b",
+        "q8Gz_-WogvrS",
+        "q8Gzb3WaEBs~",
+        "q8GzdK~K9ddf",
+        "q8GzdjFq~aZA",
+        "q8GzfgbUvWmB",
+        "q8Gzm3WkEDCA",
+        "q8Gzs4ngjzCA",
+        "q8GzwJr-6.Zd"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8GzhJdavKq3",
+      "class": "ResAmazonRoute53HostedZoneAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Route 53 DNS"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gz0luS78ZS",
+      "class": "ArchAmazonCloudFrontAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Amazon CloudFront"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzKK1GsOFm",
+      "class": "ResAmazonSimpleStorageServiceBucketWithObjectsAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "S3 Static Website"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gz19X7j6E8",
+      "class": "ResAmazonSimpleQueueServiceQueueAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Amazon SQS Queue"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gz~fHKoIrg",
+      "class": "ResAWSLambdaLambdaFunctionAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "AWS Lambda Worker"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzgVe8wQOp",
+      "class": "ResElasticLoadBalancingApplicationLoadBalancerAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Application Load Balancer (AZ1)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8Gzu34yD_z6",
+      "class": "ResAmazonEC2AutoScalingAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "EC2 Auto Scaling (AZ1)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8Gz8mVkLJbs",
+      "class": "ResAmazonElastiCacheElastiCacheforRedisAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "ElastiCache (AZ1)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8GzeUL__lzp",
+      "class": "ResAmazonAuroraAmazonRDSInstanceAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "RDS Primary"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8GzKp4FMigE",
+      "class": "ResElasticLoadBalancingApplicationLoadBalancerAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Application Load Balancer (AZ2)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8GzXew1Z6eP",
+      "class": "ResAmazonEC2AutoScalingAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "EC2 Auto Scaling (AZ2)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8GzsvsI1rps",
+      "class": "ResAmazonElastiCacheElastiCacheforRedisAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "ElastiCache (AZ2)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8Gz4T949aub",
+      "class": "ResAmazonAuroraAmazonRDSInstanceAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "RDS Read Replica"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "ROW"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "COLUMN"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "q8GzfaZnwbKN",
+      "class": "VirtualPrivateCloudVPCAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "VPC"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8Gz4T949aub",
+        "q8Gz63vH41r.",
+        "q8Gz8gRgWlMq",
+        "q8Gz8mVkLJbs",
+        "q8GzA1UbeyNs",
+        "q8GzKp4FMigE",
+        "q8GzVj_41iY6",
+        "q8GzX1utCebK",
+        "q8GzXew1Z6eP",
+        "q8GzYRGnvVi4",
+        "q8Gz_gwTCFNj",
+        "q8GzeUL__lzp",
+        "q8GzgVe8wQOp",
+        "q8Gzk9w~Y3Mv",
+        "q8GzsvsI1rps",
+        "q8Gzu34yD_z6"
+       ],
+       "lines": [
+        "q8GzMSDS90S8",
+        "q8GzUYYYzL3o",
+        "q8GzVNEkL_~b",
+        "q8Gzb3WaEBs~",
+        "q8GzfgbUvWmB",
+        "q8Gzm3WkEDCA",
+        "q8GzwJr-6.Zd"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8Gzk9w~Y3Mv",
+      "class": "AvailabilityZoneAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Availability Zone 1"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8Gz63vH41r.",
+        "q8Gz8mVkLJbs",
+        "q8GzA1UbeyNs",
+        "q8GzYRGnvVi4",
+        "q8GzeUL__lzp",
+        "q8GzgVe8wQOp",
+        "q8Gzu34yD_z6"
+       ],
+       "lines": [
+        "q8GzMSDS90S8",
+        "q8GzfgbUvWmB"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8GzYRGnvVi4",
+      "class": "PublicSubnetAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Public Subnet (AZ1)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8GzgVe8wQOp"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8Gz63vH41r.",
+      "class": "PrivateSubnetAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Private App Subnet (AZ1)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8Gz8mVkLJbs",
+        "q8Gzu34yD_z6"
+       ],
+       "lines": [
+        "q8GzMSDS90S8"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8GzA1UbeyNs",
+      "class": "PrivateSubnetAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Private DB Subnet (AZ1)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8GzeUL__lzp"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8GzVj_41iY6",
+      "class": "AvailabilityZoneAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Availability Zone 2"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8Gz4T949aub",
+        "q8Gz8gRgWlMq",
+        "q8GzKp4FMigE",
+        "q8GzX1utCebK",
+        "q8GzXew1Z6eP",
+        "q8Gz_gwTCFNj",
+        "q8GzsvsI1rps"
+       ],
+       "lines": [
+        "q8GzUYYYzL3o",
+        "q8GzVNEkL_~b",
+        "q8Gzm3WkEDCA"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8Gz_gwTCFNj",
+      "class": "PublicSubnetAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Public Subnet (AZ2)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8GzKp4FMigE"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8GzX1utCebK",
+      "class": "PrivateSubnetAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Private App Subnet (AZ2)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8GzXew1Z6eP",
+        "q8GzsvsI1rps"
+       ],
+       "lines": [
+        "q8GzUYYYzL3o"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "q8Gz8gRgWlMq",
+      "class": "PrivateSubnetAWS2024",
+      "textAreas": [
+       {
+        "label": "Title",
+        "text": "Private DB Subnet (AZ2)"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "q8Gz4T949aub"
+       ],
+       "lines": [],
+       "groups": []
+      }
+     }
+    ],
+    "lines": [
+     {
+      "id": "q8GzHroJphED",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8GzhJdavKq3"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gz0luS78ZS"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "DNS"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gz_-WogvrS",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gz0luS78ZS"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8GzKK1GsOFm"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "/static"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzLbpJCtDc",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gz19X7j6E8"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gz~fHKoIrg"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "events"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzIEzjZHCF",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gz0luS78ZS"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8GzgVe8wQOp"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "/app"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gz2CfHX~j.",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gz0luS78ZS"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8GzKp4FMigE"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "/app"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzfgbUvWmB",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8GzgVe8wQOp"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gzu34yD_z6"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gzm3WkEDCA",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8GzKp4FMigE"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8GzXew1Z6eP"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzwJr-6.Zd",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gzu34yD_z6"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8GzeUL__lzp"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "read/write"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzVNEkL_~b",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8GzXew1Z6eP"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gz4T949aub"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "read"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gzb3WaEBs~",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8GzeUL__lzp"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gz4T949aub"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "replication"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzMSDS90S8",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gzu34yD_z6"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gz8mVkLJbs"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzUYYYzL3o",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8GzXew1Z6eP"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8GzsvsI1rps"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzdK~K9ddf",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gz~fHKoIrg"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gzu34yD_z6"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "process"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8GzdjFq~aZA",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gz~fHKoIrg"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8GzeUL__lzp"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "read/write"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "q8Gzs4ngjzCA",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "q8Gz~fHKoIrg"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "q8Gz8mVkLJbs"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

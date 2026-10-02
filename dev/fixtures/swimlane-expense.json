@@ -1,0 +1,523 @@
+{
+ "id": "5c157cbc-14dd-43b6-b9ab-878c5b83d610",
+ "title": "Blank diagram",
+ "version": 421,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "84Gz3k4bEXW_",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Process reimbursement"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_3"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "84GzSX6QMTZ8",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Missing receipt?"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "84GzrAt7kXoH",
+      "class": "TerminatorBlockV2",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "End"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_3"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "74GzNAVQj-MC",
+      "class": "AdvancedSwimLaneBlock",
+      "textAreas": [
+       {
+        "label": "FloatingTitle",
+        "text": ""
+       },
+       {
+        "label": "Primary_0",
+        "text": "Employee"
+       },
+       {
+        "label": "Primary_1",
+        "text": "Manager"
+       },
+       {
+        "label": "Primary_2",
+        "text": "Finance"
+       },
+       {
+        "label": "Primary_3",
+        "text": "Payroll System"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "74GzvSVjAoYA",
+        "84Gz3k4bEXW_",
+        "84Gz5MrO9kB6",
+        "84Gz9NO0nuD4",
+        "84GzSX6QMTZ8",
+        "84GziSJ_J~Qu",
+        "84GzrAt7kXoH",
+        "84GztwTlkZRd",
+        "84Gzy0VMSlIS"
+       ],
+       "lines": [
+        "84Gz-wsWOM-8",
+        "84Gz4rZog_bE",
+        "84GzCqfc1IMv",
+        "84GzGlvt4LA~",
+        "84GzVmPCl9-A",
+        "84GzYZEnrnVB",
+        "84GzZWN-Glo7",
+        "84Gz_fxKrLEa",
+        "84Gzky~ybMtp",
+        "84GzoHRb0Zg_"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "84GziSJ_J~Qu",
+      "class": "DecisionBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Amount over limit?"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "84GzPFNUbN7s",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Employee Expense Approval"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        "74GzNAVQj-MC",
+        "74GzvSVjAoYA",
+        "84Gz3k4bEXW_",
+        "84Gz5MrO9kB6",
+        "84Gz9NO0nuD4",
+        "84GzSX6QMTZ8",
+        "84GziSJ_J~Qu",
+        "84GzrAt7kXoH",
+        "84GztwTlkZRd",
+        "84Gzy0VMSlIS"
+       ],
+       "lines": [
+        "84Gz-wsWOM-8",
+        "84Gz4rZog_bE",
+        "84GzCqfc1IMv",
+        "84GzGlvt4LA~",
+        "84GzVmPCl9-A",
+        "84GzYZEnrnVB",
+        "84GzZWN-Glo7",
+        "84Gz_fxKrLEa",
+        "84Gzky~ybMtp",
+        "84GzoHRb0Zg_"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": "84Gz9NO0nuD4",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Attach receipt"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "74GzvSVjAoYA",
+      "class": "TerminatorBlockV2",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Start"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "84Gzy0VMSlIS",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Submit expense report"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_0"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "84Gz5MrO9kB6",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Review expense"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_1"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     },
+     {
+      "id": "84GztwTlkZRd",
+      "class": "ProcessBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Audit claim"
+       }
+      ],
+      "customData": [],
+      "linkedData": [
+       {
+        "collectionId": null,
+        "data": [
+         {
+          "key": "SpreadsheetRowParentKey",
+          "value": "Primary_2"
+         },
+         {
+          "key": "SpreadsheetColumnParentKey",
+          "value": "DEFAULT_EMPTY"
+         }
+        ],
+        "primaryKeyValue": "\"192d0e9f-2f5a-4032-9f03-59bbf1ea5891\""
+       }
+      ]
+     }
+    ],
+    "lines": [
+     {
+      "id": "84GzGlvt4LA~",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84GziSJ_J~Qu"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84GztwTlkZRd"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "No"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84GzZWN-Glo7",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84Gz3k4bEXW_"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84GzrAt7kXoH"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84Gz4rZog_bE",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84Gz9NO0nuD4"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84Gzy0VMSlIS"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84GzoHRb0Zg_",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84GzSX6QMTZ8"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84GziSJ_J~Qu"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "No"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84Gz-wsWOM-8",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84GziSJ_J~Qu"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84Gz5MrO9kB6"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Yes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84GzYZEnrnVB",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "74GzvSVjAoYA"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84Gzy0VMSlIS"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84GzVmPCl9-A",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84GzSX6QMTZ8"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84Gz9NO0nuD4"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "Yes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84GzCqfc1IMv",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84Gzy0VMSlIS"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84GzSX6QMTZ8"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84Gzky~ybMtp",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84Gz5MrO9kB6"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84GztwTlkZRd"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "84Gz_fxKrLEa",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "84GztwTlkZRd"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "84Gz3k4bEXW_"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218308185
+}

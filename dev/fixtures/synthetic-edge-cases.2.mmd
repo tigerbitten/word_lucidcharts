@@ -1,11 +1,11 @@
 flowchart TD
   n1["outside"]
-  subgraph g1["Alpha"]
+  subgraph g2["Alpha"]
     direction TB
     n2["a one"]
     n5["a two"]
   end
-  subgraph g2["Beta"]
+  subgraph g1["Beta"]
     direction TB
     n3["b one"]
     n4["b two"]
@@ -14,6 +14,6 @@ flowchart TD
   n2 --> n3
   n2 --> n5
   n3 --> n4
-  n4 --> g1
-  n5 --> g2
+  n4 --> g2
   n5 --> n2
+  n5 --> g1

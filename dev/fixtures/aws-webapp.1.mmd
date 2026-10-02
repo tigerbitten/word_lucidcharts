@@ -1,0 +1,59 @@
+flowchart TD
+  subgraph g1["AWS Cloud Architecture"]
+    direction TB
+    n1["Route 53 DNS"]
+    n2["Amazon CloudFront"]
+    n3["Amazon SQS Queue"]
+    n4["AWS Lambda Worker"]
+    subgraph g2["VPC"]
+      direction TB
+      subgraph g3["Availability Zone 1"]
+        direction TB
+        subgraph g4["Public Subnet (AZ1)"]
+          direction TB
+          n5["Application Load Balancer (AZ1)"]
+        end
+        subgraph g5["Private App Subnet (AZ1)"]
+          direction TB
+          n6["EC2 Auto Scaling (AZ1)"]
+          n12["ElastiCache (AZ1)"]
+        end
+        subgraph g6["Private DB Subnet (AZ1)"]
+          direction TB
+          n9["RDS Primary"]
+        end
+      end
+      subgraph g7["Availability Zone 2"]
+        direction TB
+        subgraph g8["Public Subnet (AZ2)"]
+          direction TB
+          n7["Application Load Balancer (AZ2)"]
+        end
+        subgraph g9["Private App Subnet (AZ2)"]
+          direction TB
+          n8["EC2 Auto Scaling (AZ2)"]
+          n13["ElastiCache (AZ2)"]
+        end
+        subgraph g10["Private DB Subnet (AZ2)"]
+          direction TB
+          n10["RDS Read Replica"]
+        end
+      end
+    end
+    n11["S3 Static Website"]
+  end
+  n1 -->|"DNS"| n2
+  n2 -->|"/app"| n5
+  n2 -->|"/app"| n7
+  n2 -->|"/static"| n11
+  n3 -->|"events"| n4
+  n4 -->|"process"| n6
+  n4 -->|"read/write"| n9
+  n4 --> n12
+  n5 --> n6
+  n6 -->|"read/write"| n9
+  n6 --> n12
+  n7 --> n8
+  n8 -->|"read"| n10
+  n8 --> n13
+  n9 -->|"replication"| n10

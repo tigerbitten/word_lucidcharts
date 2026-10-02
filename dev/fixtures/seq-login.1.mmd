@@ -1,29 +1,17 @@
-flowchart TD
-  subgraph g1["User Login"]
-    direction TB
-    n1["Browser"]
-    n2["Web App"]
-    n3["Auth Service"]
-    n4["User Database"]
-    n5["User Database"]
-    n6["Browser"]
-    n7["Web App"]
-    n8["Auth Service"]
-    n9["Alternative<br>[success]<br>[failure]"]
-    n10["UML Activation"]
-    n11["UML Activation"]
-    n12["UML Activation"]
+sequenceDiagram
+  title User Login
+  participant p1 as Browser
+  participant p2 as Web App
+  participant p3 as Auth Service
+  participant p4 as User Database
+  p1->>p2: login request
+  p2->>p3: credential check
+  p3->>p4: verify credentials
+  p4-->>p3: verification result
+  alt success
+    p3-->>p2: token
+    p2-->>p1: 200 OK / token
+  else failure
+    p3-->>p2: error
+    p2-->>p1: 401 Unauthorized / error
   end
-  n1 --- n6
-  n2 --- n7
-  n3 --- n8
-  n4 --- n5
-  n10 -->|"credential check"| n11
-  n11 -->|"token"| n10
-  n11 -->|"error"| n10
-  n11 -->|"verify credentials"| n12
-  n12 -->|"verification result"| n11
-  %% note: User Login
-  %% connector with a loose end: login request
-  %% connector with a loose end: 200 OK / token
-  %% connector with a loose end: 401 Unauthorized / error

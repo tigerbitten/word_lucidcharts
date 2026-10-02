@@ -10,9 +10,11 @@ const { pageToMermaid } = require("../mermaid.js");
 const DIR = path.join(__dirname, "fixtures");
 const MERMAID_URL = "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
 const render = process.argv[2] === "--render" ? process.argv[3] : null;
+// `--check a.mmd b.mmd`: only parse those files (trying out Mermaid syntax).
+const check = process.argv[2] === "--check" ? process.argv.slice(3) : null;
 
-const outputs = [];
-for (const file of fs.readdirSync(DIR).filter(f => f.endsWith(".json")).sort()) {
+const outputs = check ? check.map(f => ({ name: f, out: f, mmd: fs.readFileSync(f, "utf8"), title: "" })) : [];
+if (!check) for (const file of fs.readdirSync(DIR).filter(f => f.endsWith(".json")).sort()) {
   const name = file.slice(0, -5);
   const doc = JSON.parse(fs.readFileSync(path.join(DIR, file)));
   doc.pages.forEach((page, i) => {
