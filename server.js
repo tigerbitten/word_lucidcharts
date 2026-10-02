@@ -19,10 +19,10 @@ const PORT = 3000;
 const REDIRECT = `https://localhost:${PORT}/callback`;
 const SCOPES = ["offline_access", "lucidchart.document.app.picker.share.embed", "lucidchart.document.content:readonly"];
 const PANE_ORIGIN = "https://tigerbitten.github.io";
-// Export resolution. A first export at BASE_DPI gives the diagram's natural size;
-// if that leaves fewer than TARGET_PPI pixels per inch at the size the picture is
-// shown in Word, it's exported again at a higher DPI. Lucid caps exports at
-// roughly 10 megapixels whatever DPI is asked for, and big DPIs are slow (600 is ~5s).
+// Export resolution: enough DPI for TARGET_PPI pixels per inch at the size the
+// picture is shown in Word, and at least BASE_DPI (what a first export of an
+// unknown diagram uses, to learn its size). Lucid caps exports at roughly 10
+// megapixels whatever DPI is asked for, and big DPIs are slow (600 is ~5s).
 const BASE_DPI = 192;
 const TARGET_PPI = 400;
 const MAX_DPI = 800;
@@ -136,23 +136,37 @@ const routes = {
   // calls this when the pointer reaches its buttons, so by the click the PNG is
   // usually cached already.
   "/export": async url => {
-    const id = docId(url), page = pageId(url);
-    // The base export is the slow call (~1s), so it starts alongside the info call.
-    const { doc, value: base } = await withDoc(id, `png ${id} ${page} ${BASE_DPI}`, signal => fetchPng(id, page, BASE_DPI, signal));
-    const naturalPt = base.readUInt32BE(16) * 72 / BASE_DPI;
-    const aspect = base.readUInt32BE(20) / base.readUInt32BE(16);
-    const shownPt = +url.searchParams.get("shownPt") || Math.min(naturalPt, MAX_WIDTH_PT, MAX_HEIGHT_PT / aspect);
-    const basePpi = base.readUInt32BE(16) / (shownPt / 72);
-    let png = base, dpi = BASE_DPI;
-    if (basePpi < TARGET_PPI) {
+    const id = docId(url), page = pageId(url), key = id + " " + page;
+    // The width the picture is shown at, and the DPI that gives it TARGET_PPI,
+    // for a diagram of a given natural size (in points at 100%).
+    const plan = ({ naturalPt, aspect }) => {
+      const shownPt = +url.searchParams.get("shownPt") || Math.min(naturalPt, MAX_WIDTH_PT, MAX_HEIGHT_PT / aspect);
       // Rounded up to a multiple of 32 so nearby sizes share a cached export.
-      dpi = Math.min(MAX_DPI, Math.ceil(BASE_DPI * TARGET_PPI / basePpi / 32) * 32);
-      png = await versioned(`png ${id} ${page} ${dpi}`, doc.version, () => fetchPng(id, page, dpi));
-    }
+      return { shownPt, dpi: Math.min(MAX_DPI, Math.max(BASE_DPI, Math.ceil(TARGET_PPI * shownPt / naturalPt / 32) * 32)) };
+    };
+    // Only an export tells the natural size, which then decides the DPI. It
+    // hardly changes between edits, so the last one seen picks the DPI and one
+    // export is usually enough (each is several seconds for a big diagram); a
+    // first export, or a diagram that grew a lot, gets a second at the right DPI.
+    // The export starts alongside the info call that says whether it's cached.
+    let dpi = sizes.has(key) ? plan(sizes.get(key)).dpi : BASE_DPI;
+    let { doc, value: png } = await withDoc(id, `png ${key} ${dpi}`, signal => fetchPng(id, page, dpi, signal));
     // Pixel size from the IHDR chunk, so the pane can size the picture without decoding it.
+    const sizeOf = (png, dpi) => ({ naturalPt: png.readUInt32BE(16) * 72 / dpi, aspect: png.readUInt32BE(20) / png.readUInt32BE(16) });
+    let size = sizeOf(png, dpi);
+    const better = plan(size).dpi;
+    if (better > dpi) {
+      dpi = better;
+      png = await versioned(`png ${key} ${dpi}`, doc.version, () => fetchPng(id, page, dpi));
+      size = sizeOf(png, dpi);
+    }
+    // Lucid caps an export near 10 megapixels whatever the DPI, which would
+    // make the diagram look smaller than it is: such sizes aren't remembered.
+    if (png.readUInt32BE(16) * png.readUInt32BE(20) < 9e6) sizes.set(key, size);
+    const { shownPt } = plan(size);
     const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
     console.log(`   export ${width}x${height} at ${dpi}dpi, ${Math.round(width / (shownPt / 72))}ppi at ${Math.round(shownPt)}pt wide`);
-    return { title: doc.title, version: doc.version, base64: png.toString("base64"), width, height, naturalPt, shownPt };
+    return { title: doc.title, version: doc.version, base64: png.toString("base64"), width, height, naturalPt: size.naturalPt, shownPt };
   },
 
   // The document's pages, for the pane's page chooser. An empty page exports as
@@ -187,6 +201,8 @@ const routes = {
 
 // Lucid results that only change when the document does, cached with the version they came from.
 const cache = new Map();
+// The last natural size seen per document page, { naturalPt, aspect }, whatever its version (/export).
+const sizes = new Map();
 
 async function versioned(key, version, fetch) {
   const c = cache.get(key);

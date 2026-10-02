@@ -59,6 +59,9 @@ above them says what that is and whether it's up to date with Lucid:
 - With nothing selected, it targets the picture you last inserted or opened,
   so open → edit → update needs no trip back to the document. It never touches
   a picture that isn't one of these diagrams.
+- **Update all** appears when diagram pictures in the document are out of
+  date: it brings each one up to date with *its own* diagram, keeping its width,
+  page and caption.
 - **Edit selected** opens the selected picture's diagram in the editor, and
   sets the page chooser to the page the picture shows. Updating a picture keeps
   its page; replacing one with another diagram uses the chooser's page.
