@@ -43,10 +43,16 @@ Docs: developer.lucid.co (mirror: lucid.readme.io). All REST calls: `https://api
 
 ## Other routes
 - **Extension API**: plug-ins that run inside Lucid's editor, with read/write access to the document, geometry and styles. The way to get positions/styles, or an in-editor "send to Word" button.
+  - SDK (docs): `BlockProxy.getBoundingBox()`, `getClassName()`, `getLineWidth()`, `textAreas`, `textStyles`; `LineProxy.getEndpoint1/2()` (x, y), `getUpstreamConnection()`/`getDownstreamConnection()`, `getRelativePosition(0..1)` (points along the path); `PageProxy.allBlocks`/`allLines`; every element has `shapeData`. Code runs in a sandbox with no DOM. Installed per user or by an account admin; developer mode loads it from `lucid-package test-editor-extension` (`localhost:9900`).
+  - Page shape data comes back in `/contents` as the page's `customData` (shapes' too: the org chart fixture's "Direct Reports"), so an extension can hand the add-in data through the call it already makes.
+  - Embedded editor (tested 2026-10-08): its menu has no Developer, File or Share. Developer mode is a localStorage flag (`<userId> editorextensiondevMode`), so inside the add-in (storage partitioned under the pane's site) the embed doesn't see it. With the flag set in the embed's own storage, it asks `localhost:9901/shapeLibraries` only; the full editor asks `9901/shapeLibraries`, `9901/manifest`, `9900/manifest`, `9900/editorextensions`, `9900/extension.js` and a websocket `9900/editorExtensions/changes`. So the embed likely doesn't load editor extensions: unconfirmed until a real one is installed. Chrome 153 blocks lucid.app from reaching localhost (Local Network Access) unless allowed.
+  - Test extension and the label rule: `dev/lucid-probe/` (not built yet: npm is blocked on the work network).
 - **Lucid MCP server**: Lucid support's suggested route for creating diagrams from code (Mermaid).
 - AI ("Create with AI") does nothing inside the embed; works on lucid.app.
 
 ## Export quirks
+- The editor's Export menu (not the API): JSON is the same as `/contents` (no positions); **Visio (VSDX)** has everything: each shape's box (`PinX`/`PinY`/`Width`/`Height`, inches, y up), class (`com.lucidchart.<Class>`), text, font size, border; each line's path, begin/end and glue (`Connects`). The API refuses Visio and SVG (406); PDF is 403 on our plan.
+- Natively drawn text boxes are `AutoGrowTextBlock` (border width 0); frames `SparkFrameBlock`, boxes `SparkRectangleBlock`. draw.io imports make text boxes `DefaultSquareBlock` with a transparent border.
 - Export PNGs are palette PNGs with extra chunks, which Word on the web rejects (we re-encode them).
 - Flowcharts built from Mermaid in Lucid (`LucidNativeMermaid*`) export with all shapes piled up, with or without crop; their subgraph shapes list only connectors, not shapes.
 - Other Mermaid code (sequence, class, state, ...) imported or pasted into Lucid becomes one `LucidNativeMermaidDiagramBlock`: no text areas, its `image.url` a data URL of Mermaid's SVG. It exports fine.

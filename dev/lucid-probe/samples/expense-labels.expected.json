@@ -1,0 +1,3 @@
+{"lineLabels": {"Amount over $500?>Manager approval": "yes", "Amount over $500?>Auto-approve": "no", "Approved?>Reimburse employee": "approved",
+  "Approved?>Notify employee": "rejected", "Notify employee>Submit expense report": "resubmit", "Manager approval>Finance review": "within 2 days"},
+ "shapeNotes": {"Finance review": "SLA: 48h"}, "freeNotes": ["Receipts required for items over $25"], "title": "Expense approval process"}

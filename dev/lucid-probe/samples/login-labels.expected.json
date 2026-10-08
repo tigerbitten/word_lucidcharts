@@ -1,0 +1,18 @@
+{
+ "lineLabels": {
+  "Credentials valid?>3 failed attempts?": "no",
+  "Credentials valid?>MFA enabled?": "yes",
+  "3 failed attempts?>Enter credentials": "try again",
+  "3 failed attempts?>Lock account": "yes",
+  "MFA enabled?>Send MFA code": "yes",
+  "MFA enabled?>Show home screen": "no",
+  "Code correct?>Show home screen": "yes",
+  "Code correct?>Send MFA code": "no, retry"
+ },
+ "shapeNotes": {
+  "Enter credentials": "Rate limited: 5/min",
+  "Send MFA code": "Uses TOTP"
+ },
+ "freeNotes": [],
+ "title": "Login flow"
+}

@@ -1,0 +1,30 @@
+flowchart TD
+  n1["Expense incurred"]
+  n2["yes"]
+  n3["resubmit"]
+  n4["rejected"]
+  n5["Expense approval process"]
+  n6["SLA: 48h"]
+  n7["no"]
+  n8["Receipts required for items over $25"]
+  n9["approved"]
+  n10["Submit expense report"]
+  n11{"Amount over $500?"}
+  n12["Manager approval"]
+  n13["Finance review"]
+  n14{"Approved?"}
+  n15["Auto-approve"]
+  n16["Reimburse employee"]
+  n17["Done"]
+  n18["Notify employee"]
+  n1 --> n10
+  n10 --> n11
+  n11 --> n12
+  n11 --> n15
+  n12 -->|"within 2 days"| n13
+  n13 --> n14
+  n14 --> n16
+  n14 --> n18
+  n15 --> n16
+  n16 --> n17
+  n18 --> n10

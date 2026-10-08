@@ -1,0 +1,18 @@
+flowchart TD
+  subgraph g1["Lucid Add-In PKCE Authentication"]
+    direction TB
+    n1["Lucid"]
+    n2["Add-In"]
+  end
+  n1 --> n2
+  n2 --> n1
+  n2 --> n1
+  n2 --> n1
+  %% note: 2. If successful login, one time code is sent to Add-In through pop-up
+  %% note: Add-in picks random number R, sends its hash to Lucid
+  %% note: Lucid creates its own hash of R; verifies it matches hash sent in step 1
+  %% note: 3. Add in directly sends Lucid the one time code and number R
+  %% note: 5. Add-in uses keys to request diagrams, etc...
+  %% note: 4. If hashes match, lucid sends keys back to Add-In
+  %% note: Login happens directly through lucid
+  %% connector with a loose end

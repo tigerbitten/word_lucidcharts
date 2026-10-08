@@ -1,0 +1,452 @@
+{
+ "id": "cae577b5-6e9f-482d-8b1a-5d71c3d27d19",
+ "title": "expense-labels",
+ "version": 139,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "GyRDcCiVtNFq1",
+   "title": "Expense approval",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "QUlTuVcBuN6YW",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Submit expense report"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CM1VqlkMPhp0Z",
+      "class": "ShapeDiamondBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Approved?"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "HJz3gvex2LMBl",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "yes"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "77kDC5ktniehJ",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Notify employee"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "AUzO7Fs4cKaEp",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Manager approval"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "yPPUKGb1MPCwd",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Expense incurred"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "r8Kv7e7tHrBjt",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "resubmit"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "bSefW0lU46brv",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "rejected"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "8CpqyoF6OYSOM",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Expense approval process"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "gVs0vjNWQ5MVm",
+      "class": "ShapeDiamondBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Amount over $500?"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "boIhPQGq9ukHF",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Auto-approve"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "UnNom2LsUeeIy",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Reimburse employee"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "mZpwfT3uUaWPp",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "SLA: 48h"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "PimtyIBIkQnlD",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "no"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "tjz3UDY63fSpA",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Finance review"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "uB8jxUoPgpuh1",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Receipts required for items over $25"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "yh9w8hK0LTt8D",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Done"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "Ak1mc8CEFsM4x",
+      "class": "DefaultSquareBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "approved"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "X0JfmaHMJbts8",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "tjz3UDY63fSpA"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "CM1VqlkMPhp0Z"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "9c3q6ejJINwfl",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gVs0vjNWQ5MVm"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "AUzO7Fs4cKaEp"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "7IcbWRAzeu2Ru",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "yPPUKGb1MPCwd"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "QUlTuVcBuN6YW"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "FFORXJyjzmvZ1",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "boIhPQGq9ukHF"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "UnNom2LsUeeIy"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "AJxU9SiMXwIsR",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "CM1VqlkMPhp0Z"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "UnNom2LsUeeIy"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "yyqaIG35BuBZv",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "AUzO7Fs4cKaEp"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "tjz3UDY63fSpA"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": "within 2 days"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "BjfcW3uaK6vkn",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "UnNom2LsUeeIy"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "yh9w8hK0LTt8D"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "lzA0doq1i1Cm2",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "77kDC5ktniehJ"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "QUlTuVcBuN6YW"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "pHZgqSZKZz3kf",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "gVs0vjNWQ5MVm"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "boIhPQGq9ukHF"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "mOvErSvJ3Ijd1",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "CM1VqlkMPhp0Z"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "77kDC5ktniehJ"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "CBhWhKv0uj5MS",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "QUlTuVcBuN6YW"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "gVs0vjNWQ5MVm"
+      },
+      "textAreas": [
+       {
+        "label": "t0",
+        "text": ""
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218421990
+}

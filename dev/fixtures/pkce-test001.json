@@ -1,0 +1,266 @@
+{
+ "id": "a4fae552-a0d8-4e33-a18e-b77b181bc577",
+ "title": "Test 001",
+ "version": 1040,
+ "product": "lucidchart",
+ "pages": [
+  {
+   "id": "0_0",
+   "title": "Page 1",
+   "index": 0,
+   "items": {
+    "shapes": [
+     {
+      "id": "PkuBr1caMq_h",
+      "class": "SparkFrameBlock",
+      "textAreas": [
+       {
+        "label": "FrameTitle",
+        "text": "Lucid Add-In PKCE Authentication"
+       }
+      ],
+      "customData": [],
+      "linkedData": [],
+      "contains": {
+       "shapes": [
+        ".YtBBjKb9PUm",
+        "4YtBv-rMVgJf",
+        "4buBjzaFRn8v",
+        "C-tBLr1LMGzW",
+        "C8tBoHP.vgzA",
+        "lauBd4FpTs_i",
+        "nbuBGBI7.Y9C",
+        "u~tBUZ5wQPLL",
+        "x9tBI5bTojCS"
+       ],
+       "lines": [
+        "-9tBPXYLPLdu",
+        "2buB2w-TwylG",
+        "ZZtBi6GMONkk",
+        "jbuBSDc-eENb",
+        "m~tBmTxMU_EN"
+       ],
+       "groups": []
+      }
+     },
+     {
+      "id": ".YtBBjKb9PUm",
+      "class": "SparkRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Lucid"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "x9tBI5bTojCS",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "2. If successful login, one time code is sent to Add-In through pop-up"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "C8tBoHP.vgzA",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Add-in picks random number R, sends its hash to Lucid"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "4YtBv-rMVgJf",
+      "class": "SparkRectangleBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Add-In"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "lauBd4FpTs_i",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Lucid creates its own hash of R;\nverifies it matches  hash sent in step 1"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "u~tBUZ5wQPLL",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "3. Add in directly sends Lucid the one time code and number R"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "4buBjzaFRn8v",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "5. Add-in uses keys to request diagrams, etc..."
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "nbuBGBI7.Y9C",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "4. If hashes match, lucid sends keys back to Add-In"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "C-tBLr1LMGzW",
+      "class": "AutoGrowTextBlock",
+      "textAreas": [
+       {
+        "label": "Text",
+        "text": "Login happens directly through lucid"
+       },
+       {
+        "label": "Placeholder",
+        "text": "Type something"
+       }
+      ],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "lines": [
+     {
+      "id": "2buB2w-TwylG",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "4YtBv-rMVgJf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": ".YtBBjKb9PUm"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "-9tBPXYLPLdu",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": ".YtBBjKb9PUm"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "4YtBv-rMVgJf"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "jbuBSDc-eENb",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": null
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": "4YtBv-rMVgJf"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "m~tBmTxMU_EN",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "4YtBv-rMVgJf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": ".YtBBjKb9PUm"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     },
+     {
+      "id": "ZZtBi6GMONkk",
+      "endpoint1": {
+       "style": "None",
+       "connectedTo": "4YtBv-rMVgJf"
+      },
+      "endpoint2": {
+       "style": "Arrow",
+       "connectedTo": ".YtBBjKb9PUm"
+      },
+      "textAreas": [],
+      "customData": [],
+      "linkedData": []
+     }
+    ],
+    "groups": [],
+    "layers": []
+   },
+   "customData": [],
+   "linkedData": []
+  }
+ ],
+ "data": {
+  "collections": []
+ },
+ "accountId": 218421990
+}
