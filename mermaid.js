@@ -82,6 +82,9 @@ function activitySymbol(s) {
   return /^[●⬤]$/.test(t) ? "start" : /^[◎◉⦿]$/.test(t) ? "stop" : /^(fork|join)$/i.test(t) ? t.toLowerCase() : null;
 }
 
+// The pane looks for this line to warn about labels that aren't on their arrows.
+const UNPLACED = "  %% The notes below aren't attached to any shape or arrow, and Lucid doesn't say where they sit: some may label the arrows above.";
+
 function pageToMermaid(page) {
   const shapes = (page.items && page.items.shapes) || [];
   const lines = (page.items && page.items.lines) || [];
@@ -248,12 +251,25 @@ function pageToMermaid(page) {
     if (ids.has(s.id) && !isGroup(s)) out.push(`  click ${ids.get(s.id)} href "${url}" _blank`);
     else out.push(`  %% link${textOf(s) ? ` on "${textOf(s).replace(/\s+/g, " ")}"` : ""}: ${url}`);
   }
+  // Arrow labels drawn as separate text boxes arrive here as notes: Lucid's
+  // contents have no positions, so nothing ties a text to its arrow. Said once,
+  // so a reader can match them up (the pane also tells whoever inserts it).
+  if (notes.length && (edges.some(e => !e.text) || loose.length)) out.push(UNPLACED);
   for (const t of notes) out.push(`  %% note: ${t.replace(/\s+/g, " ")}`);
   for (const rows of shapes.map(tableRows).filter(Boolean)) {
     out.push("  %% table:");
     for (const r of rows) out.push(`  %% | ${r.join(" | ")} |`);
   }
-  for (const l of loose) out.push(`  %% connector with a loose end${textOf(l) ? `: ${textOf(l).replace(/\s+/g, " ")}` : ""}`);
+  // An arrow drawn up to a box but not dropped on it: still say what it does
+  // know, the end it does have and which way it points.
+  const flat = t => t.replace(/\s+/g, " ");
+  const end = id => ids.has(id) ? `${ids.get(id)} "${flat(nodeLabel(byId.get(id)))}"` : byId.has(id) && textOf(byId.get(id)) ? `"${flat(textOf(byId.get(id)))}"` : null;
+  for (const l of loose) {
+    const a = resolve(l.endpoint1.connectedTo), b = resolve(l.endpoint2.connectedTo);
+    const [from, to] = head(l.endpoint1.style) && !head(l.endpoint2.style) ? [b, a] : [a, b];
+    const what = end(from) || end(to) ? `arrow with a loose end, from ${end(from) || "nothing"} to ${end(to) || "nothing"}` : "line connected to nothing";
+    out.push(`  %% ${what}${textOf(l) ? `: ${flat(textOf(l))}` : ""}`);
+  }
   return out.join("\n");
 }
 
@@ -291,4 +307,4 @@ function topoOrder(ids, edges) {
   return order;
 }
 
-export { pageToMermaid };
+export { pageToMermaid, UNPLACED };

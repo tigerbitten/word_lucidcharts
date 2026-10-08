@@ -8,6 +8,7 @@ flowchart TD
   n2 --> n1
   n2 --> n1
   n2 --> n1
+  %% The notes below aren't attached to any shape or arrow, and Lucid doesn't say where they sit: some may label the arrows above.
   %% note: 2. If successful login, one time code is sent to Add-In through pop-up
   %% note: Add-in picks random number R, sends its hash to Lucid
   %% note: Lucid creates its own hash of R; verifies it matches hash sent in step 1
@@ -15,4 +16,4 @@ flowchart TD
   %% note: 5. Add-in uses keys to request diagrams, etc...
   %% note: 4. If hashes match, lucid sends keys back to Add-In
   %% note: Login happens directly through lucid
-  %% connector with a loose end
+  %% arrow with a loose end, from nothing to n2 "Add-In"

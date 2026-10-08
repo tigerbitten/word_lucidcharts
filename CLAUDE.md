@@ -63,6 +63,10 @@ Two stages:
   Swimlane / pool lanes come from each step's `linkedData`
   (`SpreadsheetRowParentKey: "Primary_2"`). `svg.js` reads back Mermaid code Lucid keeps as a picture
   (`LucidNativeMermaidDiagramBlock`, its `image.url` is Mermaid's SVG).
+  Text boxes attached to nothing become `%% note:` lines; when the page also has
+  unlabelled arrows they're flagged (`UNPLACED`) as possible arrow labels, and the
+  pane tells whoever inserts it to type labels on the arrows (`looseNote`).
+  Placing them for real needs positions: `parsing-research.md`.
   `dev/fixtures/` holds real Lucid pages (mostly made by Lucid AI) and their
   output; `node dev/test-mermaid.js` regenerates the `.mmd` files and checks
   them with the pinned Mermaid parser, so a change shows up in `git diff`.

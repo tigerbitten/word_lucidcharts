@@ -110,6 +110,9 @@
     (or download as a .md file): most tools that read .docx files skip the Mermaid in the pictures' alt text.</p>
   <p><b>Page for Word</b> (for diagrams with several pages) picks the page that goes into the document:
     Lucid's editor doesn't tell the add-in which page you're looking at.</p>
+  <p><b>For LLMs, put arrow labels on the arrow</b> (double-click it in Lucid and type), and drop arrow ends onto
+    their boxes. A text box placed beside an arrow ends up as a loose note in the Mermaid: Lucid doesn't tell the
+    add-in where things sit, so it can't know which arrow the text belongs to. Insert and Update say when a page has these.</p>
   <p>If Lucid's editor asks you to log in, use the pane's <b>Sign in to Lucid</b>, not Lucid's own button:
     Lucid's opens your web browser, and logging in there doesn't reach Word.</p>
   <p>Diagram not detected? Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
@@ -484,7 +487,7 @@ async function lucidPages(id) {
 
 // A page as Mermaid (mermaid.js), for the picture's alt text. `page`: a Lucid page id, "" for the first page.
 async function lucidMermaid(id, page) {
-  const [{ doc, value: contents }, { pageToMermaid }] = await Promise.all([
+  const [{ doc, value: contents }, { pageToMermaid, UNPLACED }] = await Promise.all([
     withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js")]);
   const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
   if (!p) throw new Error(`Lucid's diagram has no page "${page}" any more.`);
@@ -494,7 +497,12 @@ async function lucidMermaid(id, page) {
     console.log("mermaid for", doc.title, "/", p.title, "v" + doc.version + ":\n" + m);
     return m;
   });
-  return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid };
+  // What the Mermaid couldn't tie to anything: texts that may be arrow labels
+  // (mermaid.js marks them when the page also has unlabelled arrows), and arrows
+  // with an end not on a box. Said after Insert/Update (looseNote).
+  const loose = { texts: mermaid.includes(UNPLACED) ? mermaid.split(UNPLACED)[1].match(/^  %% note: .*/gm).map(l => l.slice(11)) : [],
+    arrows: (mermaid.match(/^  %% arrow with a loose end/gm) || []).length };
+  return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid, loose };
 }
 
 // The last natural size seen per document page, { naturalPt, aspect }, whatever
@@ -795,7 +803,7 @@ async function exportDiagram(ids, page, shownPt, report = say) {
     if (!base64) throw new Error(`The browser couldn't make a ${canvas.width}x${canvas.height} picture of "${m.title}".`);
     console.log("drew", m.title, "v" + m.version, "from Mermaid at", canvas.width + "x" + canvas.height);
     report("Placing in document...");
-    return { title: m.title, version: m.version, mermaid: m.mermaid, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length, naturalPt, shownPt: widthPt,
+    return { title: m.title, version: m.version, mermaid: m.mermaid, loose: m.loose, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length, naturalPt, shownPt: widthPt,
       base64, width: canvas.width, height: canvas.height, drawnHere: true };
   }
   // A big diagram takes Lucid ten seconds or more; a running count shows it's still going.
@@ -805,7 +813,7 @@ async function exportDiagram(ids, page, shownPt, report = say) {
   const [d, m] = await Promise.all([fromLucid(lucidExport(ids.documentId, page, shownPt)), fromLucid(lucidMermaid(ids.documentId, page))])
     .finally(() => clearInterval(tick));
   console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.blob.size, "bytes; mermaid v" + m.version);
-  Object.assign(d, { mermaid: m.mermaid, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length });
+  Object.assign(d, { mermaid: m.mermaid, loose: m.loose, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length });
   const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
   Object.assign(d, await plainPng(d.blob, maxWidthPx, [ids.documentId, d.page, d.version, maxWidthPx].join("@")));
   report("Placing in document...");
@@ -941,6 +949,15 @@ async function plainPng(blob, maxWidthPx, key) {
 }
 
 // Said after an insert or update of a page the pane drew itself.
+// Arrow labels drawn as separate text boxes, and arrows not dropped on their
+// boxes, can't be tied to their arrows in the Mermaid: Lucid's contents have no
+// positions (parsing-research.md). The fix is in Lucid, so say how.
+function looseNote({ loose }) {
+  const n = loose.texts.length, eg = loose.texts[0] && (loose.texts[0].length > 24 ? loose.texts[0].slice(0, 23) + "…" : loose.texts[0]);
+  return (n ? ` For LLMs, type arrow labels on the arrow (double-click it in Lucid), then Update: ${n} text box${n === 1 ? " is" : "es are"} attached to nothing here ("${eg}"${n > 1 ? "..." : ""}).` : "")
+    + (loose.arrows ? ` ${loose.arrows} arrow${loose.arrows === 1 ? " has an end" : "s have ends"} not on a box: drag ${loose.arrows === 1 ? "it" : "each"} onto its box.` : "");
+}
+
 const drawnNote = d => d.drawnHere ? " (This page is Mermaid code in Lucid, which Lucid can't export, so the add-in drew it from that code.)" : "";
 
 // Captions or not, remembered in this browser; on unless turned off.
@@ -1004,7 +1021,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
     await ctx.sync();
   });
   last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
-  say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(widthPt, d));
+  say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(widthPt, d) + looseNote(d));
 });
 
 // Puts `d` (an export of diagram `ids`) in place of picture `pic` (through
@@ -1082,7 +1099,7 @@ $("replace").onclick = () => act("Updating...", async () => {
     : outcome === "mermaid" ? `Added Mermaid text for LLMs to "${d.title}" (and refreshed its image).`
     : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid.`
     : outcome === "updated" ? `Updated to the latest "${d.title}".`
-    : `Replaced "${oldTitle}" with "${d.title}".`) + drawnNote(d) + shrinkNote(widthPt, d));
+    : `Replaced "${oldTitle}" with "${d.title}".`) + drawnNote(d) + shrinkNote(widthPt, d) + looseNote(d));
 });
 
 // Opens the selected picture's diagram in the editor (Edit selected, and the
