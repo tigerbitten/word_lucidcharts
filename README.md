@@ -10,14 +10,17 @@ caption ("Figure 3: Login flow") goes under each picture, unless **Caption**
 
 Prototype.
 
-Runs on one machine: a small local backend (`server.js`) holds the Lucid
-client secret. Moving that to Azure Functions / AWS Lambda comes later.
+No backend: the pane signs in to Lucid itself, as a public OAuth client with
+PKCE (no client secret), and calls Lucid's API straight from Word. It's all
+static files on GitHub Pages. (Up to build v46 a local `server.js` held a
+client secret; it's at the git tag `server-backend`.)
 
 ## Using it
 
-1. Open the add-in. If you're not signed in, click **Sign in to Lucid**,
-   approve access in the tab that opens, and come back. The pane notices on its
-   own. Sign-in lasts across restarts (the backend refreshes the token).
+1. Open the add-in. If you're not signed in, click **Sign in to Lucid** and
+   sign in (and approve access) in the window that opens; it closes by itself
+   and the pane carries on. Sign-in lasts across restarts (the pane refreshes
+   the token).
 2. The first time, Lucid's document picker appears. Pick a document or create
    one, click **Continue**, keep **Edit** and click Lucid's **Insert**. That
    opens it in the editor (it doesn't touch Word yet). After that the pane
@@ -92,7 +95,7 @@ Lucid only exports PNG (no SVG), so pictures are made sharp by pixel count:
 each export is sized for about 400 pixels per inch at the width the picture
 has in Word. The DPI comes from the diagram's last known size, so one export
 is usually enough (a diagram's very first one exports twice, to learn the size,
-which the backend keeps in `.lucid-sizes.json` across restarts); a big
+which the pane keeps in the browser's storage across restarts); a big
 changed diagram still takes several seconds, which is Lucid's rendering. Anything far sharper
 than 600 ppi is scaled down in the pane with high-quality resampling.
 **Update** always re-exports for the picture's current width, so after
@@ -137,7 +140,7 @@ inserting an unchanged diagram is quick.
     ```
 
 The embed id is what lets **Edit selected** jump straight back into the
-editor (if it's missing, from a pasted URL, the backend makes one when Lucid allows); the
+editor (if it's missing, from a pasted URL, the pane makes one when Lucid allows); the
 version is how the pane tells a picture is out of date; the page is which page
 of the Lucid document the picture shows.
 
@@ -197,62 +200,55 @@ can find "the picture you last inserted or loaded". Alt text lands in
 
 ### 1. Lucid app
 
-At [lucid.app/developer](https://lucid.app/developer), create an app with an
-OAuth 2.0 **confidential** client:
+At [lucid.app/developer](https://lucid.app/developer) (Team or Enterprise plan,
+with the developer role), create an app with an OAuth 2.0 **public** client
+("For applications that cannot securely store a client secret. Uses
+Authorization Code with PKCE (S256)"; the type can't be changed later):
 
-- Redirect URI: `https://localhost:3000/callback`
+- Redirect URI: `https://tigerbitten.github.io/word_lucidcharts/signin.html`
 - Embed domain: `tigerbitten.github.io`
-- Scopes: `offline_access`, `lucidchart.document.app.picker.share.embed`,
-  `lucidchart.document.content:readonly`
 
+Put its client ID in `CLIENT_ID` in `taskpane.html` (it isn't a secret). The
+scopes are asked for at sign-in: `offline_access`,
+`lucidchart.document.app.picker.share.embed`, `lucidchart.document.content:readonly`.
 Editable embeds also have to be allowed in your Lucid account's admin settings.
 
-### 2. Local backend
-
-Lucid requires an https redirect URI, so the backend serves https on localhost
-with a locally trusted certificate from [mkcert](https://github.com/FiloSottile/mkcert):
-
-```
-scoop bucket add extras
-scoop install mkcert
-mkcert -install        # adds a local root CA to Windows' trust store
-mkcert localhost       # run in this folder: localhost.pem + localhost-key.pem
-```
-
-Copy `.env.example` to `.env` and fill in the client ID and secret, without
-quotes. Then:
-
-```
-node server.js
-```
-
-It must be running whenever you use the add-in. It listens on 127.0.0.1 only.
-`.env`, the certificates and `.lucid-token.json` (your saved sign-in) are
-gitignored. Delete `.lucid-token.json` to sign out.
-
-To undo mkcert later: `mkcert -uninstall`, delete the folder `mkcert -CAROOT`
-prints, then `scoop uninstall mkcert`.
-
-### 3. Sideload the manifest
+### 2. Sideload the manifest
 
 Download `manifest.xml` with GitHub's **Download raw file** button (not Save
 Page As).
 
 - **Word on the web:** Insert → Add-ins → **Upload My Add-in** → choose
-  `manifest.xml`. If the browser asks whether the page may reach devices on
-  your local network, allow it. That's how the pane talks to the backend.
+  `manifest.xml`.
 - **Windows desktop:** same shared-folder catalog steps as the sibling add-ins:
   put the manifest in a shared folder, add its `\\<pc>\<share>` path under
   File → Options → Trust Center → Trust Center Settings → Trusted Add-in
   Catalogs (tick Show in Menu), restart Word, then Home → Add-ins → Advanced →
   Shared Folder.
 
+### Sign-in
+
+**Sign in to Lucid** opens `signin.html` in a window of its own (Office's
+dialog; Lucid's login refuses to load inside the pane). It goes on to Lucid's
+login (which hands company accounts to their SSO), comes back to
+`signin.html` with a one-time code, and passes that to the pane, which trades
+it for tokens using the PKCE proof it made for this sign-in. No secret is
+involved anywhere.
+
+The tokens (an hour-long access token and a refresh token) are kept in the
+browser's storage for the pane, on the user's machine; GitHub never sees them.
+Anything else served from `tigerbitten.github.io` (other GitHub Pages sites of
+that account) runs on the same site and could read them, so for real use the
+pane should have an address of its own. Lucid accepts an old refresh token
+for a while after it's been swapped. To sign out, clear the site data for
+`tigerbitten.github.io` (or revoke the app in Lucid's account settings).
+
 ## Troubleshooting
 
 | The pane says | Do this |
 |---|---|
-| Can't reach the add-in's backend | Start `node server.js`. If it's running, allow local network access for tigerbitten.github.io in the browser's site settings. |
 | Lucid refused the request (403) | Either your account can't open that diagram, or a scope is missing on the OAuth client (add it, then sign in again). |
+| The browser blocked the sign-in window | Allow pop-ups for the page (Word on the web asks first: allow it), then click Sign in again. |
 | The editor says "only signed in users… can access" | Log in to lucid.app in a browser tab (the embed uses that session), then pick the diagram again from the menu. |
 | A Lucid button in the editor does nothing (e.g. Create with AI) | Use **↗** (Open in Lucid); the full editor has everything. Same diagram, so **Update** picks the result up. |
 | A diagram made on lucid.app (e.g. with Create with AI) won't open in the editor here | Pick it once with the menu's **Browse or create in Lucid...**: Lucid only lets the add-in open diagrams that have been picked there. After that it opens straight from the menu. |
@@ -260,16 +256,16 @@ Page As).
 | Word didn't respond | Retry. If it repeats, reload the add-in. In Word on the web, this one is still being chased. |
 | The build marker isn't the latest | Word cached the old pane. Re-download and re-upload the manifest, or use a private window. |
 
-The browser console (F12) logs every status message, Lucid event and export.
-The backend console logs every Lucid API call.
+The browser console (F12) logs every status message, Lucid event, Lucid API
+call, export and Mermaid translation.
 
 ## Files
 
 | File | What's in it |
 |---|---|
-| `taskpane.html` | The whole pane: UI, Lucid embed, every Office.js call |
-| `server.js` | Local backend: OAuth, token refresh, embed tokens, PNG export, Lucid contents |
-| `mermaid.js` | Lucid page contents → Mermaid (used by `server.js`): flowcharts, and the dispatch to the next two |
+| `taskpane.html` | The whole pane: UI, Lucid sign-in and API calls (tokens, embeds, PNG export, contents), the embed, every Office.js call |
+| `signin.html` | The sign-in window's start and end (the OAuth redirect URI): hands Lucid's answer back to the pane |
+| `mermaid.js` | Lucid page contents → Mermaid: flowcharts, and the dispatch to the next two (ES modules, imported by the pane) |
 | `uml.js` | Sequence, ER, class, state and mind-map pages → their own Mermaid forms |
 | `svg.js` | Mermaid code Lucid keeps as a picture → Mermaid again |
 | `docx2md.py` | A `.docx` as Markdown with the diagrams' Mermaid in place, for LLMs |

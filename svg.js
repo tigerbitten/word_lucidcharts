@@ -12,6 +12,8 @@ const decode = t => t.replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt
 const attr = (tag, name) => (tag.match(new RegExp(`\\s${name}="([^"]*)"`)) || [])[1];
 const all = (svg, re) => [...svg.matchAll(re)];
 // As in uml.js: one line, and ";" / "#" are statement and entity syntax.
+// Base64 to UTF-8 text, the same in the browser and in Node.
+const fromBase64 = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)));
 const seqText = t => t.split("\n").map(l => l.trim()).filter(Boolean).join("<br>")
   .replace(/#/g, "#35;").replace(/;/g, "#59;").replace(/"/g, "#quot;");
 
@@ -19,7 +21,7 @@ function pictureToMermaid(shape) {
   const url = (shape.image && shape.image.url) || "";
   const m = url.match(/^data:image\/svg\+xml(;base64)?,(.*)$/s);
   if (!m) return "flowchart TD\n  %% Lucid holds this page as a picture of a Mermaid diagram, and doesn't give its contents";
-  const svg = m[1] ? Buffer.from(m[2], "base64").toString("utf8") : decodeURIComponent(m[2]);
+  const svg = m[1] ? fromBase64(m[2]) : decodeURIComponent(m[2]);
   const kind = attr(svg.slice(0, 2000), "aria-roledescription") || "";
   if (kind === "sequence") return sequence(svg);
   const graph = kind === "class" || kind === "classDiagram" ? classes(svg) : kind === "stateDiagram" ? states(svg) : null;
@@ -107,7 +109,7 @@ function graph(svg, prefix) {
   const labels = new Map();
   for (const [, id, body] of all(svg, /<g class="label" data-id="([^"]+)"[^>]*>([\s\S]*?)<\/g>/g)) labels.set(id, decode(body.replace(/<\/tspan>/g, " ")).replace(/\s+/g, " "));
   const edges = all(svg, /<path[^>]*data-et="edge"[^>]*>/g).map(([tag]) => {
-    const points = JSON.parse(Buffer.from(attr(tag, "data-points") || "W10=", "base64").toString());
+    const points = JSON.parse(fromBase64(attr(tag, "data-points") || "W10="));
     return { from: points.length && near(points[0]), to: points.length && near(points[points.length - 1]), label: labels.get(attr(tag, "data-id")) || "",
       start: attr(tag, "marker-start") || "", end: attr(tag, "marker-end") || "", dashed: /dashed|dotted/.test(attr(tag, "class") || "") };
   }).filter(e => e.from && e.to);
@@ -152,4 +154,4 @@ function states(svg) {
   return out.join("\n");
 }
 
-module.exports = { pictureToMermaid };
+export { pictureToMermaid };

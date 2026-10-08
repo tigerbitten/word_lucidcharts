@@ -10,7 +10,7 @@ Two stages:
 
 1. **Embedded editor.** Sign in, create/edit Lucidchart diagrams inside the
    task pane, insert them into Word as images.
-2. **Lucid -> Mermaid.** A backend translates a Lucidchart diagram into
+2. **Lucid -> Mermaid.** The pane translates a Lucidchart diagram into
    Mermaid markdown, which is stored in the inserted image's alt-text. The
    idea: high-quality Lucid visuals for humans, LLM-readable Mermaid
    underneath. Sibling of the Mermaid Block Diagrams and Waveform Viewer
@@ -27,16 +27,24 @@ Two stages:
   documentId, embedId}` to the pane. Minting a token with that embedId reopens
   the same diagram. The pane keeps recent embeds (localStorage) and reads the
   embed ids in the document's alt texts, so its diagram menu reopens those
-  with no picker; `/embed` makes a new edit embed over the API, which Lucid
+  with no picker; `newEmbed` makes a new edit embed over the API, which Lucid
   allows only for documents picked once in its picker.
-- `server.js` runs on localhost (https via mkcert, because Lucid requires an
-  https redirect URI) and holds the client secret: OAuth with refresh tokens,
-  `POST /embeds/token`, PNG export via `GET /documents/{id}` with
-  `Accept: image/png` (`pageId=` picks the page), and `/documents/{id}/contents`
-  for the Mermaid. Single-machine prototype; it moves to Azure
-  Functions / AWS Lambda later.
+- No backend. The pane is a **public OAuth client** (Lucid developer portal,
+  client type Public, PKCE S256; `CLIENT_ID` in taskpane.html isn't a secret)
+  and calls api.lucid.co itself (Lucid's CORS allows any origin): tokens with
+  refresh (kept in localStorage), `POST /embeds/token`, PNG export via
+  `GET /documents/{id}` with `Accept: image/png` (`pageId=` picks the page;
+  `lucidExport`), and `/documents/{id}/contents` for the Mermaid. Lucid's
+  results are cached in memory per document version, as promises (a prefetch
+  and the click after it share one request). Up to v46 a localhost
+  `server.js` with a client secret did this: git tag `server-backend`.
 - Lucid's editor and login pages refuse to be framed (`X-Frame-Options:
-  SAMEORIGIN`); only `/embeds` can be. Sign-in therefore opens a browser tab.
+  SAMEORIGIN`); only `/embeds` can be. Sign-in therefore opens a window:
+  Office's dialog in Word (`displayDialogAsync`; it must start on the add-in's
+  own site), a popup in a plain browser. `signin.html` is both its first page
+  (`?go=` Lucid's authorize URL) and the redirect URI: it hands `?code&state`
+  back by `messageParent` (Word) or a BroadcastChannel (plain browser; in Word
+  the pane's storage is partitioned under Word's site, so that can't reach it).
 - Alt text format is in README.md: link lines, then a fenced Mermaid block.
   Pictures from older builds (no `lucid-page`, no Mermaid) must keep parsing
   (`parseAlt` in taskpane.html).
@@ -54,7 +62,7 @@ Two stages:
   output; `node dev/test-mermaid.js` regenerates the `.mmd` files and checks
   them with the pinned Mermaid parser, so a change shows up in `git diff`.
 - Flowcharts made from Mermaid code in Lucid can't be exported (notes.md, Export
-  quirks). `/pages` flags them `fromCode` (not the one-picture kind above, which
+  quirks). `lucidPages` flags them `fromCode` (not the one-picture kind above, which
   exports fine); the pane
   re-fetches the page list before every picture (`exportDiagram`; cached per version), and draws
   those pages from their Mermaid with Mermaid 11.17.2 (pinned) from jsDelivr,
@@ -71,18 +79,19 @@ Two stages:
   text is still "Figure N: <old title>". Insert goes below a figure's caption
   when the cursor is on its picture, and leaves the cursor below the new figure
   (in a fresh paragraph at the end of the document). New pictures fit 6.5 x
-  8.5in (MAX_WIDTH_PT / MAX_HEIGHT_PT in server.js), or the table cell they go
+  8.5in (MAX_WIDTH_PT / MAX_HEIGHT_PT), or the table cell they go
   in. The picture and caption paragraphs are set to Normal: made after a heading
   they would otherwise become headings too.
 - Each picture records the Lucid document `version` it was exported from
-  (`lucid-version:`); comparing it with `/info` is how the pane says a picture
-  is out of date. The backend caches the last PNG per document keyed on that
-  version (and DPI), which is what makes repeat inserts fast. Export DPI adapts so a picture has ~400 ppi at its width in Word (BASE_DPI/TARGET_PPI in server.js).
+  (`lucid-version:`); comparing it with `docInfo` is how the pane says a picture
+  is out of date. The pane caches the PNG per document keyed on that
+  version (and DPI), which is what makes repeat inserts fast. Export DPI adapts so a picture has ~400 ppi at its width in Word (BASE_DPI/TARGET_PPI); each diagram's last export size is kept in localStorage.
 - Getting the Mermaid to an LLM: the pane's MD view writes the open document as
   Markdown with each diagram's Mermaid in place (Office.js paragraphs, tables,
   pictures); `docx2md.py` does the same for a saved .docx. Keep the two alike.
 - The pane also runs in a plain browser with the Word buttons disabled, which
-  is how the Lucid side can be tested without Word.
+  is how the Lucid side can be tested without Word (open
+  `https://tigerbitten.github.io/word_lucidcharts/taskpane.html` with serve.js running).
 
 ## Testing in real Word (no human needed)
 
@@ -93,12 +102,16 @@ Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
 - `node dev/serve.js` (keep it running in the background) answers the pane's
   GitHub Pages URLs from the local files, so a change is live on the next pane
   reload (`node dev/cdp.js eval taskpane.html "location.reload()"`): no push and
-  no `?v=N` bump needed while testing. It only holds Word's frames: holding
-  Lucid's pages too made them fail to load.
-- Background commands stop after their timeout (max 2h): restart `server.js`
-  and `serve.js` when they do.
-- `node server.js` in the background too; restart it after editing `server.js`
-  or `mermaid.js`.
+  no `?v=N` bump needed while testing. It only holds Word's frames (holding
+  Lucid's pages too made them fail to load), plus a browser-wide interception
+  of the GitHub Pages URLs for new tabs and popups (the sign-in window). A
+  page's first load can still come from Chrome's cache: reload it.
+- Background commands stop after their timeout (max 2h): restart `serve.js`
+  when it does.
+- The pane holds the Lucid sign-in (localStorage in the test Chrome): Lucid
+  calls from dev scripts go through it (`cdp.js eval taskpane.html`, e.g.
+  `docInfo(id)`, `fetchContents(id)`, `lucid(path)`). `dev/cdp.js open` cuts
+  URLs at `&`: navigate with `eval ... "location.href = ..."` instead.
 - `dev/cdp.js`: `eval` (Office.js runs in the `taskpane.html` frame, so
   `Word.run` reads the document), `click` (trusted mouse click, works in Lucid's
   frames too; use `css:#id` for buttons, text matches hidden help too), `type`,
@@ -167,7 +180,9 @@ line has repeatedly cost more debugging time than everything else in the
 sibling projects — always bump it, no exceptions.
 
 Any separate `.js` files are separate requests and cache independently of the
-taskpane, so they carry the same `?v=N` on their `<script src>` tags. Bump all
+taskpane, so they carry the same `?v=N` on their `<script src>` tags (the
+translator modules, which import each other, get theirs from the import map at
+the top of `taskpane.html`). Bump all
 of them to the same N in one go — a fresh `taskpane.html` paired with a stale
 script is the worst version of this bug, because the build marker updates and
 everything still looks fine.

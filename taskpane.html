@@ -17,6 +17,10 @@
   });
 </script>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<!-- The translators are ES modules that import each other; this gives every one
+     of them the build's ?v=N, so none is served stale from a cache (CLAUDE.md). -->
+<script type="importmap">{ "imports": {
+  "./mermaid.js": "./mermaid.js?v=47", "./uml.js": "./uml.js?v=47", "./svg.js": "./svg.js?v=47" } }</script>
 <style>
   /* Colours follow Word's theme: light here, dark (class "dark" on <html>, set from Office's theme) below. */
   :root { --bg: #fff; --fg: #000; --muted: #555; --faint: #999; --bar: #f6f8fc; --line: #e0e0e0;
@@ -87,7 +91,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v46</span>
+  <span id="build">build v47</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -121,7 +125,6 @@
   <div id="card">
     <p id="cardText"></p>
     <button id="signIn" class="primary" hidden>Sign in to Lucid</button>
-    <button id="retry" hidden>Retry</button>
   </div>
 </div>
 <div id="actions">
@@ -134,11 +137,9 @@
   <button id="load" title="Open the selected picture's diagram in the editor">Edit selected</button>
 </div>
 <script>
-// Hardcoded: the prototype backend runs on this machine only (see server.js).
-const BACKEND = "https://localhost:3000";
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 // More pixels per inch than this, at the size the picture is shown, only makes
-// the file bigger; the backend aims for 400 (server.js).
+// the file bigger; exports aim for TARGET_PPI.
 const MAX_PPI = 600;
 // Pinned: pages drawn here must keep looking the same (mermaid.js output is
 // checked against Mermaid 11).
@@ -162,7 +163,6 @@ let selected = { kind: "none" };
 // trip back to the document.
 let last = null;
 let busy = false;
-let signInTimer = null;
 
 function say(msg, isError) {
   $("status").textContent = msg;
@@ -270,10 +270,9 @@ function remember(d) {
   try { localStorage.setItem("recentDiagrams", JSON.stringify(list.slice(0, 8))); } catch {}
 }
 
-function showCard(text, { signIn = false, retry = false } = {}) {
+function showCard(text, { signIn = false } = {}) {
   $("cardText").textContent = text;
   $("signIn").hidden = !signIn;
-  $("retry").hidden = !retry;
   $("card").hidden = false;
   $("frame").hidden = true;
 }
@@ -285,28 +284,260 @@ function within(promise, ms, what) {
 
 const word = fn => within(Word.run(fn), 20000, "Word");
 
-// Every backend call a button depends on goes through here, so failures come back
-// as something to act on. The timeout is generous: a big high-DPI export takes ~10s.
-async function backend(path) {
-  let r;
-  try { r = await fetch(BACKEND + path, { signal: AbortSignal.timeout(90000) }); }
-  catch (e) {
-    if (e.name === "TimeoutError") throw new Error("The add-in's backend didn't answer in 90 seconds. Try again; if it keeps happening, restart node server.js.");
-    showCard("Can't reach the add-in's backend at " + BACKEND + ". Start it with `node server.js` in the project folder. "
-      + "If it is running, your browser may be blocking this page from reaching localhost: allow local network access "
-      + "for tigerbitten.github.io in the browser's site settings.", { retry: true });
-    throw new Error("Backend unreachable.");
+// ---- Lucid: sign-in and API calls, straight from the pane ----
+// The add-in is a public OAuth client in Lucid's developer portal: it signs in
+// with PKCE (a one-time proof made for each sign-in) instead of a client
+// secret, so there's no backend to keep one. The client ID isn't a secret.
+// Registered there: SIGNIN_PAGE as redirect URI, tigerbitten.github.io as embed domain.
+const CLIENT_ID = "xHDFT34_OKo1gMf80_KU-MUtazSQuHuQ2arJHfuu";
+const SIGNIN_PAGE = "https://tigerbitten.github.io/word_lucidcharts/signin.html";
+const PANE_ORIGIN = "https://tigerbitten.github.io";
+const SCOPES = ["offline_access", "lucidchart.document.app.picker.share.embed", "lucidchart.document.content:readonly"];
+// Export resolution: enough DPI for TARGET_PPI pixels per inch at the size the
+// picture is shown in Word, and at least BASE_DPI (what a first export of an
+// unknown diagram uses, to learn its size). Lucid caps exports at roughly 10
+// megapixels whatever DPI is asked for, and big DPIs are slow (600 is ~5s).
+const BASE_DPI = 192;
+const TARGET_PPI = 400;
+const MAX_DPI = 800;
+// A planned export stays under this, clear of Lucid's ~10 MP cap: rounding the
+// DPI up used to push page-sized diagrams over it, which made Lucid shrink the
+// export and the size check in lucidExport forget the diagram (two exports every time).
+const PLAN_PIXELS = 8.9e6;
+const MAX_WIDTH_PT = 468; // 6.5in: new pictures fit the text width of a Letter page with 1in margins
+// 8.5in: and its 9in text height, leaving room for the caption line under the picture.
+const MAX_HEIGHT_PT = 612;
+
+// The sign-in lasts across restarts in this browser's storage for the add-in.
+// Pages from anywhere else on tigerbitten.github.io could read it too (README, Sign-in).
+let tokens = null;
+try { tokens = JSON.parse(localStorage.getItem("lucidSignIn")); } catch {}
+function keepTokens(t) {
+  tokens = t;
+  try { if (t) localStorage.setItem("lucidSignIn", JSON.stringify(t)); else localStorage.removeItem("lucidSignIn"); } catch {}
+}
+
+// An error from Lucid with its HTTP status: 401 brings up the sign-in card.
+const lucidError = (status, msg) => Object.assign(new Error(msg), { status });
+
+async function tokenRequest(body) {
+  const r = await fetch("https://api.lucid.co/oauth2/token", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...body, client_id: CLIENT_ID }) });
+  const json = await r.json();
+  console.log("oauth2/token", body.grant_type, r.status, r.ok ? json.scopes : json);
+  if (!r.ok) return null;
+  keepTokens({ access: json.access_token, refresh: json.refresh_token, expires: Date.now() + json.expires_in * 1000 });
+  return tokens;
+}
+
+// Lucid access tokens last about an hour; refresh a minute early, one refresh at a time.
+let refreshing = null;
+async function accessToken() {
+  if (tokens && Date.now() > tokens.expires - 60000) {
+    refreshing = refreshing || tokenRequest({ grant_type: "refresh_token", refresh_token: tokens.refresh }).finally(() => { refreshing = null; });
+    if (!(await refreshing)) keepTokens(null);
   }
-  if (r.ok) return r.json();
-  const msg = await r.text();
-  if (r.status === 401) showCard(msg, { signIn: true });
-  throw new Error(msg);
+  if (!tokens) throw lucidError(401, "Sign in to your Lucid account to draw diagrams here.");
+  return tokens.access;
+}
+
+async function lucid(path, init = {}) {
+  const r = await fetch("https://api.lucid.co" + path, { ...init, headers: {
+    ...init.headers, "Lucid-Api-Version": "1", Authorization: "Bearer " + (await accessToken()) } })
+    .catch(e => { throw e.name === "AbortError" ? e : new Error("Couldn't reach Lucid (" + e.message + "). Check the internet connection and try again."); });
+  console.log("lucid", init.method || "GET", path, r.status);
+  if (r.ok) return r;
+  const body = await r.text();
+  console.log("  ", body.slice(0, 300));
+  if (r.status === 401) { keepTokens(null); throw lucidError(401, "Your Lucid sign-in expired. Sign in again."); }
+  if (r.status === 403) throw lucidError(403, "Lucid refused the request (403): either your account can't open this diagram, "
+    + "or the add-in's Lucid OAuth client is missing one of the scopes " + SCOPES.join(", ") + ". Lucid said: " + body.slice(0, 200));
+  if (r.status === 404) throw lucidError(404, "Lucid couldn't find that diagram, or your account can't open it.");
+  throw lucidError(r.status, `Lucid returned ${r.status}: ${body.slice(0, 200)}`);
+}
+
+// Every Lucid call a button depends on goes through here: a lapsed sign-in
+// brings up the sign-in card. Generous: a big high-DPI export takes ~10s.
+async function fromLucid(promise) {
+  try { return await within(promise, 90000, "Lucid"); }
+  catch (e) { if (e.status === 401) showCard(e.message, { signIn: true }); throw e; }
 }
 
 // Background lookups (freshness, prefetch) mustn't throw up cards over the editor.
-async function quietly(path) {
-  try { const r = await fetch(BACKEND + path, { signal: AbortSignal.timeout(20000) }); return r.ok ? r.json() : null; }
-  catch { return null; }
+const quietly = promise => within(promise, 20000, "Lucid").catch(e => { console.warn("background Lucid call:", e.message); return null; });
+
+// Lucid's sign-in page refuses to load in a frame, so it gets a window of its
+// own: Office's dialog in Word, a popup in a plain browser. The window starts
+// and ends on signin.html (the redirect URI), which hands Lucid's answer back here.
+const base64url = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+async function signIn() {
+  const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
+  const challenge = base64url(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))));
+  const state = crypto.randomUUID();
+  const url = SIGNIN_PAGE + "?go=" + encodeURIComponent("https://lucid.app/oauth2/authorize?" + new URLSearchParams({ client_id: CLIENT_ID,
+    redirect_uri: SIGNIN_PAGE, scope: SCOPES.join(" "), response_type: "code", state, code_challenge: challenge, code_challenge_method: "S256" }));
+  say("Finish signing in in the window that opened...");
+  const answer = new URLSearchParams(await new Promise((resolve, reject) => {
+    if (!inWord) {
+      const channel = new BroadcastChannel("lucid-sign-in");
+      channel.onmessage = e => { channel.close(); resolve(e.data); };
+      if (!window.open(url, "lucidSignIn", "popup,width=520,height=720")) {
+        channel.close();
+        reject(new Error("The browser blocked the sign-in window. Allow pop-ups for this page, then click Sign in again."));
+      }
+      return;
+    }
+    Office.context.ui.displayDialogAsync(url, { width: 40, height: 75 }, r => {
+      if (r.status !== Office.AsyncResultStatus.Succeeded) return reject(new Error("Word didn't open the sign-in window: " + r.error.message));
+      const dialog = r.value;
+      dialog.addEventHandler(Office.EventType.DialogMessageReceived, m => { dialog.close(); resolve(m.message); });
+      // 12006: closed before signing in.
+      dialog.addEventHandler(Office.EventType.DialogEventReceived, e => reject(new Error(e.error === 12006
+        ? "The sign-in window was closed before signing in." : "The sign-in window failed (Office error " + e.error + ").")));
+    });
+  }));
+  if (answer.get("state") !== state) throw new Error("That sign-in answer wasn't for this sign-in. Click Sign in to try again.");
+  if (answer.get("error")) throw new Error("Lucid sign-in was cancelled or refused: " + answer.get("error"));
+  if (!(await tokenRequest({ grant_type: "authorization_code", code: answer.get("code"), redirect_uri: SIGNIN_PAGE, code_verifier: verifier })))
+    throw new Error("Lucid didn't accept the sign-in. The browser console (F12) has its answer.");
+}
+
+// Lucid results that only change when the document does, cached (as promises,
+// so a prefetch and the click after it share one request) with their version.
+const cache = new Map();
+function versioned(key, version, get) {
+  const c = cache.get(key);
+  if (c && version != null && c.version === version) return c.value;
+  const value = get();
+  cache.set(key, { version, value });
+  value.catch(() => { if (cache.get(key) && cache.get(key).value === value) cache.delete(key); });
+  return value;
+}
+
+// A slow Lucid request whose freshness depends on the document's version: it
+// starts alongside the info call (which gives the version) and is abandoned
+// if the cache turns out to have it already.
+async function withDoc(id, key, slow) {
+  const abort = new AbortController();
+  const request = slow(abort.signal);
+  request.catch(() => {}); // awaited below, or deliberately abandoned
+  let doc;
+  try { doc = await docInfo(id); } catch (e) { abort.abort(); throw e; }
+  let used = false;
+  const value = await versioned(key, doc.version, () => { used = true; return request; });
+  if (!used) abort.abort();
+  return { doc, value };
+}
+
+// Title, version (bumped on every saved edit; viewing doesn't), page count...
+async function docInfo(id) {
+  return (await lucid("/documents/" + id, { headers: { Accept: "application/json" } })).json();
+}
+
+// Shapes, connectors and containment for every page (~1-4s, even for a small diagram).
+async function fetchContents(id, signal) {
+  return (await lucid(`/documents/${id}/contents`, { signal })).json();
+}
+
+async function fetchPng(id, page, dpi, signal) {
+  const r = await lucid(`/documents/${id}?crop=content${page ? "&pageId=" + encodeURIComponent(page) : ""}`,
+    { headers: { Accept: `image/png;dpi=${dpi}` }, signal });
+  const png = new Uint8Array(await r.arrayBuffer());
+  if (String.fromCharCode(...png.slice(1, 4)) !== "PNG") throw new Error("Lucid's export wasn't a PNG: " + new TextDecoder().decode(png.slice(0, 100)));
+  return png;
+}
+
+// Without an embedId the editor shows Lucid's document picker; with one it reopens that diagram.
+async function embedToken(embedId) {
+  const r = await lucid("/embeds/token", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ origin: PANE_ORIGIN, ...(embedId && { embedId }), sessionConfig: { products: ["lucidchart"] } }) });
+  return r.text();
+}
+
+// A new editable embed of a document, for a picture that has none (linked by
+// pasted URL), so it opens straight in the editor. Lucid only allows this for
+// documents picked in its picker at some point (403 otherwise: the pane then
+// shows the picker).
+async function newEmbed(documentId) {
+  const r = await lucid(`/documents/${documentId}/embeds`, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ embedVersion: "latest-version", accessLevel: "edit" }) });
+  return (await r.json()).embedId;
+}
+
+// The document's pages, for the page chooser. An empty page exports as a blank
+// square. A page drawn from Mermaid code in Lucid ("diagram as code",
+// LucidNativeMermaid* shapes) exports with every shape piled in one spot:
+// Lucid's export API doesn't lay those out, so the pane draws those pages
+// itself from their Mermaid instead. Mermaid code that isn't a flowchart is one
+// picture (LucidNativeMermaidDiagramBlock), which exports fine.
+async function lucidPages(id) {
+  const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
+  return { version: doc.version, pages: contents.pages.map(p => {
+    const shapes = (p.items || {}).shapes || [], lines = (p.items || {}).lines || [];
+    return { id: p.id, title: p.title, empty: !shapes.length && !lines.length,
+      fromCode: shapes.some(s => /^LucidNativeMermaid/.test(s.class) && s.class !== "LucidNativeMermaidDiagramBlock") };
+  }) };
+}
+
+// A page as Mermaid (mermaid.js), for the picture's alt text. `page`: a Lucid page id, "" for the first page.
+async function lucidMermaid(id, page) {
+  const [{ doc, value: contents }, { pageToMermaid }] = await Promise.all([
+    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js")]);
+  const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
+  if (!p) throw new Error(`Lucid's diagram has no page "${page}" any more.`);
+  // Cached per version: translating a big sequence diagram can take a second or two.
+  const mermaid = await versioned(`mermaid ${id} ${p.id}`, doc.version, async () => {
+    const m = pageToMermaid(p);
+    console.log("mermaid for", doc.title, "/", p.title, "v" + doc.version + ":\n" + m);
+    return m;
+  });
+  return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid };
+}
+
+// The last natural size seen per document page, { naturalPt, aspect }, whatever
+// its version. Kept in this browser's storage, so reopening the pane doesn't
+// export every diagram twice again.
+const sizes = new Map((() => { try { return JSON.parse(localStorage.getItem("lucidSizes")) || []; } catch { return []; } })());
+
+// A PNG of the page. `shownPt` is the width the picture will have in Word (an
+// updated picture keeps its width); without it, a new picture's width: natural
+// size capped so the picture fits the page. The pane asks when the pointer
+// reaches its buttons, so by the click the PNG is usually cached already.
+async function lucidExport(id, page, shownPt) {
+  const key = id + " " + page;
+  // The width the picture is shown at, and the DPI that gives it TARGET_PPI,
+  // for a diagram of a given natural size (in points at 100%).
+  const plan = ({ naturalPt, aspect }) => {
+    const shown = shownPt || Math.min(naturalPt, MAX_WIDTH_PT, MAX_HEIGHT_PT / aspect);
+    // Rounded up to a multiple of 32 so nearby sizes share a cached export.
+    const dpi = Math.min(MAX_DPI, Math.max(BASE_DPI, Math.ceil(TARGET_PPI * shown / naturalPt / 32) * 32));
+    return { shownPt: shown, dpi: Math.min(dpi, Math.floor(72 * Math.sqrt(PLAN_PIXELS / aspect) / naturalPt)) };
+  };
+  // Pixel size from the PNG's IHDR chunk, without decoding the image.
+  const pixels = png => { const v = new DataView(png.buffer, png.byteOffset); return [v.getUint32(16), v.getUint32(20)]; };
+  const sizeOf = (png, dpi) => { const [w, h] = pixels(png); return { naturalPt: w * 72 / dpi, aspect: h / w }; };
+  // Only an export tells the natural size, which then decides the DPI. It
+  // hardly changes between edits, so the last one seen picks the DPI and one
+  // export is usually enough (each is several seconds for a big diagram); a
+  // first export, or a diagram that grew a lot, gets a second at the right DPI.
+  let dpi = sizes.has(key) ? plan(sizes.get(key)).dpi : BASE_DPI;
+  let { doc, value: png } = await withDoc(id, `png ${key} ${dpi}`, signal => fetchPng(id, page, dpi, signal));
+  let size = sizeOf(png, dpi);
+  const better = plan(size).dpi;
+  if (better > dpi) {
+    dpi = better;
+    png = await versioned(`png ${key} ${dpi}`, doc.version, () => fetchPng(id, page, dpi));
+    size = sizeOf(png, dpi);
+  }
+  const [width, height] = pixels(png);
+  // Lucid caps an export near 10 megapixels whatever the DPI, which would
+  // make the diagram look smaller than it is: such sizes aren't remembered.
+  if (width * height < 9e6) sizes.set(key, size);
+  else sizes.delete(key); // so the next export learns the size again from BASE_DPI
+  try { localStorage.setItem("lucidSizes", JSON.stringify([...sizes])); } catch {}
+  const shown = plan(size).shownPt;
+  console.log(`export ${width}x${height} at ${dpi}dpi, ${Math.round(width / (shown / 72))}ppi at ${Math.round(shown)}pt wide`);
+  return { title: doc.title, version: doc.version, blob: new Blob([png], { type: "image/png" }), width, height, naturalPt: size.naturalPt, shownPt: shown };
 }
 
 // Runs one button's work: one thing at a time, and errors land in the status line.
@@ -324,7 +555,7 @@ async function act(label, fn) {
 }
 
 async function loadEditor(embedId) {
-  const { token } = await backend("/embed-token" + (embedId ? "?embedId=" + embedId : ""));
+  const token = await fromLucid(embedToken(embedId));
   $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(token);
   $("card").hidden = true;
   $("frame").hidden = false;
@@ -342,7 +573,7 @@ function setCurrent(ids, title, page) {
 // Fills the page chooser in the background; it only shows for a document with more than one page.
 async function syncPages() {
   const c = current;
-  const r = c && await quietly("/pages?doc=" + c.documentId);
+  const r = c && await quietly(lucidPages(c.documentId));
   if (r && current === c) applyPages(c, r);
 }
 
@@ -365,7 +596,7 @@ $("page").onchange = () => { current.page = $("page").value; refreshButtons(); }
 async function syncLucid() {
   const t = updateTarget();
   const ids = [...new Set([current && current.documentId, t && t.documentId].filter(Boolean))];
-  const infos = await Promise.all(ids.map(id => quietly("/info?doc=" + id)));
+  const infos = await Promise.all(ids.map(id => quietly(docInfo(id))));
   ids.forEach((id, i) => {
     const info = infos[i];
     if (!info) return;
@@ -391,7 +622,7 @@ setInterval(() => { if (document.visibilityState === "visible" && !busy) syncLuc
 async function start() {
   say("Connecting...");
   try {
-    if ((await backend("/status")).signedIn) {
+    if (tokens) {
       // After a re-sign-in, come back to the diagram that was open; on opening
       // the pane, to the last diagram used, ready to edit with no picker.
       const back = current && current.embedId;
@@ -450,7 +681,7 @@ const TAG_PREFIX = "Lucidchart diagram #";
 const newTag = () => TAG_PREFIX + Math.random().toString(36).slice(2, 8);
 const tagOf = pic => pic.altTextTitle && pic.altTextTitle.startsWith(TAG_PREFIX) ? pic.altTextTitle : newTag();
 
-// New pictures come in at the width the backend chose (natural size, capped to
+// New pictures come in at the width lucidExport chose (natural size, capped to
 // the page). An updated picture keeps the width it had in the document, so resizing sticks.
 function dress(pic, d, ids, tag, keepWidthPt) {
   const widthPt = keepWidthPt || d.shownPt;
@@ -502,16 +733,13 @@ function onSelectionChanged() {
 // `shownPt`: the width the picture will have in Word, so the export has enough
 // pixels for it; left out for a new picture.
 // `page`: a Lucid page id, "" for the first page.
-const exportPath = (documentId, page, shownPt) => `/export?doc=${documentId}&page=${page}` + (shownPt ? "&shownPt=" + Math.round(shownPt) : "");
-const mermaidPath = (documentId, page) => `/mermaid?doc=${documentId}&page=${page}`;
-
 // `report`: where progress goes (the status line; Update all prefixes its count).
 async function exportDiagram(ids, page, shownPt, report = say) {
   // Which pages are empty or Mermaid code decides how a picture is made, and any
   // edit can change that (a new document starts empty), so the list is fetched
-  // fresh before every picture. The backend caches it per Lucid version, so an
+  // fresh before every picture. It's cached per Lucid version, so an
   // unchanged diagram costs one quick info call.
-  const pages = await backend("/pages?doc=" + ids.documentId);
+  const pages = await fromLucid(lucidPages(ids.documentId));
   if (current && current.documentId === ids.documentId) applyPages(current, pages);
   const info = pages.pages.find(p => p.id === (page || pages.pages[0].id));
   if (!info) throw new Error("That page has been deleted from the Lucid document, so this picture can't be updated. Insert another page as a new picture instead.");
@@ -520,18 +748,18 @@ async function exportDiagram(ids, page, shownPt, report = say) {
     // A page drawn from Mermaid code in Lucid ("diagram as code") can't come from
     // Lucid's export, which piles its shapes on top of each other. Lucid draws
     // those pages with Mermaid itself, so the pane does the same with the page's
-    // Mermaid (mermaid.js) and turns the SVG into a PNG at the backend's ppi.
+    // Mermaid (mermaid.js) and turns the SVG into a PNG at TARGET_PPI.
     report("Drawing the diagram from its Mermaid...");
-    const [m, mermaid] = await Promise.all([backend(mermaidPath(ids.documentId, page)), loadMermaid()]);
+    const [m, mermaid] = await Promise.all([fromLucid(lucidMermaid(ids.documentId, page)), loadMermaid()]);
     const { svg } = await mermaid.render("lucidPage" + Date.now(), m.mermaid);
     const root = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
     const viewBox = root.getAttribute("viewBox");
     if (!viewBox) throw new Error(`Mermaid couldn't draw "${m.title}" (its drawing has no size).`);
     const [, , widthPx, heightPx] = viewBox.split(/[\s,]+/).map(Number);
     const naturalPt = widthPx * 0.75; // SVG user units are CSS pixels, 96 to the inch
-    const widthPt = shownPt || Math.min(naturalPt, m.maxWidthPt, m.maxHeightPt * widthPx / heightPx);
+    const widthPt = shownPt || Math.min(naturalPt, MAX_WIDTH_PT, MAX_HEIGHT_PT * widthPx / heightPx);
     // Very large pictures get fewer pixels per inch rather than a canvas the browser refuses.
-    const scale = Math.min(widthPt / 72 * m.targetPpi / widthPx,
+    const scale = Math.min(widthPt / 72 * TARGET_PPI / widthPx,
       CANVAS_MAX_SIDE / Math.max(widthPx, heightPx), Math.sqrt(CANVAS_MAX_PIXELS / (widthPx * heightPx)));
     root.removeAttribute("style"); // Mermaid's max-width would let a host shrink the image before scaling it back up
     root.setAttribute("width", widthPx * scale);
@@ -557,12 +785,12 @@ async function exportDiagram(ids, page, shownPt, report = say) {
   const started = Date.now();
   report("Exporting from Lucid...");
   const tick = setInterval(() => report(`Exporting from Lucid... ${Math.round((Date.now() - started) / 1000)}s`), 1000);
-  const [d, m] = await Promise.all([backend(exportPath(ids.documentId, page, shownPt)), backend(mermaidPath(ids.documentId, page))])
+  const [d, m] = await Promise.all([fromLucid(lucidExport(ids.documentId, page, shownPt)), fromLucid(lucidMermaid(ids.documentId, page))])
     .finally(() => clearInterval(tick));
-  console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.base64.length, "base64 chars; mermaid v" + m.version);
+  console.log("export", d.title, "v" + d.version, d.width + "x" + d.height, d.blob.size, "bytes; mermaid v" + m.version);
   Object.assign(d, { mermaid: m.mermaid, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length });
   const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
-  Object.assign(d, await plainPng(d.base64, maxWidthPx, [ids.documentId, d.page, d.version, maxWidthPx].join("@")));
+  Object.assign(d, await plainPng(d.blob, maxWidthPx, [ids.documentId, d.page, d.version, maxWidthPx].join("@")));
   report("Placing in document...");
   return d;
 }
@@ -676,9 +904,8 @@ function shrinkNote(widthPt, d) {
 // An export with far more pixels than the picture can show is scaled down here
 // with high-quality resampling, rather than left for Word to squash on screen.
 let plainCache = { key: null };
-async function plainPng(base64, maxWidthPx, key) {
+async function plainPng(blob, maxWidthPx, key) {
   if (plainCache.key === key) return plainCache.result;
-  const blob = await (await fetch("data:image/png;base64," + base64)).blob();
   const full = await createImageBitmap(blob);
   const scale = Math.min(1, maxWidthPx / full.width);
   const width = Math.round(full.width * scale), height = Math.round(full.height * scale);
@@ -856,7 +1083,7 @@ async function openSelected() {
   });
   // A picture linked by pasted URL has no embed; one is made if Lucid allows,
   // else the editor shows the picker. Update records it in the picture.
-  if (!found.embedId) found.embedId = ((await quietly("/embed?doc=" + found.documentId)) || {}).embedId || null;
+  if (!found.embedId) found.embedId = (await quietly(newEmbed(found.documentId))) || null;
   await loadEditor(found.embedId);
   last = { kind: "ours", ...found, tag, width };
   const msg = found.embedId ? `Opened "${found.title}". Edit it, then Update.`
@@ -936,7 +1163,7 @@ async function scanDocument() {
       docDiagrams = docPictures.filter((d, i) => docPictures.findIndex(x => x.documentId === d.documentId) === i);
     });
     const ids = docDiagrams.map(d => d.documentId);
-    const infos = await Promise.all(ids.map(id => quietly("/info?doc=" + id)));
+    const infos = await Promise.all(ids.map(id => quietly(docInfo(id))));
     ids.forEach((id, i) => infos[i] && latestOf.set(id, infos[i]));
   } catch (e) { console.warn("reading the document's diagrams:", e); }
   refreshButtons();
@@ -1066,14 +1293,14 @@ $("docUrl").oninput = () => {
   if (!m || (current && current.documentId === m[0])) return;
   act("Opening the pasted diagram...", async () => {
     // In the editor if Lucid allows an embed of it; otherwise only linked, for the buttons.
-    const embedId = ((await quietly("/embed?doc=" + m[0])) || {}).embedId || null;
+    const embedId = (await quietly(newEmbed(m[0]))) || null;
     if (embedId) await loadEditor(embedId);
     setCurrent({ documentId: m[0], embedId });
     say(embedId ? "Opened the pasted diagram." : "Using the pasted diagram: Lucid won't show it in the editor here until it's picked once in Lucid's window (the menu's Browse).");
   });
 };
 
-// The moment before a click: warm the backend's export cache, and re-check
+// The moment before a click: start the export the click will want, and re-check
 // whether the target picture is still up to date (it may have been edited since).
 let lastPrefetch = 0;
 $("actions").addEventListener("pointerenter", () => {
@@ -1086,31 +1313,16 @@ $("actions").addEventListener("pointerenter", () => {
     const same = t && t.documentId === current.documentId;
     const page = same ? t.page : current.page;
     if (isFromCode(page)) loadMermaid().catch(() => {});
-    else quietly(exportPath(current.documentId, page, same ? t.width : null));
-    quietly(mermaidPath(current.documentId, page));
-    quietly("/pages?doc=" + current.documentId);
+    else quietly(lucidExport(current.documentId, page, same ? t.width : null));
+    quietly(lucidMermaid(current.documentId, page));
+    quietly(lucidPages(current.documentId));
   }
   syncLucid();
 });
 // Back from a lucid.app tab: edits made there may have made the picture stale.
 window.addEventListener("focus", () => { onSelectionChanged(); scanDocument(); });
 
-$("signIn").onclick = () => {
-  // Lucid's sign-in page refuses to load in a frame, so it gets a real browser tab.
-  openInBrowser(BACKEND + "/login");
-  say("Finish signing in in the tab that opened...");
-  // Poll until the backend has a token, then carry on without another click.
-  const until = Date.now() + 5 * 60000;
-  clearInterval(signInTimer);
-  signInTimer = setInterval(async () => {
-    let s;
-    try { s = await (await fetch(BACKEND + "/status")).json(); } catch { return; }
-    if (s.signedIn) { clearInterval(signInTimer); start(); }
-    else if (Date.now() > until) { clearInterval(signInTimer); say("Sign-in timed out. Click Sign in to try again.", true); }
-  }, 2000);
-};
-
-$("retry").onclick = start;
+$("signIn").onclick = () => signIn().then(start, e => say(e.message, true));
 
 (async () => {
   refreshButtons();

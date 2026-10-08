@@ -3,8 +3,9 @@
 // but no positions, so this describes structure and leaves layout to Mermaid.
 // Containers (frames, swimlanes) become subgraphs; everything else a node.
 // Sequence, ER, class and state diagrams get their own Mermaid forms (uml.js).
-const { umlToMermaid, decodeEntities } = require("./uml.js");
-const { pictureToMermaid } = require("./svg.js");
+// An ES module: the pane imports it, and dev/test-mermaid.js requires it.
+import { umlToMermaid, decodeEntities } from "./uml.js";
+import { pictureToMermaid } from "./svg.js";
 
 // Lucid shape class -> Mermaid node brackets. First match wins; default is a box.
 const SHAPES = [
@@ -290,4 +291,4 @@ function topoOrder(ids, edges) {
   return order;
 }
 
-module.exports = { pageToMermaid };
+export { pageToMermaid };

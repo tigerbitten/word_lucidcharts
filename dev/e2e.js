@@ -1,12 +1,12 @@
 // The pane's main flows, run in the test Word (dev/chrome.ps1, with
-// dev/serve.js and server.js running): clears Claude's test doc, then checks
+// dev/serve.js running and the pane signed in to Lucid): clears Claude's test doc, then checks
 // Insert (picture, caption, cursor), Insert after a heading and into a table
-// cell, Insert without a caption, Update of an unchanged picture, and the MD view. Uses the "small test"
-// / "Order intake flow" Lucid document. Prints PASS / FAIL per check.
+// cell, Insert without a caption, Update of an unchanged picture, and the MD view. Uses the "Order intake
+// flow v2" Lucid document (a draw.io import). Prints PASS / FAIL per check.
 //   node dev/e2e.js
 const { execFileSync } = require("child_process");
 const path = require("path");
-const DOC = "d52e08a7-5c54-4df4-aa9e-1ff509683043";
+const DOC = "b5dd4969-1851-44b4-80e6-0f50639358e4";
 const run = (script, ...args) => execFileSync("node", [path.join(__dirname, script), ...args], { encoding: "utf8" }).trim();
 const pane = js => JSON.parse(run("cdp.js", "eval", "taskpane.html", js));
 const click = id => run("cdp.js", "click", "taskpane.html", "css:#" + id);

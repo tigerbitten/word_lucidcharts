@@ -42,15 +42,8 @@ const pane = js => execFileSync("node", [path.join(__dirname, "cdp.js"), "eval",
     console.log("saved", arg, fs.statSync(arg).size, "bytes");
   }
   else if (cmd === "end") console.log(pane(`Word.run(async ctx => { ctx.document.body.getRange("End").select(); await ctx.sync(); return "cursor at end"; })`));
-  else if (cmd === "open") {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    await fetch("https://localhost:3000/info?doc=" + arg); // lets the server refresh the token
-    const token = JSON.parse(fs.readFileSync(path.join(__dirname, "..", ".lucid-token.json"))).access;
-    const r = await fetch(`https://api.lucid.co/documents/${arg}/embeds`, { method: "POST",
-      headers: { "Lucid-Api-Version": "1", Authorization: "Bearer " + token, "Content-Type": "application/json" },
-      body: JSON.stringify({ embedVersion: "latest-version", accessLevel: "edit" }) });
-    if (!r.ok) throw new Error(`embed ${r.status}: ${await r.text()} (only documents picked once in Lucid's picker can be embedded)`);
-    const { embedId } = await r.json();
-    console.log(pane(`loadEditor("${embedId}").then(() => { onLucidMessage({ type: "LucidEmbedEvent", event: "EmbedCreated", documentId: "${arg}", embedId: "${embedId}" }); return "opened ${arg} as embed ${embedId}"; })`));
-  } else throw new Error("usage: node dev/word.js doc|clear|end|open <docId>");
+  // The pane holds the Lucid sign-in, so the embed is made there (only documents picked once in Lucid's picker can be).
+  else if (cmd === "open") console.log(pane(`newEmbed("${arg}").then(async embedId => { await loadEditor(embedId);
+    onLucidMessage({ type: "LucidEmbedEvent", event: "EmbedCreated", documentId: "${arg}", embedId }); return "opened ${arg} as embed " + embedId; })`));
+  else throw new Error("usage: node dev/word.js doc|clear|end|open <docId>");
 })().catch(e => { console.error(e.message); process.exit(1); });

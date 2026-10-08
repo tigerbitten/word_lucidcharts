@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Lucid sign-in</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body style="font: 15px 'Segoe UI', system-ui, sans-serif; margin: 2rem">
+<p id="msg">Opening Lucid's sign-in...</p>
+<script>
+// The pane's sign-in window starts and ends here: Office's dialog has to open
+// on the add-in's own site, and this page is the redirect URI registered with Lucid.
+// Opened as signin.html?go=<Lucid's authorize URL>: goes on to Lucid.
+// Back from Lucid as signin.html?code=...&state=... (or ?error=...): hands that to the pane.
+const q = new URLSearchParams(location.search);
+if (q.has("go")) {
+  // Only ever on to Lucid's sign-in, so nobody can use this page to send people elsewhere.
+  if (!q.get("go").startsWith("https://lucid.app/oauth2/authorize?")) throw new Error("Not a Lucid sign-in URL: " + q.get("go"));
+  location.replace(q.get("go"));
+} else {
+  document.getElementById("msg").textContent = q.has("error") ? "Sign-in didn't finish: " + q.get("error") : "Signed in. Back to Word...";
+  // A pane in a plain browser listens here (same site, same storage). In Word
+  // the pane and this window don't share storage, so it's Office's dialog messaging.
+  new BroadcastChannel("lucid-sign-in").postMessage(location.search);
+  Office.onReady(info => {
+    if (info.host) Office.context.ui.messageParent(location.search); // Word closes the window
+    else window.close();
+  });
+}
+</script>
+</body>
+</html>

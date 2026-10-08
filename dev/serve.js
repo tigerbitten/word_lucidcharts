@@ -52,5 +52,7 @@ const TYPES = { html: "text/html; charset=utf-8", js: "text/javascript", png: "i
     ] }, m.sessionId).catch(e => console.log(e.message));
   };
   await send("Target.setAutoAttach", { autoAttach: true, waitForDebuggerOnStart: false, flatten: true });
+  // Tabs and popups (the sign-in window, signin.html) aren't auto-attached: intercepted browser-wide.
+  await send("Fetch.enable", { patterns: [{ urlPattern: PREFIX + "*" }] });
   console.log("serving", PREFIX, "from", REPO);
 })().catch(e => { console.error(e.message); process.exit(1); });

@@ -447,4 +447,4 @@ function umlToMermaid(shapes, lines) {
   return `---\ntitle: ${JSON.stringify(textOf(frame).replace(/\s+/g, " "))}\n---\n` + out;
 }
 
-module.exports = { umlToMermaid, decodeEntities };
+export { umlToMermaid, decodeEntities };

@@ -2,6 +2,13 @@
 
 Docs: developer.lucid.co (mirror: lucid.readme.io). All REST calls: `https://api.lucid.co`, header `Lucid-Api-Version: 1`, `Authorization: Bearer <token>`.
 
+## OAuth (tested 2026-10-07)
+- The developer portal (Team/Enterprise plan, developer role) offers two client types, fixed at creation: Confidential, and **Public**: "For applications that cannot securely store a client secret. Uses Authorization Code with PKCE (S256)." The written docs only describe the secret.
+- Public client: authorize with `code_challenge` + `code_challenge_method=S256`; `POST /oauth2/token` with `code_verifier` and no secret (without either: 400 "Must specify either client_secret or code_verifier"; wrong verifier: 400, and the code still works afterwards with the right one). `refresh_token` grant needs only `client_id`; an old refresh token still worked once after being swapped.
+- `api.lucid.co` (token endpoint included) answers CORS for any origin, so a browser page can do the whole flow and every call this add-in makes.
+- Scopes are asked for at authorize time; the portal client only lists redirect URIs and embed domains. `authorize` takes `prompt=none|consent`.
+- Lucid's login sends company accounts on to their SSO; a consent already given isn't asked again.
+
 ## Embeds (what we use)
 - Token: `POST /embeds/token` `{origin, embedId?, sessionConfig?}` → JWT. Scope `lucidchart.document.app.picker.share.embed`.
   - `sessionConfig`: `products[]`, `viewerType.default` (`rich`|`simple`, view-only), `ui` (`viewer`|`settings` = open on embed settings), `customSettings` (`postMessage`|`none`).
@@ -41,7 +48,7 @@ Docs: developer.lucid.co (mirror: lucid.readme.io). All REST calls: `https://api
 - Export PNGs are palette PNGs with extra chunks, which Word on the web rejects (we re-encode them).
 - Flowcharts built from Mermaid in Lucid (`LucidNativeMermaid*`) export with all shapes piled up, with or without crop; their subgraph shapes list only connectors, not shapes.
 - Other Mermaid code (sequence, class, state, ...) imported or pasted into Lucid becomes one `LucidNativeMermaidDiagramBlock`: no text areas, its `image.url` a data URL of Mermaid's SVG. It exports fine.
-- Framing, OAuth/mkcert and Word gotchas, and how the code handles each: CLAUDE.md.
+- Framing, sign-in and Word gotchas, and how the code handles each: CLAUDE.md.
 
 ## Lucid AI and import (for making test diagrams)
 - "Generate with AI" on the lucid.app home page or in an editor's AI panel draws real diagrams with Lucid's libraries (sequence, ER, class, state, BPMN, org chart, mind map, cloud and network icons). A few minutes each.
