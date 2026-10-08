@@ -249,7 +249,8 @@ for a while after it's been swapped. To sign out, clear the site data for
 |---|---|
 | Lucid refused the request (403) | Either your account can't open that diagram, or a scope is missing on the OAuth client (add it, then sign in again). |
 | The browser blocked the sign-in window | Allow pop-ups for the page (Word on the web asks first: allow it), then click Sign in again. |
-| The editor says "only signed in users… can access" | Log in to lucid.app in a browser tab (the embed uses that session), then pick the diagram again from the menu. |
+| Lucid's editor needs you logged in to Lucid here in Word | Click **Sign in to Lucid**. Lucid's editor needs a lucid.app login in Word's own browser; Lucid's "Log in to edit" button opens your web browser instead (desktop Word), which never reaches Word. The pane's sign-in window does. |
+| Lucid still opens this diagram read-only after signing in | The diagram's embed is view-only, or the browser blocks Lucid's cookies inside Word (third-party cookies). Edit with **↗** (Open in Lucid), then **Update**. |
 | A Lucid button in the editor does nothing (e.g. Create with AI) | Use **↗** (Open in Lucid); the full editor has everything. Same diagram, so **Update** picks the result up. |
 | A diagram made on lucid.app (e.g. with Create with AI) won't open in the editor here | Pick it once with the menu's **Browse or create in Lucid...**: Lucid only lets the add-in open diagrams that have been picked there. After that it opens straight from the menu. |
 | Update put in an older version | Lucid saves edits a second or two after you make them. Wait a moment and update again; the status line shows when a picture is out of date. |

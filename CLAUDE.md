@@ -45,6 +45,11 @@ Two stages:
   (`?go=` Lucid's authorize URL) and the redirect URI: it hands `?code&state`
   back by `messageParent` (Word) or a BroadcastChannel (plain browser; in Word
   the pane's storage is partitioned under Word's site, so that can't reach it).
+  That window also logs in to lucid.app in Word's own browser, which Lucid's
+  editor needs (a cookie, apart from the API tokens). Without it the embed
+  says so (`onLucidMessage`: a read-only "Viewer", or the picker's
+  `logged_out`) and the pane shows its sign-in card, not Lucid's "Log in to
+  edit", whose window is the default browser in desktop Word.
 - Alt text format is in README.md: link lines, then a fenced Mermaid block.
   Pictures from older builds (no `lucid-page`, no Mermaid) must keep parsing
   (`parseAlt` in taskpane.html).

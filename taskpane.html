@@ -20,7 +20,7 @@
 <!-- The translators are ES modules that import each other; this gives every one
      of them the build's ?v=N, so none is served stale from a cache (CLAUDE.md). -->
 <script type="importmap">{ "imports": {
-  "./mermaid.js": "./mermaid.js?v=47", "./uml.js": "./uml.js?v=47", "./svg.js": "./svg.js?v=47" } }</script>
+  "./mermaid.js": "./mermaid.js?v=48", "./uml.js": "./uml.js?v=48", "./svg.js": "./svg.js?v=48" } }</script>
 <style>
   /* Colours follow Word's theme: light here, dark (class "dark" on <html>, set from Office's theme) below. */
   :root { --bg: #fff; --fg: #000; --muted: #555; --faint: #999; --bar: #f6f8fc; --line: #e0e0e0;
@@ -91,7 +91,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v47</span>
+  <span id="build">build v48</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page for Word:</label>
@@ -110,8 +110,8 @@
     (or download as a .md file): most tools that read .docx files skip the Mermaid in the pictures' alt text.</p>
   <p><b>Page for Word</b> (for diagrams with several pages) picks the page that goes into the document:
     Lucid's editor doesn't tell the add-in which page you're looking at.</p>
-  <p>If the editor asks you to log in, log in to lucid.app in a browser tab (it can't be done inside Word),
-    then pick the diagram again from the menu.</p>
+  <p>If Lucid's editor asks you to log in, use the pane's <b>Sign in to Lucid</b>, not Lucid's own button:
+    Lucid's opens your web browser, and logging in there doesn't reach Word.</p>
   <p>Diagram not detected? Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
     <input id="docUrl" placeholder="https://lucid.app/lucidchart/..."></p>
 </div>
@@ -369,6 +369,8 @@ const quietly = promise => within(promise, 20000, "Lucid").catch(e => { console.
 // Lucid's sign-in page refuses to load in a frame, so it gets a window of its
 // own: Office's dialog in Word, a popup in a plain browser. The window starts
 // and ends on signin.html (the redirect URI), which hands Lucid's answer back here.
+// The window logs in to lucid.app too, in the browser the editor runs in (onLucidMessage).
+let signedInHere = false;
 const base64url = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 async function signIn() {
   const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
@@ -400,6 +402,7 @@ async function signIn() {
   if (answer.get("error")) throw new Error("Lucid sign-in was cancelled or refused: " + answer.get("error"));
   if (!(await tokenRequest({ grant_type: "authorization_code", code: answer.get("code"), redirect_uri: SIGNIN_PAGE, code_verifier: verifier })))
     throw new Error("Lucid didn't accept the sign-in. The browser console (F12) has its answer.");
+  signedInHere = true;
 }
 
 // Lucid results that only change when the document does, cached (as promises,
@@ -651,6 +654,20 @@ function onLucidMessage(data) {
   if (data && data.type === "LucidEmbedEvent" && data.event === "EmbedCreated") {
     setCurrent({ documentId: data.documentId, embedId: data.embedId });
     say(inWord ? "Ready. Edit the diagram, then Insert it, or Update the selected picture." : "Diagram ready (open in Word to insert).");
+  }
+  // Lucid's editor and picker also need a lucid.app login in this browser (its
+  // cookie), apart from the add-in's sign-in. Without one the picker says
+  // logged_out and the editor falls back to a read-only viewer, whose "Log in to
+  // edit" opens a window that in desktop Word is the default browser: logging in
+  // there never reaches Word. Signing in through the pane's window does (it's
+  // Word's own browser), so the card asks for that instead of showing the viewer.
+  if (data && (data.status === "logged_out" || (data.event === "EmbedLoaded" && data.componentType === "Viewer"))) {
+    if (!signedInHere) {
+      say("Not logged in to Lucid's editor.");
+      showCard("Lucid's editor needs you logged in to Lucid here in Word (a login in your web browser doesn't reach it). "
+        + "Sign in once (a window opens) and the diagram opens for editing.", { signIn: true });
+    } else say("Lucid still opens this diagram read-only after signing in: either its embed is view-only, or this browser blocks Lucid's "
+      + "cookies inside Word. ↗ (Open in Lucid) edits it on lucid.app; Update then brings the changes into Word.", true);
   }
 }
 
