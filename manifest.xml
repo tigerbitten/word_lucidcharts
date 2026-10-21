@@ -17,7 +17,7 @@
     <Host Name="Presentation" />
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://tigerbitten.github.io/word_lucidcharts/taskpane.html?v=48" />
+    <SourceLocation DefaultValue="https://tigerbitten.github.io/word_lucidcharts/taskpane.html?v=49" />
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
 </OfficeApp>
