@@ -4,7 +4,7 @@
 
 A Word add-in with an embedded Lucidchart diagram editor. Open the task pane,
 sign in to your Lucid account, draw diagrams, and insert them into the
-document as pictures.
+document as pictures. The same pane runs in PowerPoint (`inPpt`).
 
 Two stages:
 
@@ -88,7 +88,7 @@ Two stages:
   text is still "Figure N: <old title>". Insert goes below a figure's caption
   when the cursor is on its picture, and leaves the cursor below the new figure
   (in a fresh paragraph at the end of the document). New pictures fit 6.5 x
-  8.5in (MAX_WIDTH_PT / MAX_HEIGHT_PT), or the table cell they go
+  8.5in (maxWidthPt / maxHeightPt), or the table cell they go
   in. The picture and caption paragraphs are set to Normal: made after a heading
   they would otherwise become headings too.
 - Each picture records the Lucid document `version` it was exported from
@@ -98,6 +98,21 @@ Two stages:
 - Getting the Mermaid to an LLM: the pane's MD view writes the open document as
   Markdown with each diagram's Mermaid in place (Office.js paragraphs, tables,
   pictures); `docx2md.py` does the same for a saved .docx. Keep the two alike.
+- PowerPoint (the `ppt*` functions; each button branches on `inPpt`): a
+  picture is a borderless rectangle filled with the PNG (`addGeometricShape`
+  + `fill.setImage`, PowerPointApi 1.8), centred on the slide and fitting 90 x
+  85% of it (slide size from `pageSetup`, 1.10). Not `setSelectedDataAsync`
+  (the Waveform Viewer's way): on the web it refuses while anything on the
+  slide is selected, and the add-in can't clear the selection there
+  (`setSelectedShapes([])` and `setSelectedSlides` don't). The alt text goes
+  in a `LUCID` shape tag (read back to check it wasn't cut) and, with 1.10,
+  in `altTextDescription` for LLMs; the `last` tag is the shape name.
+  Update adds the new picture at the old one's place and width, then deletes
+  the old. Things that stalled PowerPoint on the web: two `PowerPoint.run`s
+  at once (so `ppt()` runs them in turn), `setSelectedShapes([id])` (so the
+  pane never selects: the menu's "In this document" opens the picture's diagram
+  without selecting it), and reading a tag in the batch that added it. Shape
+  ids repeat across slides. No captions there.
 - The pane also runs in a plain browser with the Word buttons disabled, which
   is how the Lucid side can be tested without Word (open
   `https://tigerbitten.github.io/word_lucidcharts/taskpane.html` with serve.js running).
@@ -134,6 +149,15 @@ Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
 - `dev/word.js`: `doc` (pictures and paragraphs), `clear`, `end`, `open <docId>`
   (a diagram straight into the pane's editor). `dev/contents.js <doc> <name>`
   saves a document's contents as a fixture.
+- PowerPoint: the test deck is "Presentation" in OneDrive
+  (`https://powerpoint.cloud.microsoft/open/onedrive/?docId=DB0E68BED0AD0E44%21s6ba82e1f50e240508ca2c6faacd7d46a&driveId=DB0E68BED0AD0E44`);
+  `serve.js` holds PowerPoint's frames too. Upload the manifest there (Home >
+  Add-ins > More Add-ins > My Add-ins > Manage My Add-ins > Upload My Add-in;
+  the dialogs need `mouse` clicks, and `file` reaches the nested frame).
+  With a Word tab open too, `cdp.js eval taskpane.html` picks the first
+  pane: close the other tab. Without a Lucid sign-in, PowerPoint and Word
+  paths can still be tested by replacing `exportDiagram` (and `loadEditor`)
+  from `eval` with stubs returning a canvas PNG.
 - New realistic diagrams: Lucid AI (lucid.app home, "Generate with AI", or the
   AI panel in an editor: type, then click Send; a prompt typed on the home page
   can be lost if its tab reloads). Lucid's import dialog takes Mermaid,
@@ -141,6 +165,7 @@ Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
   fills its input). Templates don't load on this account.
 
 The user allows: anything in Claude's test doc, any of their Lucid diagrams.
+The PowerPoint test deck was made by Claude for testing.
 Commit locally; the user pushes.
 
 ## Style

@@ -1,7 +1,2 @@
-.env
-*.secret
-*.pem
-.lucid-token.json
-.lucid-sizes.json
 .claude/settings.local.json
 node_modules/

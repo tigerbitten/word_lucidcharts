@@ -1,6 +1,6 @@
 # Lucidchart Diagrams for Word
 
-A Word add-in with Lucidchart's editor inside the task pane. Sign in to your
+A Word add-in (it also works in PowerPoint: see below) with Lucidchart's editor inside the task pane. Sign in to your
 Lucid account, draw, and insert the diagram into the document as a picture.
 Each picture's alt text links back to its Lucid diagram, so it can be reopened
 and updated later, and carries the diagram as Mermaid, so an LLM reading the
@@ -30,6 +30,28 @@ client secret; it's at the git tag `server-backend`.)
    page, with a figure caption under it (untick **Caption** for none), and
    leaves the cursor below the figure.
 
+### In PowerPoint
+
+The same manifest loads in PowerPoint, and the pane works the same way, with these differences:
+- **Insert** puts the diagram in the middle of the slide in view, sized to fit it, with no caption.
+- **Update** keeps the picture where you moved it and at the width you gave it.
+- **Update all** covers every slide.
+- **MD** writes the presentation slide by slide: the text boxes' text and each diagram's Mermaid.
+
+The diagram's source (the alt text below) is kept in a shape tag named `LUCID`,
+which every PowerPoint has. It's also written to the picture's alt text where
+PowerPoint allows that (PowerPointApi 1.10; PowerPoint on the web does), so an
+LLM reading the `.pptx` finds the Mermaid in `p:cNvPr/@descr`. The tag for
+finding a picture again is in the shape's name, shown in the Selection Pane.
+
+The picture is a borderless rectangle filled with the diagram, not a plain
+picture. PowerPoint's add-in API has no call that inserts a picture. The
+common call the Waveform Viewer add-in uses (`setSelectedDataAsync`) refuses
+whenever anything on the slide is selected, and on the web the add-in can't
+clear the selection. Filling a shape needs PowerPointApi 1.8: PowerPoint on the
+web, or a recent Microsoft 365 desktop. Older desktop versions say so when you
+click Insert.
+
 ### How editing works
 
 There's one copy of each diagram, in your Lucid account. The editor in the
@@ -51,7 +73,7 @@ The bar above the editor has:
   **?** explains all this.
 - **MD** shows the whole document as Markdown with each diagram's Mermaid in
   place, to select and copy into an LLM, or download as a `.md` file.
-- **Page for Word**, for a document with several pages: which page Insert uses.
+- **Page to insert**, for a document with several pages: which page Insert uses.
 
 The buttons at the bottom act on whatever is selected in Word, and the line
 above them says what that is and whether it's up to date with Lucid:
@@ -218,8 +240,8 @@ Editable embeds also have to be allowed in your Lucid account's admin settings.
 Download `manifest.xml` with GitHub's **Download raw file** button (not Save
 Page As).
 
-- **Word on the web:** Insert → Add-ins → **Upload My Add-in** → choose
-  `manifest.xml`.
+- **Word or PowerPoint on the web:** Home → Add-ins → More Add-ins → My Add-ins →
+  Manage My Add-ins → **Upload My Add-in** → choose `manifest.xml`.
 - **Windows desktop:** same shared-folder catalog steps as the sibling add-ins:
   put the manifest in a shared folder, add its `\\<pc>\<share>` path under
   File → Options → Trust Center → Trust Center Settings → Trusted Add-in
@@ -273,7 +295,7 @@ call, export and Mermaid translation.
 | `docx2md.py` | A `.docx` as Markdown with the diagrams' Mermaid in place, for LLMs |
 | `dev/` | Testing without a person: drive Word on the web in a test Chrome, translator fixtures from real Lucid diagrams checked against Mermaid's parser (see `CLAUDE.md`) |
 | `notes.md` | What Lucid's embed and REST APIs can and can't do, for planning features |
-| `manifest.xml` | Points Word at the pane on GitHub Pages |
+| `manifest.xml` | Points Word and PowerPoint at the pane on GitHub Pages |
 | `icon.svg` | The icon; `icon-32.png` / `icon-64.png` are it at manifest sizes |
 
 No build step: the pane is served straight from GitHub Pages off the repo

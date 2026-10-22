@@ -107,11 +107,14 @@ async function connect(substr, pageOnly) {
     }
     console.log(action, rest.slice(1).join(","));
   } else if (cmd === "file") {
-    // Fills the frame's file input without the OS file dialog.
-    const { root } = await c.send("DOM.getDocument", { depth: -1 });
-    const { nodeId } = await c.send("DOM.querySelector", { nodeId: root.nodeId, selector: "input[type=file]" });
-    if (!nodeId) throw new Error("no file input");
-    await c.send("DOM.setFileInputFiles", { nodeId, files: rest });
+    // Fills the frame's file input without the OS file dialog. Searched in
+    // same-origin child frames too: Office's Upload My Add-in dialog is one.
+    const { root } = await c.send("DOM.getDocument", { depth: -1, pierce: true });
+    const isFile = n => n.nodeName === "INPUT" && (n.attributes || []).some((a, i, all) => i % 2 === 0 && a === "type" && all[i + 1] === "file");
+    const find = n => isFile(n) ? n : [...(n.children || []), ...(n.contentDocument ? [n.contentDocument] : [])].map(find).find(Boolean);
+    const input = find(root);
+    if (!input) throw new Error("no file input");
+    await c.send("DOM.setFileInputFiles", { backendNodeId: input.backendNodeId, files: rest });
     console.log("set files", rest.join(", "));
   } else throw new Error("unknown command " + cmd);
   c.close();

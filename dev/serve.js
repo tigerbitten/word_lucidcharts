@@ -5,7 +5,7 @@
 const fs = require("fs");
 const REPO = require("path").join(__dirname, "..") + "/";
 const PREFIX = "https://tigerbitten.github.io/word_lucidcharts/";
-const WORD = /word\.cloud\.microsoft|officeapps\.live\.com|tigerbitten\.github\.io/;
+const WORD = /word\.cloud\.microsoft|powerpoint\.cloud\.microsoft|officeapps\.live\.com|tigerbitten\.github\.io/;
 const TYPES = { html: "text/html; charset=utf-8", js: "text/javascript", png: "image/png", svg: "image/svg+xml", css: "text/css" };
 
 (async () => {
@@ -20,7 +20,7 @@ const TYPES = { html: "text/html; charset=utf-8", js: "text/javascript", png: "i
   ws.onmessage = async e => {
     const m = JSON.parse(e.data);
     if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
-    // Word's page, its editor iframe and the pane (an iframe inside that) get
+    // Word's (or PowerPoint's) page, its editor iframe and the pane (an iframe inside that) get
     // interception, and their own children auto-attached, paused until
     // interception is on so a new pane's first requests can't slip past.
     // Everything else (Lucid's tabs and iframes, workers) is let go at once:

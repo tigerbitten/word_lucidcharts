@@ -8,7 +8,7 @@
   <ProviderName>build v50</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Lucidchart Diagrams" />
-  <Description DefaultValue="Draw Lucidchart diagrams directly in Word." />
+  <Description DefaultValue="Draw Lucidchart diagrams directly in Word and PowerPoint." />
   <IconUrl DefaultValue="https://tigerbitten.github.io/word_lucidcharts/icon-32.png" />
   <HighResolutionIconUrl DefaultValue="https://tigerbitten.github.io/word_lucidcharts/icon-64.png" />
   <SupportUrl DefaultValue="https://github.com/tigerbitten/word_lucidcharts" />
