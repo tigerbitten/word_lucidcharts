@@ -5,7 +5,7 @@
     xsi:type="TaskPaneApp">
   <Id>d15ed42b-28f6-4647-b120-8418624f3a1c</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>build v50</ProviderName>
+  <ProviderName>build v51</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Lucidchart Diagrams" />
   <Description DefaultValue="Draw Lucidchart diagrams directly in Word and PowerPoint." />
@@ -17,7 +17,7 @@
     <Host Name="Presentation" />
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://tigerbitten.github.io/word_lucidcharts/taskpane.html?v=50" />
+    <SourceLocation DefaultValue="https://tigerbitten.github.io/word_lucidcharts/taskpane.html?v=51" />
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
 </OfficeApp>
