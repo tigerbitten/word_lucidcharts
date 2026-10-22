@@ -56,7 +56,6 @@
     font-size: 0.82rem; line-height: 1.45; flex: none; max-height: 60vh; overflow: auto; }
   #help p { margin: 0 0 0.4rem; }
   #help p:last-child { margin: 0; }
-  #help input { width: 100%; margin-top: 0.2rem; padding: 0.2rem; }
   /* Over the editor, which keeps its state underneath. */
   #md { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; gap: 0.35rem; padding: 0.4rem; z-index: 1; }
   #md p { margin: 0; font-size: 0.8rem; color: var(--muted); }
@@ -87,7 +86,7 @@
 <body>
 <div id="bar">
   <select id="diagram" title="The diagram in the editor. Open another: one already in this document, a recent one, or any in Lucid"></select>
-  <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work inside Word">&#8599;</button>
+  <button id="lucid" class="icon" title="Open in Lucid: this diagram on lucid.app in a browser tab, with more room and the Lucid features that don't work in the add-in">&#8599;</button>
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
@@ -100,14 +99,15 @@
 <div id="help" hidden>
   <p><b>There's one copy of each diagram, in your Lucid account.</b> This editor and lucid.app
     are two windows onto that same diagram: edit in either, and every change saves to Lucid by itself.</p>
-  <p><b>The pictures in Word are snapshots.</b> <b>Insert</b> adds the diagram as a new picture below the
+  <p><b>The pictures in the document are snapshots.</b> <b>Insert</b> adds the diagram as a new picture below the
     cursor; <b>Update</b> brings the selected picture up to date. The line above the buttons says whether
     it is. <b>Edit selected</b> opens the selected picture's diagram here.</p>
   <p><b>The menu at the top</b> switches diagrams: the ones already in this document, your recent ones,
     or <i>Browse or create in Lucid</i>. <b>&#8599;</b> opens the diagram on lucid.app for more room and the
-    Lucid features that don't work inside Word, like Create with AI; <b>&#8635;</b> reloads the editor here.</p>
-  <p><b>In PowerPoint</b>, Insert puts the picture in the middle of the slide in view, sized to fit it, with no caption;
-    Update keeps the picture where you moved it and at the width you gave it.</p>
+    Lucid features that don't work in the add-in, like Create with AI; <b>&#8635;</b> reloads the editor here.</p>
+  <p><b>In PowerPoint</b>, Insert puts the picture on the slide in view: in its empty content box if it has one, else below
+    its title, else in the middle. There are no captions. Update keeps the picture where you moved it and at the width you gave it,
+    and puts its proportions back if it got stretched (drag a corner with Shift held to resize it evenly).</p>
   <p><b>MD</b> shows the whole document as Markdown, each diagram as its Mermaid, to copy into an LLM
     (or download as a .md file): most tools that read .docx files skip the Mermaid in the pictures' alt text.</p>
   <p><b>Page to insert</b> (for diagrams with several pages) picks the page that goes into the document:
@@ -116,9 +116,7 @@
     their boxes. A text box placed beside an arrow ends up as a loose note in the Mermaid: Lucid doesn't tell the
     add-in where things sit, so it can't know which arrow the text belongs to. Insert and Update say when a page has these.</p>
   <p>If Lucid's editor asks you to log in, use the pane's <b>Sign in to Lucid</b>, not Lucid's own button:
-    Lucid's opens your web browser, and logging in there doesn't reach Word.</p>
-  <p>Diagram not detected? Paste its Lucid URL (lucid.app/lucidchart/&hellip;/edit):
-    <input id="docUrl" placeholder="https://lucid.app/lucidchart/..."></p>
+    Lucid's opens your web browser, and logging in there doesn't reach the add-in.</p>
 </div>
 <div id="main">
   <div id="md" hidden>
@@ -155,6 +153,7 @@ const $ = id => document.getElementById(id);
 
 // Inside Word or PowerPoint (the pane also runs in a plain browser, buttons off), and which.
 let inOffice = false, inPpt = false;
+let app = "Word"; // for messages that name the host
 // The diagram open in the editor: { documentId, embedId, title, page, pages }.
 // `page` is the Lucid page id Insert uses ("" = the first page); `pages` the
 // document's pages, once fetched, for the page chooser.
@@ -213,7 +212,7 @@ function refreshButtons() {
   $("load").title = selected.kind === "ours" ? "Open the selected picture's diagram in the editor" : "Select a diagram picture in the document to edit its diagram";
   $("diagram").disabled = $("mdToggle").disabled = busy;
   $("lucid").disabled = !current;
-  // Reloading needs an embed to reopen; without one (pasted URL) it would show the picker.
+  // Reloading needs an embed to reopen; without one (an old picture Lucid won't embed) it would show the picker.
   $("reload").disabled = busy || !current || !current.embedId;
   $("pageRow").hidden = !current || !current.pages || current.pages.length < 2;
   renderMenu();
@@ -291,11 +290,13 @@ function within(promise, ms, what) {
 }
 
 const word = fn => within(Word.run(fn), 20000, "Word");
-// PowerPoint on the web stalled when two PowerPoint.runs overlapped (a
-// selection change's readSelection during an insert), so they take turns.
+// PowerPoint on the web sometimes never answers a run that overlaps another or
+// starts the moment the last one ended (seen with the selection calls, e.g. a
+// selection change's readSelection then Update's own check), so runs take
+// turns with a short pause between them: 50ms was enough in testing.
 let pptTurn = Promise.resolve();
 const ppt = fn => {
-  const run = pptTurn.then(() => within(PowerPoint.run(fn), 20000, "PowerPoint"));
+  const run = pptTurn.then(() => new Promise(r => setTimeout(r, 100))).then(() => within(PowerPoint.run(fn), 20000, "PowerPoint"));
   pptTurn = run.catch(() => {});
   return run;
 };
@@ -408,7 +409,7 @@ async function signIn() {
       return;
     }
     Office.context.ui.displayDialogAsync(url, { width: 40, height: 75 }, r => {
-      if (r.status !== Office.AsyncResultStatus.Succeeded) return reject(new Error("Word didn't open the sign-in window: " + r.error.message));
+      if (r.status !== Office.AsyncResultStatus.Succeeded) return reject(new Error(app + " didn't open the sign-in window: " + r.error.message));
       const dialog = r.value;
       dialog.addEventHandler(Office.EventType.DialogMessageReceived, m => { dialog.close(); resolve(m.message); });
       // 12006: closed before signing in.
@@ -476,7 +477,7 @@ async function embedToken(embedId) {
 }
 
 // A new editable embed of a document, for a picture that has none (linked by
-// pasted URL), so it opens straight in the editor. Lucid only allows this for
+// pasted URL in older builds), so it opens straight in the editor. Lucid only allows this for
 // documents picked in its picker at some point (403 otherwise: the pane then
 // shows the picker).
 async function newEmbed(documentId) {
@@ -568,14 +569,14 @@ async function lucidExport(id, page, shownPt) {
 
 // Runs one button's work: one thing at a time, and errors land in the status line.
 async function act(label, fn) {
-  if (busy) return; // the pasted-URL box isn't disabled while busy, unlike the buttons
+  if (busy) return;
   busy = true; refreshButtons(); say(label);
   try { await fn(); }
   catch (e) {
     // Office.js errors often carry the useful part in .code/.debugInfo, not .message.
     console.error(e, e && e.debugInfo);
     say(e instanceof Error && !e.code ? e.message
-      : (inPpt ? "PowerPoint" : "Word") + " error: " + [e && e.code, e && e.message, e && e.debugInfo && JSON.stringify(e.debugInfo)].filter(Boolean).join(" | "), true);
+      : app + " error: " + [e && e.code, e && e.message, e && e.debugInfo && JSON.stringify(e.debugInfo)].filter(Boolean).join(" | "), true);
   }
   finally { busy = false; refreshButtons(); readSelection(); scanDocument(); }
 }
@@ -633,7 +634,7 @@ async function syncLucid() {
       // Back from editing on lucid.app: the diagram changed there, so say how to bring it here and into Word.
       if (current.lucidVersion != null && info.version !== current.lucidVersion && !busy) {
         current.lucidVersion = null;
-        say(`"${info.title}" was changed in Lucid. If the editor here doesn't show it yet, click ↻; Update puts it in Word.`);
+        say(`"${info.title}" was changed in Lucid. If the editor here doesn't show it yet, click ↻; Update puts it in ${app}.`);
       }
       // Pages may have been added, emptied or filled since the chooser was filled.
       if (current.pages && current.pagesVersion !== info.version) syncPages();
@@ -687,10 +688,10 @@ function onLucidMessage(data) {
   if (data && (data.status === "logged_out" || (data.event === "EmbedLoaded" && data.componentType === "Viewer"))) {
     if (!signedInHere) {
       say("Not logged in to Lucid's editor.");
-      showCard("Lucid's editor needs you logged in to Lucid here in Word (a login in your web browser doesn't reach it). "
+      showCard("Lucid's editor needs you logged in to Lucid here in " + app + " (a login in your web browser doesn't reach it). "
         + "Sign in once (a window opens) and the diagram opens for editing.", { signIn: true });
     } else say("Lucid still opens this diagram read-only after signing in: either its embed is view-only, or this browser blocks Lucid's "
-      + "cookies inside Word. ↗ (Open in Lucid) edits it on lucid.app; Update then brings the changes into Word.", true);
+      + "cookies inside " + app + ". ↗ (Open in Lucid) edits it on lucid.app; Update then brings the changes into " + app + ".", true);
   }
 }
 
@@ -786,7 +787,7 @@ async function pptSelection(ctx) {
   return ours ? { kind: "ours", ...ours } : shapes.items.some(s => s.type === PowerPoint.ShapeType.image) ? { kind: "other" } : { kind: "none" };
 }
 
-// Puts `d` in the middle of the slide in view as a new picture, or with `old`
+// Puts `d` on the slide in view as a new picture, or with `old`
 // (a pptPictures entry) in its place: its slide, position and width, then
 // deletes it. The picture is a borderless rectangle filled with the image:
 // PowerPoint.run has no insert-picture call, and the common
@@ -795,8 +796,8 @@ async function pptSelection(ctx) {
 async function pptPlace(d, ids, tag, old) {
   if (!Office.context.requirements.isSetSupported("PowerPointApi", "1.8"))
     throw new Error("This PowerPoint is too old for the add-in to put pictures in (it needs PowerPointApi 1.8): update Office, or use PowerPoint on the web.");
-  const widthPt = old ? old.pic.width : d.shownPt; // an updated picture keeps its width, so resizing sticks
-  const heightPt = widthPt * d.height / d.width;
+  const aspect = d.height / d.width;
+  let widthPt;
   await ppt(async ctx => {
     let slideId = old && old.slideId;
     if (!slideId) {
@@ -806,24 +807,62 @@ async function pptPlace(d, ids, tag, old) {
       slideId = slides.items[0].id;
     }
     const slide = ctx.presentation.slides.getItem(slideId);
-    const pic = slide.shapes.addGeometricShape(PowerPoint.GeometricShapeType.rectangle, { width: widthPt, height: heightPt,
-      left: old ? old.pic.left : (slideWidthPt - widthPt) / 2, top: old ? old.pic.top : (slideHeightPt - heightPt) / 2 });
+    // An updated picture keeps its place and width, so moving and resizing
+    // stick. A new one goes where PowerPoint's own Insert Picture would put it:
+    // into the slide's empty content placeholder (replacing it), else below the
+    // title, else the middle of the slide.
+    const shapes = slide.shapes.load("items/id,items/type,items/left,items/top,items/width,items/height");
+    await ctx.sync();
+    const before = new Set(shapes.items.map(s => s.id));
+    const oldShape = old && shapes.items.find(s => s.id === old.pic.id);
+    if (old && !oldShape) throw new Error("The picture to update isn't on its slide any more.");
+    let box = old ? { left: old.pic.left, top: old.pic.top, width: old.pic.width, height: old.pic.width * aspect } : null, empty = null;
+    if (!old) {
+      const holders = shapes.items.filter(s => s.type === PowerPoint.ShapeType.placeholder).map(s => ({ s, format: s.placeholderFormat.load("type") }));
+      await ctx.sync();
+      const content = holders.filter(h => ["Body", "Content"].includes(h.format.type)).map(h => ({ ...h, text: h.s.textFrame.textRange.load("text") }));
+      await ctx.sync();
+      empty = content.find(h => !h.text.text.trim());
+      const title = holders.find(h => h.format.type === "Title");
+      const margin = slideHeightPt * 0.05, below = title && title.s.top + title.s.height + margin / 2;
+      const area = empty ? empty.s : below ? { left: (slideWidthPt - maxWidthPt) / 2, top: below, width: maxWidthPt, height: slideHeightPt - below - margin }
+        : { left: (slideWidthPt - maxWidthPt) / 2, top: (slideHeightPt - maxHeightPt) / 2, width: maxWidthPt, height: maxHeightPt };
+      const width = Math.min(d.shownPt, area.width, area.height / aspect);
+      box = { width, height: width * aspect, left: area.left + (area.width - width) / 2, top: area.top + (area.height - width * aspect) / 2 };
+      console.log("ppt insert:", empty ? "into the content placeholder" : title ? "below the title" : "middle of the slide", box);
+    }
+    widthPt = box.width;
+    const pic = slide.shapes.addGeometricShape(PowerPoint.GeometricShapeType.rectangle, box);
     pic.fill.setImage(d.base64);
     pic.lineFormat.visible = false;
     pic.name = tag;
     const alt = altText(d, ids);
     pic.tags.add(ALT_TAG, alt);
     if (Office.context.requirements.isSetSupported("PowerPointApi", "1.10")) pic.altTextDescription = alt;
-    await ctx.sync(); // reading the tag back in the same batch as adding it fails
+    await ctx.sync();
+    // The shape addGeometricShape returned can't be reached once it's added
+    // (PowerPoint on the web gives it another id when it saves it), so it's
+    // found again as the one shape on the slide that wasn't there before.
+    // On some slides it only shows up a moment after the add has returned.
+    let added = [];
+    for (let i = 0; i < 20 && !added.length; i++) {
+      if (i) await new Promise(r => setTimeout(r, 250));
+      const now = ctx.presentation.slides.getItem(slideId).shapes.load("items/id");
+      await ctx.sync();
+      added = now.items.filter(s => !before.has(s.id));
+      console.log("ppt place: slide", slideId, "shapes before", [...before], "now", now.items.map(s => s.id));
+    }
+    if (added.length !== 1) throw new Error(`Expected 1 new picture on the slide, found ${added.length}.`);
     // Tags have no documented length limit: read it back to catch a cut-off Mermaid.
-    const back = pic.tags.getItem(ALT_TAG).load("value");
+    const back = added[0].tags.getItem(ALT_TAG).load("value");
     await ctx.sync();
     if (back.value !== alt) {
-      pic.delete();
+      added[0].delete();
       await ctx.sync();
       throw new Error(`PowerPoint kept only ${back.value.length} of the diagram's ${alt.length} characters of alt text, so the picture wasn't put in.`);
     }
-    if (old) slide.shapes.getItem(old.pic.id).delete();
+    if (old) oldShape.delete();
+    if (empty) empty.s.delete();
     // Not selected afterwards (Update finds it as `last`): setSelectedShapes
     // sometimes never returned in PowerPoint on the web.
     await ctx.sync();
@@ -1015,7 +1054,7 @@ const captionTitle = text => {
 function shrinkNote(widthPt, d) {
   const scale = widthPt / d.naturalPt;
   return Math.round(scale * 100) >= 60 ? "" : ` It's shown at ${Math.round(scale * 100)}% of its size in Lucid, so its text is that much smaller: `
-    + "zoom in to read fine print, or give the diagram more room (a landscape page, or split it up).";
+    + "zoom in to read fine print, or give the diagram more room (" + (inPpt ? "a slide to itself" : "a landscape page") + ", or split it up).";
 }
 
 // Word on the web refused Lucid's PNG ("unable to insert the picture"): it's a
@@ -1065,7 +1104,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
   const d = await exportDiagram(ids, current.page);
   const tag = newTag();
   let widthPt = d.shownPt;
-  if (inPpt) await pptPlace(d, ids, tag, null);
+  if (inPpt) widthPt = await pptPlace(d, ids, tag, null);
   else await word(async ctx => {
     // The figure goes after the cursor's paragraph, or into it if it's empty;
     // after a figure's caption when the cursor is on the figure's picture.
@@ -1125,7 +1164,7 @@ $("insert").onclick = () => act("Inserting...", async () => {
 function replacing(found, d, ids) {
   const sameDiagram = found && found.documentId === ids.documentId;
   return {
-    // A diagram linked by pasted URL has no embed id; keep the picture's own if it's the same diagram.
+    // A diagram Lucid won't embed (an old picture linked by pasted URL) has no embed id; keep the picture's own if it's the same diagram.
     ids: { documentId: ids.documentId, embedId: ids.embedId || (sameDiagram ? found.embedId : null) },
     oldTitle: found && found.title,
     outcome: !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : !found.mermaid ? "mermaid" : "refreshed",
@@ -1247,7 +1286,7 @@ async function openSelected(documentId) {
       await ctx.sync();
     }
   });
-  // A picture linked by pasted URL has no embed; one is made if Lucid allows,
+  // A picture linked by pasted URL (older builds) has no embed; one is made if Lucid allows,
   // else the editor shows the picker. Update records it in the picture.
   if (!found.embedId) found.embedId = (await quietly(newEmbed(found.documentId))) || null;
   await loadEditor(found.embedId);
@@ -1274,7 +1313,7 @@ $("lucid").onclick = () => {
   // lucid.app's editor takes ?page=, so this opens on the page chosen under Page to insert.
   openInBrowser(`https://lucid.app/lucidchart/${current.documentId}/edit` + (current.page ? `?page=${encodeURIComponent(current.page)}` : ""));
   current.lucidVersion = current.version; // syncLucid notices when it moves
-  say(`"${current.title}" opened in Lucid. It's the same diagram: Update puts your changes there into Word.`);
+  say(`"${current.title}" opened in Lucid. It's the same diagram: Update puts your changes there into ${app}.`);
 };
 
 $("reload").onclick = () => act("Reloading the editor...", async () => {
@@ -1513,19 +1552,6 @@ $("mdDownload").onclick = () => {
   a.remove();
 };
 
-$("docUrl").oninput = () => {
-  const m = $("docUrl").value.match(new RegExp(UUID));
-  // Every keystroke after a paste fires this too.
-  if (!m || (current && current.documentId === m[0])) return;
-  act("Opening the pasted diagram...", async () => {
-    // In the editor if Lucid allows an embed of it; otherwise only linked, for the buttons.
-    const embedId = (await quietly(newEmbed(m[0]))) || null;
-    if (embedId) await loadEditor(embedId);
-    setCurrent({ documentId: m[0], embedId });
-    say(embedId ? "Opened the pasted diagram." : "Using the pasted diagram: Lucid won't show it in the editor here until it's picked once in Lucid's window (the menu's Browse).");
-  });
-};
-
 // The moment before a click: start the export the click will want, and re-check
 // whether the target picture is still up to date (it may have been edited since).
 let lastPrefetch = 0;
@@ -1558,6 +1584,7 @@ $("signIn").onclick = () => signIn().then(start, e => say(e.message, true));
     const info = await within(Office.onReady(), 5000, "Office");
     inPpt = info.host === Office.HostType.PowerPoint;
     inOffice = inPpt || info.host === Office.HostType.Word;
+    if (inPpt) app = "PowerPoint";
   } catch (e) { console.warn(e.message); }
   if (inPpt) {
     // New pictures fit the slide, less a margin, rather than a Word page. The

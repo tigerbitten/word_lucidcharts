@@ -2,6 +2,7 @@
 // <urlSubstr> picks the page or iframe: taskpane.html (the pane, where Office.js
 // runs), wordeditorframe (Word's ribbon and dialogs), word.cloud.microsoft (the
 // whole window, for screenshots), documents/picker or embeds (Lucid).
+// "taskpane.html|powerpoint" (or "|word") is the pane inside that host's tab.
 //   node cdp.js targets
 //   node cdp.js open <url>  /  close <urlSubstr>   (tabs)
 //   node cdp.js eval <urlSubstr> <js>          (await-able; result printed as JSON)
@@ -16,7 +17,13 @@ const [, , cmd, sel, ...rest] = process.argv;
 async function targets() { return (await fetch("http://127.0.0.1:9222/json/list")).json(); }
 
 async function connect(substr, pageOnly) {
-  const t = (await targets()).find(t => (t.type === "page" || (!pageOnly && t.type === "iframe")) && t.url.includes(substr));
+  // "taskpane.html|powerpoint": the pane inside the PowerPoint tab (each part
+  // after "|" must match one of the frame's ancestors), for when Word is open too.
+  const [own, ...outer] = substr.split("|");
+  const all = await targets();
+  const ancestors = t => { const p = all.find(x => x.id === t.parentId); return p ? [p.url, ...ancestors(p)] : []; };
+  const t = all.find(t => (t.type === "page" || (!pageOnly && t.type === "iframe")) && t.url.includes(own)
+    && outer.every(o => ancestors(t).some(u => u.includes(o))));
   if (!t) throw new Error("no target matching " + substr);
   const ws = new WebSocket(t.webSocketDebuggerUrl);
   await new Promise((r, j) => { ws.onopen = r; ws.onerror = j; });

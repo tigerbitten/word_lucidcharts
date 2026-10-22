@@ -3,13 +3,15 @@
 // Insert (picture, caption, cursor), Insert after a heading and into a table
 // cell, Insert without a caption, Update of an unchanged picture, and the MD view. Uses the "Order intake
 // flow v2" Lucid document (a draw.io import). Prints PASS / FAIL per check.
-//   node dev/e2e.js
+// --stub: without Lucid (no sign-in needed), a drawn picture instead (dev/stub.js).
+//   node dev/e2e.js [--stub]
 const { execFileSync } = require("child_process");
 const path = require("path");
 const DOC = "b5dd4969-1851-44b4-80e6-0f50639358e4";
+const STUB = process.argv[2] === "--stub";
 const run = (script, ...args) => execFileSync("node", [path.join(__dirname, script), ...args], { encoding: "utf8" }).trim();
-const pane = js => JSON.parse(run("cdp.js", "eval", "taskpane.html", js));
-const click = id => run("cdp.js", "click", "taskpane.html", "css:#" + id);
+const pane = js => JSON.parse(run("cdp.js", "eval", "taskpane.html|word", js));
+const click = id => run("cdp.js", "click", "taskpane.html|word", "css:#" + id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 // Waits for the pane to finish what a click started (its buttons come back).
 const settle = async () => { for (let i = 0; i < 60; i++) { await sleep(1000); if (!pane("busy")) return; } throw new Error("pane still busy after 60s"); };
@@ -30,7 +32,7 @@ const check = (name, ok, detail) => { console.log(`${ok ? "PASS" : "FAIL"} ${nam
   await sleep(10000);
   check("pane starts", /^build v\d+$/.test(pane(`document.getElementById("build").textContent`)) && pane(`document.getElementById("status").textContent`) !== "Starting...",
     pane(`document.getElementById("status").textContent`));
-  run("word.js", "open", DOC);
+  if (STUB) pane(require("./stub.js")); else run("word.js", "open", DOC);
   await sleep(5000);
 
   click("insert"); await settle();
@@ -72,6 +74,24 @@ const check = (name, ok, detail) => { console.log(`${ok ? "PASS" : "FAIL"} ${nam
   await sleep(2500);
   click("replace"); await settle();
   check("Update of an unchanged picture refreshes it", /already up to date|Updated to the latest/.test(pane(`document.getElementById("status").textContent`)), pane(`document.getElementById("status").textContent`));
+
+  // A picture made smaller by hand keeps that width through an Update.
+  pane(`Word.run(async ctx => { const p = ctx.document.body.inlinePictures.getFirst(); p.width = 200; p.select(); await ctx.sync(); return 1; })`);
+  await sleep(2500);
+  click("replace"); await settle();
+  check("Update keeps a picture's width", Math.round(pane(`Word.run(async ctx => { const p = ctx.document.body.inlinePictures.getFirst(); p.load("width"); await ctx.sync(); return p.width; })`)) === 200, null);
+
+  // Every picture out of date (as if the diagram changed in Lucid): Update all.
+  const pictures = paragraphs().filter(p => p.pictures.length).length;
+  pane(`docPictures.forEach(p => latestOf.set(p.documentId, { version: 1e9, title: p.title })), refreshButtons(), 1`);
+  check("the pane says pictures are out of date", !pane(`document.getElementById("docLine").hidden`), null);
+  click("updateAll"); await settle();
+  check("Update all updates every picture", new RegExp(`^Updated ${pictures} pictures`).test(pane(`document.getElementById("status").textContent`)), pane(`document.getElementById("status").textContent`));
+
+  pane(`Word.run(async ctx => { ctx.document.body.inlinePictures.getFirst().select(); await ctx.sync(); return 1; })`);
+  await sleep(2500);
+  click("load"); await settle();
+  check("Edit selected opens the picture's diagram", /^(Opened|Linked to) /.test(pane(`document.getElementById("status").textContent`)), pane(`document.getElementById("status").textContent`));
 
   click("mdToggle"); await settle();
   const md = pane(`document.getElementById("mdText").value`);

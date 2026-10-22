@@ -9,7 +9,7 @@
 const { execFileSync } = require("child_process");
 const fs = require("fs"), path = require("path");
 const [, , cmd, arg] = process.argv;
-const pane = js => execFileSync("node", [path.join(__dirname, "cdp.js"), "eval", "taskpane.html", js], { encoding: "utf8" }).trim();
+const pane = js => execFileSync("node", [path.join(__dirname, "cdp.js"), "eval", "taskpane.html|word", js], { encoding: "utf8" }).trim();
 
 (async () => {
   if (cmd === "doc") console.log(pane(`Word.run(async ctx => {

@@ -100,19 +100,25 @@ Two stages:
   pictures); `docx2md.py` does the same for a saved .docx. Keep the two alike.
 - PowerPoint (the `ppt*` functions; each button branches on `inPpt`): a
   picture is a borderless rectangle filled with the PNG (`addGeometricShape`
-  + `fill.setImage`, PowerPointApi 1.8), centred on the slide and fitting 90 x
-  85% of it (slide size from `pageSetup`, 1.10). Not `setSelectedDataAsync`
-  (the Waveform Viewer's way): on the web it refuses while anything on the
-  slide is selected, and the add-in can't clear the selection there
-  (`setSelectedShapes([])` and `setSelectedSlides` don't). The alt text goes
-  in a `LUCID` shape tag (read back to check it wasn't cut) and, with 1.10,
-  in `altTextDescription` for LLMs; the `last` tag is the shape name.
-  Update adds the new picture at the old one's place and width, then deletes
-  the old. Things that stalled PowerPoint on the web: two `PowerPoint.run`s
-  at once (so `ppt()` runs them in turn), `setSelectedShapes([id])` (so the
-  pane never selects: the menu's "In this document" opens the picture's diagram
-  without selecting it), and reading a tag in the batch that added it. Shape
-  ids repeat across slides. No captions there.
+  + `fill.setImage`, PowerPointApi 1.8), placed where Insert Picture would put
+  it: into the slide's empty content placeholder (deleted), else below the
+  title, else centred, fitting 90 x 85% of the slide (`pageSetup`, 1.10). Not
+  `setSelectedDataAsync` (the Waveform Viewer's way): on the web it refuses
+  while anything on the slide is selected, and nothing clears that
+  (`setSelectedShapes([])`, `setSelectedSlides([])` or of the same slide; a
+  different slide does). Shapes have no aspect lock: Update restores it. The
+  alt text goes in a `LUCID` shape tag (read back to check it wasn't cut) and,
+  with 1.10, in `altTextDescription` for LLMs; the `last` tag is the shape
+  name. Update adds the new picture at the old one's place and width, then
+  deletes the old. PowerPoint on the web quirks, found with `dev/ppt-e2e.js`:
+  a run started the moment the last one ended (or alongside it) may never
+  answer, notably the selection calls (`ppt()` runs them in turn, 100ms
+  apart); `setSelectedShapes([id])` can hang (the pane never selects: the
+  menu's "In this document" opens a picture's diagram without selecting it);
+  the shape `addGeometricShape` returns can't be reached after the sync, and
+  on some slides the new shape only appears in the slide's shapes ~250ms
+  later (`pptPlace` polls for it by id). Shape ids repeat across slides; a new
+  slide's id and placeholders settle a moment after `slides.add`. No captions.
 - The pane also runs in a plain browser with the Word buttons disabled, which
   is how the Lucid side can be tested without Word (open
   `https://tigerbitten.github.io/word_lucidcharts/taskpane.html` with serve.js running).
@@ -143,7 +149,8 @@ Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
   background tab: Lucid tabs sit on their loading screen until `shot` brings
   them to the front.
 - `node dev/e2e.js`: the pane's main flows in the test Word, PASS/FAIL per
-  check (insert, captions, headings, table cells, update, MD view). Run it after
+  check (insert, captions, headings, table cells, update, update all, edit
+  selected, MD view); `node dev/ppt-e2e.js` the same in PowerPoint. Run them after
   pane changes; `node dev/test-mermaid.js` after translator changes (it also
   checks the pane's script compiles).
 - `dev/word.js`: `doc` (pictures and paragraphs), `clear`, `end`, `open <docId>`
@@ -154,10 +161,12 @@ Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
   `serve.js` holds PowerPoint's frames too. Upload the manifest there (Home >
   Add-ins > More Add-ins > My Add-ins > Manage My Add-ins > Upload My Add-in;
   the dialogs need `mouse` clicks, and `file` reaches the nested frame).
-  With a Word tab open too, `cdp.js eval taskpane.html` picks the first
-  pane: close the other tab. Without a Lucid sign-in, PowerPoint and Word
-  paths can still be tested by replacing `exportDiagram` (and `loadEditor`)
-  from `eval` with stubs returning a canvas PNG.
+  With Word open too, name the pane by its tab: `cdp.js eval
+  "taskpane.html|powerpoint" ...` (or `|word`). `node dev/ppt-e2e.js` checks
+  the PowerPoint flows (it rebuilds the deck).
+- `--stub` (`e2e.js`, `ppt-e2e.js`): no Lucid needed. `dev/stub.js` swaps the
+  pane's export for a drawn picture and its editor for nothing, so the Word
+  and PowerPoint sides can be checked when the Lucid sign-in has lapsed.
 - New realistic diagrams: Lucid AI (lucid.app home, "Generate with AI", or the
   AI panel in an editor: type, then click Send; a prompt typed on the home page
   can be lost if its tab reloads). Lucid's import dialog takes Mermaid,

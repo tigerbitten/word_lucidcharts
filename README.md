@@ -33,8 +33,11 @@ client secret; it's at the git tag `server-backend`.)
 ### In PowerPoint
 
 The same manifest loads in PowerPoint, and the pane works the same way, with these differences:
-- **Insert** puts the diagram in the middle of the slide in view, sized to fit it, with no caption.
-- **Update** keeps the picture where you moved it and at the width you gave it.
+- **Insert** puts the diagram on the slide in view where PowerPoint's own Insert
+  Picture would: into the slide's empty content box (replacing it), else below the
+  title, else in the middle, sized to fit. No caption.
+- **Update** keeps the picture where you moved it and at the width you gave it,
+  and puts its proportions back if it was stretched.
 - **Update all** covers every slide.
 - **MD** writes the presentation slide by slide: the text boxes' text and each diagram's Mermaid.
 
@@ -50,7 +53,9 @@ common call the Waveform Viewer add-in uses (`setSelectedDataAsync`) refuses
 whenever anything on the slide is selected, and on the web the add-in can't
 clear the selection. Filling a shape needs PowerPointApi 1.8: PowerPoint on the
 web, or a recent Microsoft 365 desktop. Older desktop versions say so when you
-click Insert.
+click Insert. Unlike a picture, the shape doesn't keep its proportions when a
+side handle is dragged: drag a corner with Shift held, or click Update to put
+them back.
 
 ### How editing works
 
@@ -136,9 +141,6 @@ A big diagram squeezed onto the page has physically small text, which no
 resolution fixes at 100% zoom; the status line says when a picture is shown
 at under 60% of its Lucid size.
 
-If the editor ever doesn't pick up which diagram you opened (Insert stays
-grey), paste the diagram's lucid.app URL at the bottom of **?**.
-
 The export is cached per Lucid version and starts when the pointer reaches the buttons, so
 inserting an unchanged diagram is quick.
 
@@ -162,7 +164,7 @@ inserting an unchanged diagram is quick.
     ```
 
 The embed id is what lets **Edit selected** jump straight back into the
-editor (if it's missing, from a pasted URL, the pane makes one when Lucid allows); the
+editor (if it's missing, as in pictures linked by pasted URL in older builds, the pane makes one when Lucid allows); the
 version is how the pane tells a picture is out of date; the page is which page
 of the Lucid document the picture shows.
 
