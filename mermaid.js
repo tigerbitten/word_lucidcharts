@@ -3,9 +3,9 @@
 // but no positions, so this describes structure and leaves layout to Mermaid.
 // Containers (frames, swimlanes) become subgraphs; everything else a node.
 // Sequence, ER, class and state diagrams get their own Mermaid forms (uml.js).
-// An ES module: the pane imports it, and dev/test-mermaid.js requires it.
-import { umlToMermaid, decodeEntities } from "./uml.js";
-import { pictureToMermaid } from "./svg.js";
+// An ES module, imported by the pane. The ?v=N is the build's (CLAUDE.md).
+import { umlToMermaid, decodeEntities } from "./uml.js?v=52";
+import { pictureToMermaid } from "./svg.js?v=52";
 
 // Lucid shape class -> Mermaid node brackets. First match wins; default is a box.
 const SHAPES = [
@@ -85,7 +85,13 @@ function activitySymbol(s) {
 // The pane looks for this line to warn about labels that aren't on their arrows.
 const UNPLACED = "  %% The notes below aren't attached to any shape or arrow, and Lucid doesn't say where they sit: some may label the arrows above.";
 
-function pageToMermaid(page) {
+// Text from the diagram can't hold a Mermaid directive ("%%{init: ...}%%",
+// which Mermaid obeys anywhere in the code, comments included): the code is
+// drawn by the pane and read by other tools and LLMs. Nothing generated here
+// writes one, so every "%%{" is the diagram's text and loses its meaning.
+const pageToMermaid = page => translate(page).replace(/%%\{/g, "%% {");
+
+function translate(page) {
   const shapes = (page.items && page.items.shapes) || [];
   const lines = (page.items && page.items.lines) || [];
   // Mermaid code other than a flowchart is one picture in Lucid (svg.js).
@@ -244,13 +250,9 @@ function pageToMermaid(page) {
 
   edges.sort((x, y) => rank.get(x.from) - rank.get(y.from) || rank.get(x.to) - rank.get(y.to));
   for (const e of edges) out.push(`  ${ids.get(e.from)} ${e.kind}${e.text ? `|"${label(e.text)}"|` : ""} ${ids.get(e.to)}`);
-  // A shape's hyperlink (a runbook, a ticket): Mermaid can attach one to a node;
-  // one on a group or a note is said in a comment.
-  for (const s of shapes.filter(s => /^https?:\/\//.test(s.linkUrl || ""))) {
-    const url = s.linkUrl.replace(/"/g, "%22");
-    if (ids.has(s.id) && !isGroup(s)) out.push(`  click ${ids.get(s.id)} href "${url}" _blank`);
-    else out.push(`  %% link${textOf(s) ? ` on "${textOf(s).replace(/\s+/g, " ")}"` : ""}: ${url}`);
-  }
+  // Shapes' hyperlinks (s.linkUrl) are left out: they don't show in the picture,
+  // and internal links (tickets, wikis, sometimes with tokens in them) would
+  // travel in the alt text wherever the document goes.
   // Arrow labels drawn as separate text boxes arrive here as notes: Lucid's
   // contents have no positions, so nothing ties a text to its arrow. Said once,
   // so a reader can match them up (the pane also tells whoever inserts it).

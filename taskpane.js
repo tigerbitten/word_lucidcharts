@@ -1,0 +1,1581 @@
+const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+// Lucid document and embed ids go into API paths: only ever a UUID.
+const isId = s => typeof s === "string" && new RegExp("^" + UUID + "$").test(s);
+// More pixels per inch than this, at the size the picture is shown, only makes
+// the file bigger; exports aim for TARGET_PPI.
+const MAX_PPI = 600;
+// Vendored and pinned: pages drawn here must keep looking the same (mermaid.js
+// output is written for Mermaid 11), and the pane runs no code from elsewhere.
+const MERMAID_SRC = "vendor/mermaid-11.17.2/mermaid.min.js";
+// Browsers refuse canvases past a size; WebKit (Word for Mac) is the strictest.
+const CANVAS_MAX_SIDE = 16384, CANVAS_MAX_PIXELS = 16.7e6;
+const $ = id => document.getElementById(id);
+
+// Inside Word or PowerPoint (the pane also runs in a plain browser, buttons off), and which.
+let inOffice = false, inPpt = false;
+let app = "Word"; // for messages that name the host
+// The diagram open in the editor: { documentId, embedId, title, page, pages }.
+// `page` is the Lucid page id Insert uses ("" = the first page); `pages` the
+// document's pages, once fetched, for the page chooser.
+let current = null;
+// What's selected in Word: { kind: "none" | "other" } or, for one of our
+// pictures, { kind: "ours", documentId, title, version, latest, latestTitle }.
+// `title`/`version` are what the picture was made from; `latest`/`latestTitle`
+// are what Lucid says now, once asked.
+let selected = { kind: "none" };
+// The picture last inserted or loaded, shaped like an "ours" selection plus its
+// tag: Update's target when nothing is selected, so load-edit-update needs no
+// trip back to the document.
+let last = null;
+let busy = false;
+
+function say(msg, isError) {
+  $("status").textContent = msg;
+  $("status").title = msg; // the line is clamped to three lines; this shows all of it
+  $("status").className = isError ? "err" : "";
+  (isError ? console.error : console.log)("status:", msg);
+}
+
+// The picture Update/Replace would act on.
+function updateTarget() {
+  return selected.kind === "ours" ? selected : selected.kind === "none" ? last : null;
+}
+
+function refreshButtons() {
+  const ready = inOffice && !busy;
+  const t = updateTarget();
+  // The newest word from Lucid on the target's diagram, from whichever check asked last.
+  const l = t && latestOf.get(t.documentId);
+  if (l && !(t.latest > l.version)) { t.latest = l.version; t.latestTitle = l.title; }
+  const same = t && current && t.documentId === current.documentId;
+  const changed = t && t.version != null && t.latest != null && t.version < t.latest;
+  const renamed = t && t.latestTitle != null && t.latestTitle !== t.title;
+  // A picture from before stage 2 has no Mermaid for an LLM to read; Update adds it.
+  const noMermaid = t && t.mermaid === false && !t.mermaidOff;
+  const stale = changed || renamed || noMermaid;
+  $("insert").disabled = !ready || !current;
+  $("insert").title = !current ? "Open a diagram first, with the menu at the top"
+    : `Insert the diagram in the editor as a new picture ${inPpt ? "on the slide in view" : "below the cursor"}`;
+  $("replace").disabled = !ready || !current || !t;
+  $("replace").textContent = !t || !current || same ? "Update" : "Replace";
+  $("replace").title = !t ? "Select a diagram picture in the document to update it"
+    : !current || same ? "Bring the selected picture up to date with the diagram in the editor"
+    : `Put the diagram in the editor ("${current.title}") in place of the selected picture`;
+  $("replace").className = same && stale ? "primary" : "";
+  $("load").disabled = !ready || selected.kind !== "ours";
+  // While Lucid's picker shows (no diagram open), Insert and Update can't do
+  // anything, and the picker needs the room: only Edit selected stays, when a
+  // diagram picture is selected (it opens that picture's diagram).
+  $("insert").hidden = $("replace").hidden = !current;
+  $("captionOpt").hidden = !current || inPpt; // slides have no figure captions
+  $("mermaidOpt").hidden = !current;
+  $("load").hidden = !current && selected.kind !== "ours";
+  $("load").title = selected.kind === "ours" ? "Open the selected picture's diagram in the editor" : "Select a diagram picture in the document to edit its diagram";
+  $("diagram").disabled = $("mdToggle").disabled = busy;
+  $("lucid").disabled = !current;
+  // Reloading needs an embed to reopen; without one (an old picture Lucid won't embed) it would show the picker.
+  $("reload").disabled = busy || !current || !current.embedId;
+  $("pageRow").hidden = !current || !current.pages || current.pages.length < 2;
+  renderMenu();
+  const outOfDate = docPictures.filter(isStale).length;
+  $("docLine").hidden = !inOffice || !outOfDate;
+  $("docCount").textContent = `${outOfDate} diagram picture${outOfDate === 1 ? " is" : "s are"} out of date in this document.`;
+  $("updateAll").disabled = !ready;
+
+  const line = $("target");
+  line.innerHTML = "";
+  if (!inOffice) return;
+  const add = (text, cls) => line.append(Object.assign(document.createElement("span"), { textContent: text, className: cls || "" }));
+  if (selected.kind === "other") return add("The selected picture isn't one of this add-in's diagrams, so it's left alone.");
+  if (!t) return; // the disabled buttons' tooltips say to select a picture
+  add(selected.kind === "ours" ? `Selected: "${t.title}"` : `Last inserted: "${t.title}"`);
+  if (changed) add(renamed ? ` is out of date: changed and renamed "${t.latestTitle}" in Lucid.` : " is out of date: changed in Lucid.", "stale");
+  else if (renamed) add(` is out of date: renamed "${t.latestTitle}" in Lucid.`, "stale");
+  else if (noMermaid) add(" has no Mermaid text for LLMs yet: Update adds it.", "stale");
+  else if (t.version != null && t.latest != null) add(" is up to date.", "fresh");
+  else add(".");
+  if (current && !same) add(` It's a different diagram from the editor's: Edit selected opens it; Replace puts "${current.title}" in its place.`);
+}
+
+// The diagram menu: the editor's diagram, then others to open: the ones in
+// this document and recently used ones (each opens straight in the editor,
+// no picker), and Lucid's picker for the rest. Rebuilt only when its entries
+// change, so the 10-second refresh doesn't snap it shut while it's open.
+let docDiagrams = []; // from the document's pictures, one per Lucid document
+let menuKey = "";
+function renderMenu() {
+  const seen = new Set(current ? [current.documentId] : []);
+  const pick = list => list.filter(d => !seen.has(d.documentId) && seen.add(d.documentId));
+  const groups = [["In this document", pick(docDiagrams), "doc"], ["Recent", pick(recent()), "recent"]];
+  // A diagram in this document with an out-of-date picture says so.
+  const name = (d, kind) => d.title + (kind === "doc" && docPictures.some(p => p.documentId === d.documentId && isStale(p)) ? " (out of date)" : "");
+  const key = JSON.stringify([current && current.title, !!tokens, groups.map(([, l, kind]) => l.map(d => d.documentId + name(d, kind)))]);
+  if (key === menuKey) return;
+  menuKey = key;
+  const sel = $("diagram");
+  sel.innerHTML = "";
+  sel.append(new Option(current ? current.title : "Choose a diagram...", ""));
+  for (const [label, list, kind] of groups) {
+    if (!list.length) continue;
+    const g = Object.assign(document.createElement("optgroup"), { label });
+    for (const d of list) g.append(new Option(name(d, kind), kind + ":" + d.documentId));
+    sel.append(g);
+  }
+  sel.append(new Option("Browse or create in Lucid...", "browse"));
+  if (tokens) sel.append(new Option("Sign out of Lucid", "signout"));
+  sel.value = "";
+}
+
+// Diagrams opened here, newest first, so they reopen without the picker (this browser only).
+function recent() {
+  try { return (JSON.parse(localStorage.getItem("recentDiagrams")) || []).filter(r => isId(r.documentId) && isId(r.embedId)); } catch { return []; }
+}
+function forget(documentId) {
+  try { localStorage.setItem("recentDiagrams", JSON.stringify(recent().filter(r => r.documentId !== documentId))); } catch {}
+}
+function remember(d) {
+  if (!d.embedId) return;
+  const list = [{ documentId: d.documentId, embedId: d.embedId, title: d.title }, ...recent().filter(r => r.documentId !== d.documentId)];
+  try { localStorage.setItem("recentDiagrams", JSON.stringify(list.slice(0, 8))); } catch {}
+}
+
+// Diagrams opened in the editor here (picked in Lucid's picker, or opened from a
+// picture with Edit selected or the menu), on this computer. The pane only asks
+// Lucid about, and Update all only updates, pictures of these: a document
+// someone sends, whose alt text can name any Lucid document, can't make the
+// pane export one of your diagrams into it without you opening it first.
+const knownIds = new Set([...(() => { try { return JSON.parse(localStorage.getItem("knownDiagrams")) || []; } catch { return []; } })(),
+  ...recent().map(r => r.documentId)].filter(isId));
+function addKnown(documentId) {
+  if (knownIds.has(documentId)) return;
+  knownIds.add(documentId);
+  try { localStorage.setItem("knownDiagrams", JSON.stringify([...knownIds].slice(-1000))); } catch {}
+}
+
+function showCard(text, { signIn = false } = {}) {
+  $("cardText").textContent = text;
+  $("signIn").hidden = !signIn;
+  $("card").hidden = false;
+  $("frame").hidden = true;
+}
+
+function within(promise, ms, what) {
+  return Promise.race([promise, new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(what + " didn't respond. Try again; if it keeps happening, reload the add-in.")), ms))]);
+}
+
+const word = fn => within(Word.run(fn), 20000, "Word");
+// PowerPoint on the web sometimes never answers a run that overlaps another or
+// starts the moment the last one ended (seen with the selection calls, e.g. a
+// selection change's readSelection then Update's own check), so runs take
+// turns with a short pause between them: 50ms was enough in testing.
+let pptTurn = Promise.resolve();
+const ppt = fn => {
+  const run = pptTurn.then(() => new Promise(r => setTimeout(r, 100))).then(() => within(PowerPoint.run(fn), 20000, "PowerPoint"));
+  pptTurn = run.catch(() => {});
+  return run;
+};
+
+// ---- Lucid: sign-in and API calls, straight from the pane ----
+// The add-in is a public OAuth client in Lucid's developer portal: it signs in
+// with PKCE (a one-time proof made for each sign-in) instead of a client
+// secret, so there's no backend to keep one. The client ID isn't a secret.
+// Registered there: SIGNIN_PAGE as redirect URI, tigerbitten.github.io as embed domain.
+// signin.js has the same client ID and redirect URI, and the scopes asked for.
+const CLIENT_ID = "sXwaqbgWYWaJ_I-bb9LBuqbSB1YMVMVS7NDE0Wut";
+const SIGNIN_PAGE = "https://tigerbitten.github.io/word_lucidcharts/signin.html";
+const PANE_ORIGIN = "https://tigerbitten.github.io";
+// Export resolution: enough DPI for TARGET_PPI pixels per inch at the size the
+// picture is shown in Word, and at least BASE_DPI (what a first export of an
+// unknown diagram uses, to learn its size). Lucid caps exports at roughly 10
+// megapixels whatever DPI is asked for, and big DPIs are slow (600 is ~5s).
+const BASE_DPI = 192;
+const TARGET_PPI = 400;
+const MAX_DPI = 800;
+// A planned export stays under this, clear of Lucid's ~10 MP cap: rounding the
+// DPI up used to push page-sized diagrams over it, which made Lucid shrink the
+// export and the size check in lucidExport forget the diagram (two exports every time).
+const PLAN_PIXELS = 8.9e6;
+// New pictures fit in maxWidthPt x maxHeightPt. In Word: 6.5in, the text width
+// of a Letter page with 1in margins, and 8.5in, its 9in text height less the
+// caption line. In PowerPoint, most of the slide (set once Office connects).
+let maxWidthPt = 468, maxHeightPt = 612;
+let slideWidthPt = 960, slideHeightPt = 540; // PowerPoint's default 16:9 slide, until the real size is read
+
+// The sign-in lasts across restarts in this browser's storage for the add-in,
+// for SESSION_HOURS from signing in however often its token is refreshed:
+// Lucid's refresh token would otherwise keep working for up to 180 days, long
+// after the SSO session that made it has ended. (Any page on the add-in's site
+// could read it too: README, Sign-in.)
+const SESSION_HOURS = 12;
+let tokens = null;
+try { tokens = JSON.parse(localStorage.getItem("lucidSignIn")); } catch {}
+// Also true for a sign-in saved by an older build, which has no signedInAt.
+const sessionOver = t => !(Date.now() - t.signedInAt < SESSION_HOURS * 3600e3);
+function keepTokens(t) {
+  tokens = t;
+  try { if (t) localStorage.setItem("lucidSignIn", JSON.stringify(t)); else localStorage.removeItem("lucidSignIn"); } catch {}
+}
+
+// An error from Lucid with its HTTP status: 401 brings up the sign-in card.
+const lucidError = (status, msg) => Object.assign(new Error(msg), { status });
+
+// `signedInAt`: when the user signed in; a refreshed token keeps the original time.
+async function tokenRequest(body, signedInAt) {
+  const r = await fetch("https://api.lucid.co/oauth2/token", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...body, client_id: CLIENT_ID }) });
+  const json = await r.json();
+  console.log("oauth2/token", body.grant_type, r.status, r.ok ? json.scopes : json);
+  if (!r.ok) return null;
+  keepTokens({ access: json.access_token, refresh: json.refresh_token, expires: Date.now() + json.expires_in * 1000, signedInAt });
+  return tokens;
+}
+
+// Ends a sign-in at Lucid: revoking its refresh token ends every token of that
+// sign-in, so a copy of either stops working. Public clients send no secret.
+async function revoke(t) {
+  const r = await fetch("https://api.lucid.co/oauth2/token/revoke", { method: "POST", body: new URLSearchParams({ client_id: CLIENT_ID, token: t.refresh }) });
+  console.log("oauth2/token/revoke", r.status);
+  if (!r.ok) throw new Error(`Lucid didn't end the sign-in (${r.status}).`);
+}
+
+// Lucid access tokens last about an hour; refresh a minute early, one refresh at a time.
+let refreshing = null;
+async function accessToken() {
+  if (tokens && sessionOver(tokens)) {
+    revoke(tokens).catch(e => console.warn("ending the old sign-in:", e.message));
+    keepTokens(null);
+    throw lucidError(401, `Your Lucid sign-in is more than ${SESSION_HOURS} hours old. Sign in again.`);
+  }
+  if (tokens && Date.now() > tokens.expires - 60000) {
+    refreshing = refreshing || tokenRequest({ grant_type: "refresh_token", refresh_token: tokens.refresh }, tokens.signedInAt).finally(() => { refreshing = null; });
+    if (!(await refreshing)) keepTokens(null);
+  }
+  if (!tokens) throw lucidError(401, "Sign in to your Lucid account to draw diagrams here.");
+  return tokens.access;
+}
+
+async function lucid(path, init = {}) {
+  const r = await fetch("https://api.lucid.co" + path, { ...init, headers: {
+    ...init.headers, "Lucid-Api-Version": "1", Authorization: "Bearer " + (await accessToken()) } })
+    .catch(e => { throw e.name === "AbortError" ? e : new Error("Couldn't reach Lucid (" + e.message + "). Check the internet connection and try again."); });
+  console.log("lucid", init.method || "GET", path, r.status);
+  if (r.ok) return r;
+  const body = await r.text();
+  console.log("  ", body.slice(0, 300));
+  if (r.status === 401) { keepTokens(null); throw lucidError(401, "Your Lucid sign-in expired. Sign in again."); }
+  if (r.status === 403) throw lucidError(403, "Lucid refused the request (403): either your account can't open this diagram, "
+    + "or the add-in's Lucid OAuth client is missing one of the scopes in signin.js. Lucid said: " + body.slice(0, 200));
+  if (r.status === 404) throw lucidError(404, "Lucid couldn't find that diagram, or your account can't open it.");
+  throw lucidError(r.status, `Lucid returned ${r.status}: ${body.slice(0, 200)}`);
+}
+
+// Every Lucid call a button depends on goes through here: a lapsed sign-in
+// brings up the sign-in card. Generous: a big high-DPI export takes ~10s.
+async function fromLucid(promise) {
+  try { return await within(promise, 90000, "Lucid"); }
+  catch (e) { if (e.status === 401) showCard(e.message, { signIn: true }); throw e; }
+}
+
+// Background lookups (freshness, prefetch) mustn't throw up cards over the editor.
+const quietly = promise => within(promise, 20000, "Lucid").catch(e => { console.warn("background Lucid call:", e.message); return null; });
+
+// Lucid's sign-in page refuses to load in a frame, so it gets a window of its
+// own: Office's dialog in Word, a popup in a plain browser. The window starts
+// and ends on signin.html (the redirect URI), which hands Lucid's answer back here.
+// The window logs in to lucid.app too, in the browser the editor runs in (onLucidMessage).
+let signedInHere = false;
+const base64url = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+async function signIn() {
+  const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
+  const challenge = base64url(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))));
+  const state = crypto.randomUUID();
+  // signin.js builds Lucid's sign-in URL from these two: the page can only ever
+  // start this add-in's sign-in, never one for another app, nor send anyone elsewhere.
+  const url = SIGNIN_PAGE + "?" + new URLSearchParams({ state, challenge });
+  say("Finish signing in in the window that opened...");
+  const answer = new URLSearchParams(await new Promise((resolve, reject) => {
+    if (!inOffice) {
+      const channel = new BroadcastChannel("lucid-sign-in");
+      channel.onmessage = e => { channel.close(); resolve(e.data); };
+      if (!window.open(url, "lucidSignIn", "popup,width=520,height=720")) {
+        channel.close();
+        reject(new Error("The browser blocked the sign-in window. Allow pop-ups for this page, then click Sign in again."));
+      }
+      return;
+    }
+    Office.context.ui.displayDialogAsync(url, { width: 40, height: 75 }, r => {
+      if (r.status !== Office.AsyncResultStatus.Succeeded) return reject(new Error(app + " didn't open the sign-in window: " + r.error.message));
+      const dialog = r.value;
+      dialog.addEventHandler(Office.EventType.DialogMessageReceived, m => { dialog.close(); resolve(m.message); });
+      // 12006: closed before signing in.
+      dialog.addEventHandler(Office.EventType.DialogEventReceived, e => reject(new Error(e.error === 12006
+        ? "The sign-in window was closed before signing in." : "The sign-in window failed (Office error " + e.error + ").")));
+    });
+  }));
+  if (answer.get("state") !== state) throw new Error("That sign-in answer wasn't for this sign-in. Click Sign in to try again.");
+  if (answer.get("error")) throw new Error("Lucid sign-in was cancelled or refused: " + answer.get("error"));
+  if (!(await tokenRequest({ grant_type: "authorization_code", code: answer.get("code"), redirect_uri: SIGNIN_PAGE, code_verifier: verifier }, Date.now())))
+    throw new Error("Lucid didn't accept the sign-in. The browser console (F12) has its answer.");
+  signedInHere = true;
+}
+
+// Sign out: ends the sign-in at Lucid (revoked, so a copied token is worthless)
+// and forgets it here, with this computer's lists of diagrams. Lucid's own
+// login in this browser, which its editor uses, lasts until Lucid ends it.
+async function signOut() {
+  let msg = "Signed out.";
+  if (tokens) await within(revoke(tokens), 15000, "Lucid").catch(e => { msg = e.message + " Revoke the add-in in Lucid's account settings to be sure it's ended."; });
+  keepTokens(null);
+  for (const key of ["recentDiagrams", "knownDiagrams", "lucidSizes"]) try { localStorage.removeItem(key); } catch {}
+  knownIds.clear(); sizes.clear(); cache.clear(); latestOf.clear();
+  current = last = null;
+  $("frame").src = "about:blank";
+  showCard("Signed out of Lucid. To end Lucid's own login in this browser too, log out on lucid.app.", { signIn: true });
+  say(msg, msg !== "Signed out.");
+}
+
+// Lucid results that only change when the document does, cached (as promises,
+// so a prefetch and the click after it share one request) with their version.
+const cache = new Map();
+function versioned(key, version, get) {
+  const c = cache.get(key);
+  if (c && version != null && c.version === version) return c.value;
+  const value = get();
+  cache.set(key, { version, value });
+  value.catch(() => { if (cache.get(key) && cache.get(key).value === value) cache.delete(key); });
+  return value;
+}
+
+// A slow Lucid request whose freshness depends on the document's version: it
+// starts alongside the info call (which gives the version) and is abandoned
+// if the cache turns out to have it already.
+async function withDoc(id, key, slow) {
+  const abort = new AbortController();
+  const request = slow(abort.signal);
+  request.catch(() => {}); // awaited below, or deliberately abandoned
+  let doc;
+  try { doc = await docInfo(id); } catch (e) { abort.abort(); throw e; }
+  let used = false;
+  const value = await versioned(key, doc.version, () => { used = true; return request; });
+  if (!used) abort.abort();
+  return { doc, value };
+}
+
+// Title, version (bumped on every saved edit; viewing doesn't), page count...
+async function docInfo(id) {
+  return (await lucid("/documents/" + id, { headers: { Accept: "application/json" } })).json();
+}
+
+// Shapes, connectors and containment for every page (~1-4s, even for a small diagram).
+async function fetchContents(id, signal) {
+  return (await lucid(`/documents/${id}/contents`, { signal })).json();
+}
+
+async function fetchPng(id, page, dpi, signal) {
+  const r = await lucid(`/documents/${id}?crop=content${page ? "&pageId=" + encodeURIComponent(page) : ""}`,
+    { headers: { Accept: `image/png;dpi=${dpi}` }, signal });
+  const png = new Uint8Array(await r.arrayBuffer());
+  if (String.fromCharCode(...png.slice(1, 4)) !== "PNG") throw new Error("Lucid's export wasn't a PNG: " + new TextDecoder().decode(png.slice(0, 100)));
+  return png;
+}
+
+// Without an embedId the editor shows Lucid's document picker; with one it reopens that diagram.
+async function embedToken(embedId) {
+  const r = await lucid("/embeds/token", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ origin: PANE_ORIGIN, ...(embedId && { embedId }), sessionConfig: { products: ["lucidchart"] } }) });
+  return r.text();
+}
+
+// A new editable embed of a document, for a picture that has none (linked by
+// pasted URL in older builds), so it opens straight in the editor. Lucid only allows this for
+// documents picked in its picker at some point (403 otherwise: the pane then
+// shows the picker).
+async function newEmbed(documentId) {
+  const r = await lucid(`/documents/${documentId}/embeds`, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ embedVersion: "latest-version", accessLevel: "edit" }) });
+  return (await r.json()).embedId;
+}
+
+// The document's pages, for the page chooser. An empty page exports as a blank
+// square. A page drawn from Mermaid code in Lucid ("diagram as code",
+// LucidNativeMermaid* shapes) exports with every shape piled in one spot:
+// Lucid's export API doesn't lay those out, so the pane draws those pages
+// itself from their Mermaid instead. Mermaid code that isn't a flowchart is one
+// picture (LucidNativeMermaidDiagramBlock), which exports fine.
+async function lucidPages(id) {
+  const { doc, value: contents } = await withDoc(id, "contents " + id, signal => fetchContents(id, signal));
+  return { version: doc.version, pages: contents.pages.map(p => {
+    const shapes = (p.items || {}).shapes || [], lines = (p.items || {}).lines || [];
+    return { id: p.id, title: p.title, empty: !shapes.length && !lines.length,
+      fromCode: shapes.some(s => /^LucidNativeMermaid/.test(s.class) && s.class !== "LucidNativeMermaidDiagramBlock") };
+  }) };
+}
+
+// A page as Mermaid (mermaid.js), for the picture's alt text. `page`: a Lucid page id, "" for the first page.
+async function lucidMermaid(id, page) {
+  const [{ doc, value: contents }, { pageToMermaid, UNPLACED }] = await Promise.all([
+    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js?v=52")]);
+  const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
+  if (!p) throw new Error(`Lucid's diagram has no page "${page}" any more.`);
+  // Cached per version: translating a big sequence diagram can take a second or two.
+  const mermaid = await versioned(`mermaid ${id} ${p.id}`, doc.version, async () => {
+    const m = pageToMermaid(p);
+    // Not the Mermaid itself: diagrams can be confidential, and consoles get captured.
+    console.log("mermaid for page", p.id, "v" + doc.version + ":", m.split("\n").length, "lines");
+    return m;
+  });
+  // What the Mermaid couldn't tie to anything: texts that may be arrow labels
+  // (mermaid.js marks them when the page also has unlabelled arrows), and arrows
+  // with an end not on a box. Said after Insert/Update (looseNote).
+  const loose = { texts: mermaid.includes(UNPLACED) ? mermaid.split(UNPLACED)[1].match(/^  %% note: .*/gm).map(l => l.slice(11)) : [],
+    arrows: (mermaid.match(/^  %% arrow with a loose end/gm) || []).length };
+  return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid, loose };
+}
+
+// The last natural size seen per document page, { naturalPt, aspect }, whatever
+// its version. Kept in this browser's storage, so reopening the pane doesn't
+// export every diagram twice again.
+const sizes = new Map((() => { try { return JSON.parse(localStorage.getItem("lucidSizes")) || []; } catch { return []; } })());
+
+// A PNG of the page. `shownPt` is the width the picture will have in Word (an
+// updated picture keeps its width); without it, a new picture's width: natural
+// size capped so the picture fits the page. The pane asks when the pointer
+// reaches its buttons, so by the click the PNG is usually cached already.
+async function lucidExport(id, page, shownPt) {
+  const key = id + " " + page;
+  // The width the picture is shown at, and the DPI that gives it TARGET_PPI,
+  // for a diagram of a given natural size (in points at 100%).
+  const plan = ({ naturalPt, aspect }) => {
+    const shown = shownPt || Math.min(naturalPt, maxWidthPt, maxHeightPt / aspect);
+    // Rounded up to a multiple of 32 so nearby sizes share a cached export.
+    const dpi = Math.min(MAX_DPI, Math.max(BASE_DPI, Math.ceil(TARGET_PPI * shown / naturalPt / 32) * 32));
+    return { shownPt: shown, dpi: Math.min(dpi, Math.floor(72 * Math.sqrt(PLAN_PIXELS / aspect) / naturalPt)) };
+  };
+  // Pixel size from the PNG's IHDR chunk, without decoding the image.
+  const pixels = png => { const v = new DataView(png.buffer, png.byteOffset); return [v.getUint32(16), v.getUint32(20)]; };
+  const sizeOf = (png, dpi) => { const [w, h] = pixels(png); return { naturalPt: w * 72 / dpi, aspect: h / w }; };
+  // Only an export tells the natural size, which then decides the DPI. It
+  // hardly changes between edits, so the last one seen picks the DPI and one
+  // export is usually enough (each is several seconds for a big diagram); a
+  // first export, or a diagram that grew a lot, gets a second at the right DPI.
+  let dpi = sizes.has(key) ? plan(sizes.get(key)).dpi : BASE_DPI;
+  let { doc, value: png } = await withDoc(id, `png ${key} ${dpi}`, signal => fetchPng(id, page, dpi, signal));
+  let size = sizeOf(png, dpi);
+  const better = plan(size).dpi;
+  if (better > dpi) {
+    dpi = better;
+    png = await versioned(`png ${key} ${dpi}`, doc.version, () => fetchPng(id, page, dpi));
+    size = sizeOf(png, dpi);
+  }
+  const [width, height] = pixels(png);
+  // Lucid caps an export near 10 megapixels whatever the DPI, which would
+  // make the diagram look smaller than it is: such sizes aren't remembered.
+  if (width * height < 9e6) sizes.set(key, size);
+  else sizes.delete(key); // so the next export learns the size again from BASE_DPI
+  try { localStorage.setItem("lucidSizes", JSON.stringify([...sizes])); } catch {}
+  const shown = plan(size).shownPt;
+  console.log(`export ${width}x${height} at ${dpi}dpi, ${Math.round(width / (shown / 72))}ppi at ${Math.round(shown)}pt wide`);
+  return { title: doc.title, version: doc.version, blob: new Blob([png], { type: "image/png" }), width, height, naturalPt: size.naturalPt, shownPt: shown };
+}
+
+// Runs one button's work: one thing at a time, and errors land in the status line.
+async function act(label, fn) {
+  if (busy) return;
+  $("confirm").hidden = true;
+  busy = true; refreshButtons(); say(label);
+  try { await fn(); }
+  catch (e) {
+    // Office.js errors often carry the useful part in .code/.debugInfo, not .message.
+    console.error(e, e && e.debugInfo);
+    say(e instanceof Error && !e.code ? e.message
+      : app + " error: " + [e && e.code, e && e.message, e && e.debugInfo && JSON.stringify(e.debugInfo)].filter(Boolean).join(" | "), true);
+  }
+  finally { busy = false; refreshButtons(); readSelection(); scanDocument(); }
+}
+
+async function loadEditor(embedId) {
+  const token = await fromLucid(embedToken(embedId));
+  $("frame").src = "https://lucid.app/embeds?token=" + encodeURIComponent(token);
+  $("card").hidden = true;
+  $("frame").hidden = false;
+}
+
+// Sets the editor's diagram, then fills in its real title and its pages from Lucid.
+function setCurrent(ids, title, page) {
+  current = { documentId: ids.documentId, embedId: ids.embedId, title: title || "this diagram", page: page || "", pages: null };
+  addKnown(current.documentId);
+  if (title) remember(current);
+  refreshButtons();
+  syncLucid();
+  return syncPages();
+}
+
+// Fills the page chooser in the background; it only shows for a document with more than one page.
+async function syncPages() {
+  const c = current;
+  const r = c && await quietly(lucidPages(c.documentId));
+  if (r && current === c) applyPages(c, r);
+}
+
+function applyPages(c, r) {
+  c.pages = r.pages;
+  c.pagesVersion = r.version;
+  if (!c.pages.some(p => p.id === c.page)) c.page = c.pages[0].id;
+  if (current !== c) return; // the editor moved on to another diagram meanwhile
+  $("page").innerHTML = "";
+  for (const p of c.pages) $("page").append(new Option(p.title + (p.empty ? " (empty)" : p.fromCode ? " (Mermaid code)" : ""), p.id, false, p.id === c.page));
+  refreshButtons();
+}
+
+$("page").onchange = () => { current.page = $("page").value; refreshButtons(); };
+
+// Lucid tells the page hosting the embed nothing about renames or edits, so the
+// pane asks for the title and version of the editor's diagram and of the target
+// picture's: when the selection changes, when the pointer reaches the buttons,
+// on coming back to the pane, and every 10 seconds while it's visible.
+async function syncLucid() {
+  const t = updateTarget();
+  const ids = [...new Set([current && current.documentId, t && knownIds.has(t.documentId) && t.documentId].filter(Boolean))];
+  const infos = await Promise.all(ids.map(id => quietly(docInfo(id))));
+  ids.forEach((id, i) => {
+    const info = infos[i];
+    if (!info) return;
+    if (current && current.documentId === id) {
+      current.title = info.title;
+      remember(current);
+      current.version = info.version;
+      // Back from editing on lucid.app: the diagram changed there, so say how to bring it here and into Word.
+      if (current.lucidVersion != null && info.version !== current.lucidVersion && !busy) {
+        current.lucidVersion = null;
+        say(`"${info.title}" was changed in Lucid. If the editor here doesn't show it yet, click ↻; Update puts it in ${app}.`);
+      }
+      // Pages may have been added, emptied or filled since the chooser was filled.
+      if (current.pages && current.pagesVersion !== info.version) syncPages();
+    }
+    latestOf.set(id, info);
+    if (t && t.documentId === id && updateTarget() === t) { t.latest = info.version; t.latestTitle = info.title; }
+  });
+  refreshButtons();
+}
+setInterval(() => { if (document.visibilityState === "visible" && !busy) syncLucid(); }, 10000);
+
+async function start() {
+  say("Connecting...");
+  try {
+    if (tokens) {
+      // After a re-sign-in, come back to the diagram that was open; on opening
+      // the pane, to the last diagram used, ready to edit with no picker.
+      const back = current && current.embedId;
+      let lastUsed = !current && recent()[0];
+      // One that won't open any more (its embed deleted, access lost) is dropped, and the picker shows instead.
+      if (lastUsed) await loadEditor(lastUsed.embedId).catch(e => {
+        if (e.status === 401) throw e; // the sign-in lapsed, not the diagram
+        console.warn("the last diagram won't open, so it leaves the recent list:", e.message);
+        forget(lastUsed.documentId);
+        lastUsed = null;
+      });
+      if (!lastUsed) await loadEditor(back ? current.embedId : null);
+      if (lastUsed) setCurrent(lastUsed, lastUsed.title);
+      say(back ? "Connected. Carry on editing." : lastUsed ? `Opened "${lastUsed.title}", the last diagram you used. The menu above opens others.`
+        : "Pick a diagram (or New) in Lucid's window above, then Continue and Insert.");
+    } else {
+      showCard("Sign in to your Lucid account to draw diagrams here.", { signIn: true });
+      say("Not signed in.");
+    }
+  } catch (e) { say(e.message, true); }
+}
+
+// The embed announces which document was picked; that's the diagram the buttons use.
+// `e`: a message event from https://lucid.app (listen.js checks the origin).
+function onLucidMessage(e) {
+  // Only Lucid's editor in this pane (or a frame inside it) speaks for the
+  // editor: not some other lucid.app window that has a handle on this one.
+  let w = e.source;
+  while (w && w !== $("frame").contentWindow && w !== w.parent) w = w.parent;
+  if (!w || w !== $("frame").contentWindow) return console.warn("ignored a lucid.app message from outside the editor");
+  let data = e.data;
+  if (typeof data === "string") { try { data = JSON.parse(data); } catch { return; } }
+  console.log("lucid message", data && (data.event || data.status));
+  if (data && data.type === "LucidEmbedEvent" && data.event === "EmbedCreated") {
+    if (!isId(data.documentId) || !isId(data.embedId))
+      return say("Lucid's editor named a diagram the add-in doesn't understand (" + JSON.stringify([data.documentId, data.embedId]) + "). Pick it again.", true);
+    setCurrent({ documentId: data.documentId, embedId: data.embedId });
+    say(inOffice ? "Ready. Edit the diagram, then Insert it, or Update the selected picture." : "Diagram ready (open in Word or PowerPoint to insert).");
+  }
+  // Lucid's editor and picker also need a lucid.app login in this browser (its
+  // cookie), apart from the add-in's sign-in. Without one the picker says
+  // logged_out and the editor falls back to a read-only viewer, whose "Log in to
+  // edit" opens a window that in desktop Word is the default browser: logging in
+  // there never reaches Word. Signing in through the pane's window does (it's
+  // Word's own browser), so the card asks for that instead of showing the viewer.
+  if (data && (data.status === "logged_out" || (data.event === "EmbedLoaded" && data.componentType === "Viewer"))) {
+    if (!signedInHere) {
+      say("Not logged in to Lucid's editor.");
+      showCard("Lucid's editor needs you logged in to Lucid here in " + app + " (a login in your web browser doesn't reach it). "
+        + "Sign in once (a window opens) and the diagram opens for editing.", { signIn: true });
+    } else say("Lucid still opens this diagram read-only after signing in: either its embed is view-only, or this browser blocks Lucid's "
+      + "cookies inside " + app + ". ↗ (Open in Lucid) edits it on lucid.app; Update then brings the changes into " + app + ".", true);
+  }
+}
+
+// Alt text links the picture back to its Lucid diagram so it can be reopened and
+// updated, records which Lucid version and page it shows, and carries the page
+// as Mermaid: the part an LLM reading the document understands.
+// `d.mermaid` null: inserted with Mermaid unticked (a confidential diagram), which
+// the picture remembers so Update never adds it.
+function altText(d, ids) {
+  return [`Lucidchart diagram: ${d.title}`, `https://lucid.app/lucidchart/${ids.documentId}/edit`,
+    ids.embedId && `lucid-embed: ${ids.embedId}`, `lucid-version: ${d.version}`, `lucid-page: ${d.page}`,
+    ...(d.mermaid == null ? ["lucid-mermaid: off"] : ["```mermaid", d.mermaid, "```"])].filter(Boolean).join("\n");
+}
+const withoutMermaid = d => Object.assign(d, { mermaid: null, loose: { texts: [], arrows: 0 } });
+
+function parseAlt(alt) {
+  alt = alt || "";
+  const doc = alt.match(new RegExp("lucid\\.app/lucidchart/(" + UUID + ")"));
+  if (!doc) return null;
+  const embed = alt.match(new RegExp("lucid-embed: (" + UUID + ")"));
+  const version = alt.match(/lucid-version: (\d+)/);
+  const page = alt.match(/lucid-page: (\S+)/);
+  const title = alt.match(/^Lucidchart diagram: (.*)$/m);
+  return { documentId: doc[1], embedId: embed ? embed[1] : null, version: version ? +version[1] : null,
+    page: page ? page[1] : "", title: title ? title[1] : "untitled", mermaid: /^```mermaid$/m.test(alt), mermaidOff: /^lucid-mermaid: off$/m.test(alt) };
+}
+
+// Each picture carries a short random tag (in Word its alt-text title, in
+// PowerPoint its shape name), so "the picture last inserted or loaded" can be
+// found again in a later Word.run. `title`: what the picture has there now.
+const TAG_PREFIX = "Lucidchart diagram #";
+const newTag = () => TAG_PREFIX + Math.random().toString(36).slice(2, 8);
+const tagOf = title => title && title.startsWith(TAG_PREFIX) ? title : newTag();
+
+// New pictures come in at the width lucidExport chose (natural size, capped to
+// the page). An updated picture keeps the width it had in the document, so resizing sticks.
+function dress(pic, d, ids, tag, keepWidthPt) {
+  const widthPt = keepWidthPt || d.shownPt;
+  pic.width = widthPt;
+  pic.height = widthPt * d.height / d.width;
+  pic.altTextTitle = tag;
+  pic.altTextDescription = altText(d, ids);
+}
+
+// What the selection holds: no picture, someone else's picture, or one of our
+// diagrams (with the Word objects needed to replace it). The range's text is
+// only loaded when asked for: on a select-all it's the whole document.
+async function inspectSelection(ctx, withText) {
+  const range = ctx.document.getSelection();
+  const pics = range.inlinePictures;
+  pics.load("items/altTextDescription,items/altTextTitle,items/width");
+  if (withText) range.load("text");
+  await ctx.sync();
+  if (!pics.items.length) return { kind: "none" };
+  const pic = pics.items.find(p => parseAlt(p.altTextDescription));
+  if (!pic) return { kind: "other" };
+  // Replacing through the range is what the sibling add-in found swaps a picture
+  // cleanly in place, but it replaces everything selected, so only when the picture is all there is.
+  const alone = withText && pics.items.length === 1 && range.text.trim().length <= 1;
+  return { kind: "ours", found: parseAlt(pic.altTextDescription), pic, range, alone };
+}
+
+// ---- PowerPoint ----
+// A picture's source goes in a shape tag, as in the Waveform Viewer add-in (any
+// PowerPoint has tags; alt text needs PowerPointApi 1.10, so it's written too
+// where it can be, for LLMs reading the file, but only the tag is read back).
+// PowerPoint upper-cases tag keys, hence the all-caps name.
+const ALT_TAG = "LUCID";
+const PPT_PROPS = "items/id,items/name,items/type,items/left,items/top,items/width,items/height";
+
+// `pics`: loaded shapes. Ours among them: { pic, alt, found (parsed alt), slideId }.
+async function pptOurs(ctx, pics, slideIds) {
+  const tags = pics.map(p => p.tags.getItemOrNullObject(ALT_TAG).load("value"));
+  await ctx.sync();
+  return pics.map((pic, i) => ({ pic, alt: tags[i].isNullObject ? "" : tags[i].value, slideId: slideIds[i] }))
+    .map(p => ({ ...p, found: parseAlt(p.alt) })).filter(p => p.found);
+}
+
+// Every diagram picture of ours on every slide (not inside groups).
+async function pptPictures(ctx) {
+  const slides = ctx.presentation.slides.load("items/id");
+  await ctx.sync();
+  const shapes = slides.items.map(s => s.shapes.load(PPT_PROPS));
+  await ctx.sync();
+  const pics = slides.items.flatMap((s, i) => shapes[i].items.map(pic => ({ pic, slideId: s.id })));
+  return pptOurs(ctx, pics.map(p => p.pic), pics.map(p => p.slideId));
+}
+
+// The selection, like inspectSelection's.
+async function pptSelection(ctx) {
+  const shapes = ctx.presentation.getSelectedShapes().load(PPT_PROPS);
+  const slides = ctx.presentation.getSelectedSlides().load("items/id");
+  await ctx.sync();
+  if (!shapes.items.length) return { kind: "none" };
+  const [ours] = await pptOurs(ctx, shapes.items, shapes.items.map(() => slides.items[0].id));
+  return ours ? { kind: "ours", ...ours } : shapes.items.some(s => s.type === PowerPoint.ShapeType.image) ? { kind: "other" } : { kind: "none" };
+}
+
+// Puts `d` on the slide in view as a new picture, or with `old`
+// (a pptPictures entry) in its place: its slide, position and width, then
+// deletes it. The picture is a borderless rectangle filled with the image:
+// PowerPoint.run has no insert-picture call, and the common
+// setSelectedDataAsync (the Waveform Viewer add-in's way) refuses while
+// anything on the slide is selected, which on the web can't be undone from here.
+async function pptPlace(d, ids, tag, old) {
+  if (!Office.context.requirements.isSetSupported("PowerPointApi", "1.8"))
+    throw new Error("This PowerPoint is too old for the add-in to put pictures in (it needs PowerPointApi 1.8): update Office, or use PowerPoint on the web.");
+  const aspect = d.height / d.width;
+  let widthPt;
+  await ppt(async ctx => {
+    let slideId = old && old.slideId;
+    if (!slideId) {
+      const slides = ctx.presentation.getSelectedSlides().load("items/id");
+      await ctx.sync();
+      if (!slides.items.length) throw new Error("Click a slide first: the picture goes on the slide in view.");
+      slideId = slides.items[0].id;
+    }
+    const slide = ctx.presentation.slides.getItem(slideId);
+    // An updated picture keeps its place and width, so moving and resizing
+    // stick. A new one goes where PowerPoint's own Insert Picture would put it:
+    // into the slide's empty content placeholder (replacing it), else below the
+    // title, else the middle of the slide.
+    const shapes = slide.shapes.load("items/id,items/type,items/left,items/top,items/width,items/height");
+    await ctx.sync();
+    const before = new Set(shapes.items.map(s => s.id));
+    const oldShape = old && shapes.items.find(s => s.id === old.pic.id);
+    if (old && !oldShape) throw new Error("The picture to update isn't on its slide any more.");
+    let box = old ? { left: old.pic.left, top: old.pic.top, width: old.pic.width, height: old.pic.width * aspect } : null, empty = null;
+    if (!old) {
+      const holders = shapes.items.filter(s => s.type === PowerPoint.ShapeType.placeholder).map(s => ({ s, format: s.placeholderFormat.load("type") }));
+      await ctx.sync();
+      const content = holders.filter(h => ["Body", "Content"].includes(h.format.type)).map(h => ({ ...h, text: h.s.textFrame.textRange.load("text") }));
+      await ctx.sync();
+      empty = content.find(h => !h.text.text.trim());
+      const title = holders.find(h => h.format.type === "Title");
+      const margin = slideHeightPt * 0.05, below = title && title.s.top + title.s.height + margin / 2;
+      const area = empty ? empty.s : below ? { left: (slideWidthPt - maxWidthPt) / 2, top: below, width: maxWidthPt, height: slideHeightPt - below - margin }
+        : { left: (slideWidthPt - maxWidthPt) / 2, top: (slideHeightPt - maxHeightPt) / 2, width: maxWidthPt, height: maxHeightPt };
+      const width = Math.min(d.shownPt, area.width, area.height / aspect);
+      box = { width, height: width * aspect, left: area.left + (area.width - width) / 2, top: area.top + (area.height - width * aspect) / 2 };
+      console.log("ppt insert:", empty ? "into the content placeholder" : title ? "below the title" : "middle of the slide", box);
+    }
+    widthPt = box.width;
+    const pic = slide.shapes.addGeometricShape(PowerPoint.GeometricShapeType.rectangle, box);
+    pic.fill.setImage(d.base64);
+    pic.lineFormat.visible = false;
+    pic.name = tag;
+    const alt = altText(d, ids);
+    pic.tags.add(ALT_TAG, alt);
+    if (Office.context.requirements.isSetSupported("PowerPointApi", "1.10")) pic.altTextDescription = alt;
+    await ctx.sync();
+    // The shape addGeometricShape returned can't be reached once it's added
+    // (PowerPoint on the web gives it another id when it saves it), so it's
+    // found again as the one shape on the slide that wasn't there before.
+    // On some slides it only shows up a moment after the add has returned.
+    let added = [];
+    for (let i = 0; i < 20 && !added.length; i++) {
+      if (i) await new Promise(r => setTimeout(r, 250));
+      const now = ctx.presentation.slides.getItem(slideId).shapes.load("items/id");
+      await ctx.sync();
+      added = now.items.filter(s => !before.has(s.id));
+      console.log("ppt place: slide", slideId, "shapes before", [...before], "now", now.items.map(s => s.id));
+    }
+    if (added.length !== 1) throw new Error(`Expected 1 new picture on the slide, found ${added.length}.`);
+    // Tags have no documented length limit: read it back to catch a cut-off Mermaid.
+    const back = added[0].tags.getItem(ALT_TAG).load("value");
+    await ctx.sync();
+    if (back.value !== alt) {
+      added[0].delete();
+      await ctx.sync();
+      throw new Error(`PowerPoint kept only ${back.value.length} of the diagram's ${alt.length} characters of alt text, so the picture wasn't put in.`);
+    }
+    if (old) oldShape.delete();
+    if (empty) empty.s.delete();
+    // Not selected afterwards (Update finds it as `last`): setSelectedShapes
+    // sometimes never returned in PowerPoint on the web.
+    await ctx.sync();
+  });
+  return widthPt;
+}
+
+async function readSelection() {
+  if (inOffice) {
+    try {
+      const s = inPpt ? await ppt(pptSelection) : await word(ctx => inspectSelection(ctx, false));
+      selected = s.kind === "ours" ? { kind: "ours", ...s.found, width: s.pic.width } : { kind: s.kind };
+    } catch (e) { console.warn("reading selection:", e); selected = { kind: "none" }; }
+  }
+  refreshButtons();
+  syncLucid();
+}
+
+let selectionTimer = null;
+function onSelectionChanged() {
+  clearTimeout(selectionTimer);
+  selectionTimer = setTimeout(readSelection, 250); // selection events arrive in bursts while typing
+}
+
+// Callers capture `current` up front: the embed can announce another diagram
+// while the export is in flight.
+// `shownPt`: the width the picture will have in Word, so the export has enough
+// pixels for it; left out for a new picture.
+// `page`: a Lucid page id, "" for the first page.
+// `report`: where progress goes (the status line; Update all prefixes its count).
+async function exportDiagram(ids, page, shownPt, report = say) {
+  // Which pages are empty or Mermaid code decides how a picture is made, and any
+  // edit can change that (a new document starts empty), so the list is fetched
+  // fresh before every picture. It's cached per Lucid version, so an
+  // unchanged diagram costs one quick info call.
+  const pages = await fromLucid(lucidPages(ids.documentId));
+  if (current && current.documentId === ids.documentId) applyPages(current, pages);
+  const info = pages.pages.find(p => p.id === (page || pages.pages[0].id));
+  if (!info) throw new Error("That page has been deleted from the Lucid document, so this picture can't be updated. Insert another page as a new picture instead.");
+  if (info.empty) throw new Error(`"${info.title}" is empty in Lucid. Pick another page under Page to insert.`);
+  if (info.fromCode) {
+    // A page drawn from Mermaid code in Lucid ("diagram as code") can't come from
+    // Lucid's export, which piles its shapes on top of each other. Lucid draws
+    // those pages with Mermaid itself, so the pane does the same with the page's
+    // Mermaid (mermaid.js) and turns the SVG into a PNG at TARGET_PPI.
+    report("Drawing the diagram from its Mermaid...");
+    const [m, mermaid] = await Promise.all([fromLucid(lucidMermaid(ids.documentId, page)), loadMermaid()]);
+    const { svg } = await mermaid.render("lucidPage" + Date.now(), m.mermaid);
+    const root = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
+    const viewBox = root.getAttribute("viewBox");
+    if (!viewBox) throw new Error(`Mermaid couldn't draw "${m.title}" (its drawing has no size).`);
+    const [, , widthPx, heightPx] = viewBox.split(/[\s,]+/).map(Number);
+    const naturalPt = widthPx * 0.75; // SVG user units are CSS pixels, 96 to the inch
+    const widthPt = shownPt || Math.min(naturalPt, maxWidthPt, maxHeightPt * widthPx / heightPx);
+    // Very large pictures get fewer pixels per inch rather than a canvas the browser refuses.
+    const scale = Math.min(widthPt / 72 * TARGET_PPI / widthPx,
+      CANVAS_MAX_SIDE / Math.max(widthPx, heightPx), Math.sqrt(CANVAS_MAX_PIXELS / (widthPx * heightPx)));
+    root.removeAttribute("style"); // Mermaid's max-width would let a host shrink the image before scaling it back up
+    root.setAttribute("width", widthPx * scale);
+    root.setAttribute("height", heightPx * scale);
+    const img = new Image();
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(new XMLSerializer().serializeToString(root))));
+    await img.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(widthPx * scale);
+    canvas.height = Math.round(heightPx * scale);
+    const g = canvas.getContext("2d");
+    g.fillStyle = "#fff";
+    g.fillRect(0, 0, canvas.width, canvas.height);
+    g.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const base64 = canvas.toDataURL("image/png").split(",")[1];
+    if (!base64) throw new Error(`The browser couldn't make a ${canvas.width}x${canvas.height} picture of "${m.title}".`);
+    console.log("drew v" + m.version, "from Mermaid at", canvas.width + "x" + canvas.height);
+    report("Placing in document...");
+    return { title: m.title, version: m.version, mermaid: m.mermaid, loose: m.loose, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length, naturalPt, shownPt: widthPt,
+      base64, width: canvas.width, height: canvas.height, drawnHere: true };
+  }
+  // A big diagram takes Lucid ten seconds or more; a running count shows it's still going.
+  const started = Date.now();
+  report("Exporting from Lucid...");
+  const tick = setInterval(() => report(`Exporting from Lucid... ${Math.round((Date.now() - started) / 1000)}s`), 1000);
+  const [d, m] = await Promise.all([fromLucid(lucidExport(ids.documentId, page, shownPt)), fromLucid(lucidMermaid(ids.documentId, page))])
+    .finally(() => clearInterval(tick));
+  console.log("export v" + d.version, d.width + "x" + d.height, d.blob.size, "bytes; mermaid v" + m.version);
+  Object.assign(d, { mermaid: m.mermaid, loose: m.loose, page: m.page, pageTitle: m.pageTitle, pageCount: pages.pages.length });
+  const maxWidthPx = Math.round((shownPt || d.shownPt) / 72 * MAX_PPI);
+  Object.assign(d, await plainPng(d.blob, maxWidthPx, [ids.documentId, d.page, d.version, maxWidthPx].join("@")));
+  report("Placing in document...");
+  return d;
+}
+
+// The editor's page by id ("" = the first page), once the page list has arrived.
+const pageInfo = pageId => current && current.pages && current.pages.find(p => p.id === (pageId || current.pages[0].id));
+const isFromCode = pageId => !!(pageInfo(pageId) || {}).fromCode;
+
+// Mermaid is only needed for pages drawn from Mermaid code, so it loads on first
+// use (or when the pointer reaches the buttons for such a page). Plain SVG
+// labels: HTML labels would stop the browser from turning the SVG into a PNG.
+// Strict (Mermaid's default, said anyway): the code it draws comes from
+// diagrams that anyone with edit access to them can write.
+let mermaidLib = null;
+function loadMermaid() {
+  if (!mermaidLib) {
+    mermaidLib = within(new Promise((resolve, reject) => document.head.append(Object.assign(document.createElement("script"),
+      { src: MERMAID_SRC, onload: () => resolve(window.mermaid), onerror: () => reject(new Error("Couldn't load " + MERMAID_SRC)) }))),
+    30000, "Loading Mermaid").then(mermaid => {
+      mermaid.initialize({ startOnLoad: false, securityLevel: "strict", htmlLabels: false, flowchart: { htmlLabels: false, useMaxWidth: false } });
+      return mermaid;
+    });
+    mermaidLib.catch(() => { mermaidLib = null; }); // try again next time
+  }
+  return mermaidLib;
+}
+
+// "Figure 3: Login flow" under the picture. Where Word allows it, that's a real
+// Word caption: the Caption style, the number a SEQ field so Word renumbers it
+// and lists it in a Table of Figures. Word on the web ignores the Caption style
+// (it has no captions feature) and refuses fields, so each part is tried in
+// its own sync, and what doesn't take falls back to a lookalike: centred small
+// italic text with the number counted from the captions above it. Called after
+// the picture is committed, so a caption problem can never cost the picture.
+const CAPTION = "Figure";
+const CAPTION_FONT = { italic: true, size: 9, color: "#44546A" }; // the look of Word's Caption style
+async function addCaption(ctx, para, title) {
+  const cap = para.insertParagraph("", Word.InsertLocation.after);
+  cap.styleBuiltIn = Word.BuiltInStyleName.normal; // stays, where the Caption style doesn't take
+  cap.alignment = Word.Alignment.centered;
+  await ctx.sync();
+  // Word on the web takes the Caption style without an error and leaves the
+  // paragraph Normal, so the style is read back rather than trusted.
+  let styled = false;
+  try {
+    cap.styleBuiltIn = Word.BuiltInStyleName.caption;
+    cap.load("styleBuiltIn");
+    await ctx.sync();
+    styled = cap.styleBuiltIn === Word.BuiltInStyleName.caption;
+  } catch (e) { console.warn("Caption style refused:", e.debugInfo || e); }
+  try {
+    if (!Office.context.requirements.isSetSupported("WordApi", "1.5")) throw new Error("no WordApi 1.5");
+    cap.insertText(CAPTION + " ", Word.InsertLocation.start);
+    cap.getRange(Word.RangeLocation.content).insertField(Word.InsertLocation.end, "Seq", CAPTION + " \\* ARABIC", true);
+    cap.insertText(": " + title, Word.InsertLocation.end);
+    await ctx.sync();
+  } catch (e) {
+    console.warn("Caption number field refused, numbering by hand:", e.debugInfo || e);
+    cap.insertText(`${CAPTION} 0: ${title}`, Word.InsertLocation.replace);
+    await ctx.sync();
+    // A figure inserted above others shifts their numbers, which hand-typed
+    // numbers don't follow, so every "Figure N:" caption is renumbered in
+    // document order. One whose number is a real field (made in desktop Word)
+    // keeps it: editing a field's result would break the field.
+    const paras = ctx.document.body.paragraphs;
+    paras.load("items/text");
+    await ctx.sync();
+    const caps = paras.items.filter(p => new RegExp("^\\s*" + CAPTION + "\\s+\\d+\\s*:").test(p.text));
+    // Paragraph.fields is WordApi 1.4; without it, no caption counts as a field.
+    const hasFields = Office.context.requirements.isSetSupported("WordApi", "1.4");
+    const fields = caps.map(p => hasFields ? p.fields.load("items") : { items: [] });
+    await ctx.sync();
+    caps.forEach((p, i) => {
+      const [now, num] = p.text.match(new RegExp("^\\s*" + CAPTION + "\\s+(\\d+)\\s*:"));
+      if (+num === i + 1 || fields[i].items.length) return;
+      const r = p.search(now.trim(), { matchCase: true }).getFirst().insertText(`${CAPTION} ${i + 1}:`, Word.InsertLocation.replace);
+      // Replaced text loses the hand formatting, which is what Word on the web has.
+      if (!styled) Object.assign(r.font, CAPTION_FONT);
+    });
+    await ctx.sync();
+  }
+  // Last, once the text is in: text inserted later doesn't take formatting set
+  // on the empty paragraph.
+  if (!styled) {
+    console.warn("No Caption style here, formatting the caption by hand");
+    Object.assign(cap.font, CAPTION_FONT);
+    await ctx.sync();
+  }
+}
+
+// What a figure's caption calls it: the diagram's title, and for a document
+// with several pages, the page's title too when it has a real one (not Lucid's
+// "Page 2"): "Order system – Checkout".
+const PAGE_DASH = " – ";
+const figureTitle = d => d.pageCount > 1 && d.pageTitle && !/^Page \d+$/i.test(d.pageTitle) ? d.title + PAGE_DASH + d.pageTitle : d.title;
+
+// The title part of a caption in this add-in's form ("Figure 3: Login flow" ->
+// "Login flow"); null for any other paragraph, which is never touched.
+const captionTitle = text => {
+  const m = text.match(new RegExp("^\\s*" + CAPTION + "\\s*\\d+\\s*:\\s*(.*?)\\s*$"));
+  return m ? m[1] : null;
+};
+
+// A diagram shown much smaller than in Lucid has much smaller text; no
+// resolution makes 3pt text readable at 100% zoom, so say so.
+function shrinkNote(widthPt, d) {
+  const scale = widthPt / d.naturalPt;
+  return Math.round(scale * 100) >= 60 ? "" : ` It's shown at ${Math.round(scale * 100)}% of its size in Lucid, so its text is that much smaller: `
+    + "zoom in to read fine print, or give the diagram more room (" + (inPpt ? "a slide to itself" : "a landscape page") + ", or split it up).";
+}
+
+// Word on the web refused Lucid's PNG ("unable to insert the picture"): it's a
+// palette PNG with colour-profile and text chunks. Redrawn through a canvas it
+// becomes a plain RGBA PNG, the kind the sibling add-ins insert without trouble.
+// An export with far more pixels than the picture can show is scaled down here
+// with high-quality resampling, rather than left for Word to squash on screen.
+let plainCache = { key: null };
+async function plainPng(blob, maxWidthPx, key) {
+  if (plainCache.key === key) return plainCache.result;
+  const full = await createImageBitmap(blob);
+  const scale = Math.min(1, maxWidthPx / full.width);
+  const width = Math.round(full.width * scale), height = Math.round(full.height * scale);
+  const bitmap = scale < 1 ? await createImageBitmap(blob, { resizeWidth: width, resizeHeight: height, resizeQuality: "high" }) : full;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  // Drawn at the target size too: a browser that ignores createImageBitmap's
+  // resize options (older WebKit, Word for Mac) would otherwise crop the picture.
+  const g = canvas.getContext("2d");
+  g.imageSmoothingQuality = "high";
+  g.drawImage(bitmap, 0, 0, width, height);
+  if (scale < 1) console.log("downscaled", full.width + "x" + full.height, "->", width + "x" + height);
+  plainCache = { key, result: { base64: canvas.toDataURL("image/png").split(",")[1], width, height } };
+  return plainCache.result;
+}
+
+// Said after an insert or update of a page the pane drew itself.
+// Arrow labels drawn as separate text boxes, and arrows not dropped on their
+// boxes, can't be tied to their arrows in the Mermaid: Lucid's contents have no
+// positions (parsing-research.md). The fix is in Lucid, so say how.
+function looseNote({ loose }) {
+  const n = loose.texts.length, eg = loose.texts[0] && (loose.texts[0].length > 24 ? loose.texts[0].slice(0, 23) + "…" : loose.texts[0]);
+  return (n ? ` For LLMs, type arrow labels on the arrow (double-click it in Lucid), then Update: ${n} text box${n === 1 ? " is" : "es are"} attached to nothing here ("${eg}"${n > 1 ? "..." : ""}).` : "")
+    + (loose.arrows ? ` ${loose.arrows} arrow${loose.arrows === 1 ? " has an end" : "s have ends"} not on a box: drag ${loose.arrows === 1 ? "it" : "each"} onto its box.` : "");
+}
+
+const drawnNote = d => d.drawnHere ? " (This page is Mermaid code in Lucid, which Lucid can't export, so the add-in drew it from that code.)" : "";
+
+// Captions or not, remembered in this browser; on unless turned off.
+try { $("caption").checked = localStorage.getItem("addCaption") !== "no"; } catch { $("caption").checked = true; }
+$("caption").onchange = () => { try { localStorage.setItem("addCaption", $("caption").checked ? "yes" : "no"); } catch {} };
+// Mermaid in the alt text or not, remembered the same way.
+try { $("withMermaid").checked = localStorage.getItem("addMermaid") !== "no"; } catch { $("withMermaid").checked = true; }
+$("withMermaid").onchange = () => { try { localStorage.setItem("addMermaid", $("withMermaid").checked ? "yes" : "no"); } catch {} };
+
+$("insert").onclick = () => act("Inserting...", async () => {
+  const ids = current;
+  const withCaption = $("caption").checked;
+  const withMermaid = $("withMermaid").checked;
+  const d = await exportDiagram(ids, current.page);
+  if (!withMermaid) withoutMermaid(d);
+  const tag = newTag();
+  let widthPt = d.shownPt;
+  if (inPpt) widthPt = await pptPlace(d, ids, tag, null);
+  else await word(async ctx => {
+    // The figure goes after the cursor's paragraph, or into it if it's empty;
+    // after a figure's caption when the cursor is on the figure's picture.
+    let anchor = ctx.document.getSelection().paragraphs.getLast();
+    let next = anchor.getNextOrNullObject();
+    anchor.load("text,styleBuiltIn");
+    anchor.inlinePictures.load("items");
+    next.load("text");
+    await ctx.sync();
+    let body = null; // with the cursor on a figure: the paragraph above it, likely body text
+    if (anchor.inlinePictures.items.length && !next.isNullObject && captionTitle(next.text) != null) {
+      body = anchor.getPreviousOrNullObject();
+      body.load("text,style,alignment,font/name,font/size,font/color,font/italic,font/bold");
+      anchor = next;
+      next = anchor.getNextOrNullObject();
+      anchor.load("text,styleBuiltIn");
+      anchor.inlinePictures.load("items");
+      await ctx.sync();
+    }
+    // At the end of the document there's nowhere to carry on typing below the
+    // figure, so a paragraph is made for that first. Made from the cursor's
+    // paragraph it has the body text's formatting; made after a caption it would
+    // look like one, so it takes the body text's look above the figure (or plain Normal).
+    const after = next.isNullObject ? anchor.insertParagraph("", Word.InsertLocation.after) : next;
+    if (next.isNullObject && body) {
+      const plain = body.isNullObject || !body.text.trim() || captionTitle(body.text) != null;
+      after.styleBuiltIn = Word.BuiltInStyleName.normal;
+      if (!plain) after.style = body.style;
+      after.alignment = plain ? Word.Alignment.left : body.alignment;
+      Object.assign(after.font, plain ? { italic: false, bold: false, color: "#000000" }
+        : { name: body.font.name, size: body.font.size, color: body.font.color, italic: body.font.italic, bold: body.font.bold });
+    }
+    // After a heading, the next paragraph is body text (as pressing Enter there gives).
+    else if (next.isNullObject && /^(Heading\d|Title)$/.test(anchor.styleBuiltIn)) after.styleBuiltIn = Word.BuiltInStyleName.normal;
+    // In a table cell, the picture fits the cell (less its padding) rather than the page.
+    const cell = anchor.parentTableCellOrNullObject;
+    cell.load("columnWidth");
+    await ctx.sync();
+    if (!cell.isNullObject) widthPt = Math.max(36, Math.min(widthPt, cell.columnWidth - 12));
+    const para = anchor.text.trim() || anchor.inlinePictures.items.length ? anchor.insertParagraph("", Word.InsertLocation.after) : anchor;
+    // Normal, not whatever the cursor's paragraph was: a figure after a heading mustn't become one.
+    para.styleBuiltIn = Word.BuiltInStyleName.normal;
+    para.alignment = Word.Alignment.centered;
+    dress(para.insertInlinePictureFromBase64(d.base64, Word.InsertLocation.end), d, ids, tag, widthPt);
+    await ctx.sync();
+    if (withCaption) await addCaption(ctx, para, figureTitle(d));
+    // The cursor goes below the figure, so typing, or the next Insert, carries on there.
+    after.getRange(Word.RangeLocation.start).select();
+    await ctx.sync();
+  });
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page, mermaidOff: !withMermaid };
+  say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(widthPt, d) + looseNote(d));
+});
+
+// What putting `d` (an export of diagram `ids`) in place of a picture whose
+// parsed alt text is `found` amounts to, and the ids its alt text gets.
+// A picture inserted without Mermaid stays without it (`d` loses its Mermaid).
+function replacing(found, d, ids) {
+  if (found && found.mermaidOff) withoutMermaid(d);
+  const sameDiagram = found && found.documentId === ids.documentId;
+  return {
+    // A diagram Lucid won't embed (an old picture linked by pasted URL) has no embed id; keep the picture's own if it's the same diagram.
+    ids: { documentId: ids.documentId, embedId: ids.embedId || (sameDiagram ? found.embedId : null) },
+    oldTitle: found && found.title,
+    outcome: !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : !found.mermaid && !found.mermaidOff ? "mermaid" : "refreshed",
+  };
+}
+
+// PowerPoint's replacePicture: `p` is a pptPictures entry. Slides have no captions to follow a rename.
+async function pptReplace(p, d, ids) {
+  const r = replacing(p.found, d, ids);
+  const tag = tagOf(p.pic.name);
+  return { ...r, tag, widthPt: await pptPlace(d, r.ids, tag, p) };
+}
+
+// Puts `d` (an export of diagram `ids`) in place of picture `pic` (through
+// `range` when the picture is all that's selected: the sibling add-in found
+// that swaps it cleanly in place), keeping its width and tag. `pic` needs
+// altTextTitle and width loaded; `found` is its parsed alt text.
+async function replacePicture(ctx, pic, range, found, d, ids) {
+  const tag = tagOf(pic.altTextTitle); // a picture from before tags gets one now
+  const { ids: newIds, oldTitle, outcome } = replacing(found, d, ids);
+  const widthPt = pic.width;
+  // The caption under the picture follows a rename, unless it was reworded by
+  // hand: only a caption whose title part is still the old title changes.
+  const caption = pic.paragraph.getNextOrNullObject();
+  caption.load("text");
+  await ctx.sync();
+  dress((range || pic).insertInlinePictureFromBase64(d.base64, Word.InsertLocation.replace), d, newIds, tag, widthPt);
+  await ctx.sync();
+  // The caption's title part, whole ("Diagram" or "Diagram – Page"), becomes the new figure title.
+  const was = caption.isNullObject ? null : captionTitle(caption.text);
+  const now = figureTitle(d);
+  if (was && oldTitle && was !== now && (was === oldTitle || was.startsWith(oldTitle + PAGE_DASH)) && was.length <= 255) {
+    try {
+      caption.search(was, { matchCase: true }).getFirst().insertText(now, Word.InsertLocation.replace);
+      await ctx.sync();
+    } catch (e) { console.warn("caption rename failed:", e.debugInfo || e); }
+  }
+  return { tag, outcome, oldTitle, widthPt };
+}
+
+// Updates the selected diagram picture (or the one last inserted/loaded, when
+// nothing is selected) to the diagram in the editor. If the picture shows a
+// different diagram, this replaces it with the editor's.
+// The image is always re-exported for the picture's current width, so Update
+// also sharpens a picture that was enlarged in Word or made by an older build.
+$("replace").onclick = () => act("Updating...", async () => {
+  const ids = current;
+  const t = updateTarget();
+  // Updating a picture keeps the page it shows; replacing it with another
+  // diagram uses the page chosen in the editor bar.
+  const page = t && t.documentId === ids.documentId ? t.page : current.page;
+  const d = await exportDiagram(ids, page, t && t.width);
+  // The selection (from inspectSelection or pptSelection) must still be the target.
+  const check = s => {
+    if (s.kind === "other") throw new Error("The selected picture isn't a Lucid diagram from this add-in, so it's left alone.");
+    // The export was made for the target's page and width; a picture selected
+    // (or deselected) during it would get the wrong one.
+    if (s.kind === "ours" ? s.found.documentId !== t.documentId || s.found.page !== t.page : t !== last)
+      throw new Error("The selection moved while the diagram was exporting. Select the picture to update and click Update again.");
+    if (s.kind !== "ours" && !last) throw new Error("Select the diagram picture to update in the document first.");
+  };
+  const gone = () => {
+    const title = last.title;
+    last = null;
+    return new Error(`"${title}" isn't in the document any more. Select the diagram to update.`);
+  };
+  let tag, outcome, oldTitle, widthPt;
+  if (inPpt) {
+    let p;
+    await ppt(async ctx => {
+      const s = await pptSelection(ctx);
+      check(s);
+      p = s.kind === "ours" ? s : (await pptPictures(ctx)).find(x => x.pic.name === last.tag);
+    });
+    if (!p) throw gone();
+    ({ tag, outcome, oldTitle, widthPt } = await pptReplace(p, d, ids));
+  } else await word(async ctx => {
+    const s = await inspectSelection(ctx, true);
+    check(s);
+    let pic, found, viaRange = false;
+    if (s.kind === "ours") {
+      pic = s.pic; found = s.found; viaRange = s.alone;
+    } else {
+      const all = ctx.document.body.inlinePictures;
+      all.load("items/altTextTitle,items/altTextDescription,items/width");
+      await ctx.sync();
+      pic = all.items.find(p => p.altTextTitle === last.tag);
+      if (!pic) throw gone();
+      found = parseAlt(pic.altTextDescription);
+    }
+    ({ tag, outcome, oldTitle, widthPt } = await replacePicture(ctx, pic, viaRange ? s.range : null, found, d, ids));
+  });
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page, mermaidOff: d.mermaid == null };
+  say((outcome === "refreshed" ? `"${d.title}" was already up to date; refreshed it at full resolution for its size.`
+    : outcome === "mermaid" ? `Added Mermaid text for LLMs to "${d.title}" (and refreshed its image).`
+    : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid.`
+    : outcome === "updated" ? `Updated to the latest "${d.title}".`
+    : `Replaced "${oldTitle}" with "${d.title}".`) + drawnNote(d) + shrinkNote(widthPt, d) + looseNote(d));
+});
+
+// Opens the selected picture's diagram in the editor (Edit selected, and the
+// menu's "In this document" entries). In PowerPoint the menu's picture
+// (`documentId`) isn't selected first: selecting shapes from the add-in
+// sometimes never returned in PowerPoint on the web.
+async function openSelected(documentId) {
+  let found, tag, width;
+  await (inPpt ? ppt : word)(async ctx => {
+    const s = !inPpt ? await inspectSelection(ctx, false) : !documentId ? await pptSelection(ctx)
+      : { kind: "ours", ...(await pptPictures(ctx)).find(p => p.found.documentId === documentId) };
+    if (s.kind === "ours" && !s.pic) throw new Error("That diagram's picture isn't in the presentation any more.");
+    if (s.kind !== "ours") throw new Error("Select a diagram picture from this add-in in the document first.");
+    found = s.found;
+    // Tag it so Update can find it again once the selection moves on.
+    const title = inPpt ? s.pic.name : s.pic.altTextTitle;
+    tag = tagOf(title);
+    width = s.pic.width;
+    if (tag !== title) {
+      if (inPpt) s.pic.name = tag; else s.pic.altTextTitle = tag;
+      await ctx.sync();
+    }
+  });
+  // A picture linked by pasted URL (older builds) has no embed; one is made if Lucid allows,
+  // else the editor shows the picker. Update records it in the picture.
+  if (!found.embedId) found.embedId = (await quietly(newEmbed(found.documentId))) || null;
+  await loadEditor(found.embedId);
+  last = { kind: "ours", ...found, tag, width };
+  const msg = found.embedId ? `Opened "${found.title}". Edit it, then Update.`
+    : `Linked to "${found.title}". Pick it in Lucid's window to edit it, then Update.`;
+  say(msg);
+  // Lucid's editor always opens on the first page (notes.md). Once the page list
+  // is in, say so if the picture shows another page and nothing else has been said since.
+  setCurrent(found, found.title, found.page).then(() => {
+    const page = found.embedId && pageInfo(found.page);
+    if (page && current.pages.indexOf(page) > 0 && $("status").textContent === msg)
+      say(msg + ` The picture shows "${page.title}", but Lucid's editor opens on the first page: click its "${page.title}" tab, or use ↗ (Open in Lucid), which opens on "${page.title}".`);
+  });
+}
+$("load").onclick = () => act("Opening...", openSelected);
+
+function openInBrowser(url) {
+  if (inOffice && Office.context.requirements.isSetSupported("OpenBrowserWindowApi", "1.1")) Office.context.ui.openBrowserWindow(url);
+  else window.open(url, "_blank");
+}
+
+$("lucid").onclick = () => {
+  // lucid.app's editor takes ?page=, so this opens on the page chosen under Page to insert.
+  openInBrowser(`https://lucid.app/lucidchart/${current.documentId}/edit` + (current.page ? `?page=${encodeURIComponent(current.page)}` : ""));
+  current.lucidVersion = current.version; // syncLucid notices when it moves
+  say(`"${current.title}" opened in Lucid. It's the same diagram: Update puts your changes there into ${app}.`);
+};
+
+$("reload").onclick = () => act("Reloading the editor...", async () => {
+  await loadEditor(current.embedId);
+  current.lucidVersion = null;
+  say(`Editor reloaded with the latest "${current.title}".`);
+});
+
+$("diagram").onchange = () => {
+  const [kind, id] = $("diagram").value.split(":");
+  $("diagram").value = "";
+  if (kind === "signout") return act("Signing out...", signOut);
+  if (kind === "browse") return act("Opening Lucid's document picker...", async () => {
+    current = null;
+    await loadEditor();
+    say("Pick a diagram (or New) in Lucid's window above, then Continue and Insert.");
+  });
+  // A diagram from this document: select its picture, so the buttons act on it, and open it.
+  if (kind === "doc") return act("Opening...", async () => {
+    if (inPpt) return openSelected(id);
+    await word(async ctx => {
+      const pics = ctx.document.body.inlinePictures;
+      pics.load("items/altTextDescription");
+      await ctx.sync();
+      const pic = pics.items.find(p => (parseAlt(p.altTextDescription) || {}).documentId === id);
+      if (!pic) throw new Error("That diagram's picture isn't in the document any more.");
+      pic.select();
+      await ctx.sync();
+    });
+    await openSelected();
+  });
+  if (kind === "recent") return act("Opening...", async () => {
+    const d = recent().find(r => r.documentId === id);
+    await loadEditor(d.embedId);
+    setCurrent(d, d.title);
+    say(`Opened "${d.title}".`);
+  });
+};
+
+// The Lucid diagram pictures in this document: for the menu (one entry per
+// Lucid document) and for Update all, with what Lucid says each diagram is now.
+let docPictures = [];
+const latestOf = new Map(); // documentId -> { version, title } from /info
+const isStale = p => { const l = latestOf.get(p.documentId); return !!l && (p.version < l.version || p.title !== l.title || (!p.mermaid && !p.mermaidOff)); };
+async function scanDocument() {
+  if (!inOffice) return;
+  try {
+    if (inPpt) await ppt(async ctx => {
+      docPictures = (await pptPictures(ctx)).map(p => ({ ...p.found, tag: p.pic.name, width: p.pic.width }));
+    });
+    else await word(async ctx => {
+      const pics = ctx.document.body.inlinePictures;
+      pics.load("items/altTextDescription,items/altTextTitle,items/width");
+      await ctx.sync();
+      docPictures = pics.items.map(p => ({ ...parseAlt(p.altTextDescription), tag: p.altTextTitle, width: p.width }))
+        .filter(p => p.documentId);
+    });
+    docDiagrams = docPictures.filter((d, i) => docPictures.findIndex(x => x.documentId === d.documentId) === i);
+    // Only diagrams opened here (knownIds): the rest are listed, never looked up.
+    const ids = docDiagrams.map(d => d.documentId).filter(id => knownIds.has(id));
+    const infos = await Promise.all(ids.map(id => quietly(docInfo(id))));
+    ids.forEach((id, i) => infos[i] && latestOf.set(id, infos[i]));
+  } catch (e) { console.warn("reading the document's diagrams:", e); }
+  refreshButtons();
+}
+
+// Every out-of-date diagram picture in the document, each to the latest of its
+// own diagram (not the editor's), keeping its width, page and caption. Only
+// diagrams opened here (knownIds), and only once the list, with versions, is
+// confirmed: an update can bring a diagram's newer content into the document.
+$("updateAll").onclick = () => act("Checking the document's diagrams...", async () => {
+  // Each out-of-date picture gets a tag no other picture has (a copied picture
+  // shares its original's), so it can be found again after the ones before it change.
+  const stale = [];
+  // `pics`: our pictures as { found (parsed alt text), title (its tag now), width, retag(tag) }.
+  const pick = pics => {
+    const count = new Map();
+    for (const x of pics) count.set(x.title, (count.get(x.title) || 0) + 1);
+    for (const x of pics) {
+      const p = { ...x.found, width: x.width };
+      if (!knownIds.has(p.documentId) || !isStale(p)) continue;
+      const tag = count.get(x.title) === 1 ? tagOf(x.title) : newTag();
+      if (tag !== x.title) x.retag(tag);
+      stale.push({ ...p, tag });
+    }
+  };
+  if (inPpt) await ppt(async ctx => {
+    pick((await pptPictures(ctx)).map(x => ({ found: x.found, title: x.pic.name, width: x.pic.width, retag: tag => { x.pic.name = tag; } })));
+    await ctx.sync();
+  });
+  else await word(async ctx => {
+    const pics = ctx.document.body.inlinePictures;
+    pics.load("items/altTextDescription,items/altTextTitle,items/width");
+    await ctx.sync();
+    pick(pics.items.filter(pic => parseAlt(pic.altTextDescription)).map(pic =>
+      ({ found: parseAlt(pic.altTextDescription), title: pic.altTextTitle, width: pic.width, retag: tag => { pic.altTextTitle = tag; } })));
+    await ctx.sync();
+  });
+  if (!stale.length) return say("Every diagram picture you've opened in this add-in is up to date.");
+  $("confirmText").textContent = `Update ${stale.length === 1 ? "this picture" : `these ${stale.length} pictures`} to the latest from Lucid?`;
+  $("confirmList").replaceChildren(...stale.map(p => {
+    const l = latestOf.get(p.documentId);
+    const what = [p.version < l.version && `v${p.version} to v${l.version}`, p.title !== l.title && `renamed "${l.title}"`,
+      !p.mermaid && !p.mermaidOff && "adds Mermaid"].filter(Boolean).join(", ");
+    return Object.assign(document.createElement("li"), { textContent: `"${p.title}": ${what}` });
+  }));
+  $("confirmYes").textContent = `Update ${stale.length}`;
+  $("confirmYes").onclick = () => act("Updating...", () => updatePictures(stale));
+  $("confirm").hidden = false;
+  say("Check the list, then Update or Cancel.");
+});
+$("confirmNo").onclick = () => { $("confirm").hidden = true; say("Nothing updated."); };
+
+// Update all's work, once confirmed: `stale` as its check made them (parsed alt text, width, tag).
+async function updatePictures(stale) {
+  // One that can't be updated (its page deleted or emptied in Lucid) is skipped, not the end of the run.
+  const failed = [];
+  let done = 0;
+  for (const [i, p] of stale.entries()) {
+    const report = msg => say(`${i + 1} of ${stale.length}, "${p.title}": ${msg}`);
+    const ids = { documentId: p.documentId, embedId: p.embedId };
+    try {
+      const d = await exportDiagram(ids, p.page, p.width, report);
+      if (inPpt) {
+        let x;
+        await ppt(async ctx => { x = (await pptPictures(ctx)).find(x => x.pic.name === p.tag); });
+        if (!x) throw new Error("its picture was removed meanwhile");
+        await pptReplace(x, d, ids);
+      } else await word(async ctx => {
+        const pics = ctx.document.body.inlinePictures;
+        pics.load("items/altTextDescription,items/altTextTitle,items/width");
+        await ctx.sync();
+        const pic = pics.items.find(x => x.altTextTitle === p.tag);
+        if (!pic) throw new Error("its picture was removed meanwhile");
+        await replacePicture(ctx, pic, null, parseAlt(pic.altTextDescription), d, ids);
+      });
+      done++;
+      if (last && last.tag === p.tag) Object.assign(last, { title: d.title, version: d.version, latest: d.version, latestTitle: d.title });
+    } catch (e) {
+      console.error("Update all:", p.title, e);
+      failed.push(`"${p.title}" (${e.message})`);
+    }
+  }
+  say(`Updated ${done} picture${done === 1 ? "" : "s"} to the latest from Lucid.` + (failed.length ? ` Couldn't update ${failed.join("; ")}.` : ""), !!failed.length);
+}
+
+$("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };
+
+// The document as Markdown for an LLM: text, headings, lists and tables as
+// they read, each diagram picture as its title and Mermaid. The clipboard is
+// blocked in Word's frame, so it's shown for the person to select and copy.
+// A picture inserted without Mermaid is just its title and link.
+const pictureMarkdown = alt => {
+  const found = parseAlt(alt), fence = "```";
+  const mermaid = alt.match(/^```mermaid\n([\s\S]*?)\n```/m);
+  if (!found) return `[image${alt.trim() ? ": " + alt.trim().replace(/\s+/g, " ") : ""}]`;
+  const head = `Diagram: ${found.title} (https://lucid.app/lucidchart/${found.documentId}/edit)`;
+  return mermaid ? `${head}\n\n${fence}mermaid\n${mermaid[1]}\n${fence}` : head;
+};
+
+async function documentMarkdown() {
+  const blocks = [];
+  await word(async ctx => {
+    const paras = ctx.document.body.paragraphs;
+    paras.load("items/text,items/styleBuiltIn,items/isListItem,items/tableNestingLevel");
+    await ctx.sync();
+    const pics = paras.items.map(p => p.inlinePictures.load("items/altTextDescription"));
+    const tables = paras.items.map(p => p.tableNestingLevel > 0 ? p.parentTableOrNullObject.load("values") : null);
+    await ctx.sync();
+    const picture = pic => pictureMarkdown(pic.altTextDescription || "");
+    let inTable = false;
+    paras.items.forEach((p, i) => {
+      // A table's paragraphs come one cell at a time; the table is written once,
+      // from its values, and a diagram in one of its cells comes after it.
+      if (p.tableNestingLevel > 0) {
+        if (!inTable) {
+          inTable = true;
+          const rows = tables[i].isNullObject ? [] : tables[i].values.map(r => r.map(c => String(c).replace(/\s+/g, " ").replace(/\|/g, "\\|")));
+          if (rows.length) blocks.push([`| ${rows[0].join(" | ")} |`, "|" + "---|".repeat(rows[0].length), ...rows.slice(1).map(r => `| ${r.join(" | ")} |`)].join("\n"));
+        }
+        for (const pic of pics[i].items) blocks.push(picture(pic));
+        return;
+      }
+      inTable = false;
+      for (const pic of pics[i].items) blocks.push(picture(pic));
+      const text = p.text.trim();
+      if (!text) return;
+      const heading = (p.styleBuiltIn || "").match(/^Heading(\d)$/);
+      const line = heading ? "#".repeat(+heading[1]) + " " + text : p.styleBuiltIn === "Title" ? "# " + text
+        : p.isListItem ? "- " + text : captionTitle(text) != null || p.styleBuiltIn === "Caption" ? `*${text}*` : text;
+      // A list's items go on consecutive lines.
+      if (line.startsWith("- ") && blocks.length && blocks[blocks.length - 1].split("\n").pop().startsWith("- ")) blocks[blocks.length - 1] += "\n" + line;
+      else blocks.push(line);
+    });
+  });
+  return blocks.join("\n\n") + "\n";
+}
+
+// A presentation as Markdown: each slide a section, its text boxes' text and
+// its diagram pictures' Mermaid in slide order (other pictures, tables and
+// charts are left out).
+async function presentationMarkdown() {
+  const blocks = [];
+  await ppt(async ctx => {
+    const slides = ctx.presentation.slides.load("items/id");
+    await ctx.sync();
+    const shapes = slides.items.map(s => s.shapes.load("items/id,items/type"));
+    await ctx.sync();
+    const ours = await pptPictures(ctx);
+    const texty = [PowerPoint.ShapeType.textBox, PowerPoint.ShapeType.geometricShape, PowerPoint.ShapeType.placeholder];
+    const withText = shapes.flatMap(c => c.items).filter(s => texty.includes(s.type));
+    // A placeholder holding a picture or table has no text frame and fails the
+    // whole batch, so then each shape is read on its own and those are skipped.
+    // Keyed by the shape itself: shape ids repeat from slide to slide.
+    const text = new Map();
+    try {
+      const ranges = withText.map(s => s.textFrame.textRange.load("text"));
+      await ctx.sync();
+      withText.forEach((s, i) => text.set(s, ranges[i].text));
+    } catch (e) {
+      console.warn("reading slide text in one go failed, shape by shape instead:", e.debugInfo || e);
+      for (const s of withText) {
+        const range = s.textFrame.textRange.load("text");
+        try { await ctx.sync(); text.set(s, range.text); } catch { console.warn("no text frame on shape", s.id, s.type); }
+      }
+    }
+    slides.items.forEach((slide, i) => {
+      blocks.push(`## Slide ${i + 1}`);
+      for (const s of shapes[i].items) {
+        const pic = ours.find(p => p.slideId === slide.id && p.pic.id === s.id);
+        if (pic) blocks.push(pictureMarkdown(pic.alt));
+        else if ((text.get(s) || "").trim()) blocks.push(text.get(s).trim().replace(/\r\n?|\v/g, "\n"));
+      }
+    });
+  });
+  return blocks.join("\n\n") + "\n";
+}
+
+$("mdToggle").onclick = () => {
+  if (!$("md").hidden) return void ($("md").hidden = true);
+  act("Reading the document...", async () => {
+    $("mdText").value = await (inPpt ? presentationMarkdown() : documentMarkdown());
+    $("md").hidden = false;
+    say("The document as Markdown: Select all, then Ctrl+C, and paste it into an LLM.");
+  });
+};
+$("mdSelect").onclick = () => { $("mdText").focus(); $("mdText").select(); };
+$("mdClose").onclick = () => { $("md").hidden = true; };
+$("mdDownload").onclick = () => {
+  // Named after the document ("Design.docx" -> "Design.md", "Review.pptx" -> "Review.md").
+  const file = (Office.context.document.url || "").split(/[\\/]/).pop() || "";
+  let name = file;
+  try { name = decodeURIComponent(file); } catch {} // a local path can hold a bare "%"
+  name = name.replace(/\.(docx?|pptx?)$/i, "") || "document";
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([$("mdText").value], { type: "text/markdown" })), download: name + ".md" });
+  document.body.append(a);
+  a.click();
+  a.remove();
+};
+
+// The moment before a click: start the export the click will want, and re-check
+// whether the target picture is still up to date (it may have been edited since).
+let lastPrefetch = 0;
+$("actions").addEventListener("pointerenter", () => {
+  if (Date.now() - lastPrefetch < 2000) return;
+  lastPrefetch = Date.now();
+  // Warm the export the next click will most likely ask for: an update of the
+  // target picture at its width, or else a new picture.
+  const t = updateTarget();
+  if (current && !busy) {
+    const same = t && t.documentId === current.documentId;
+    const page = same ? t.page : current.page;
+    if (isFromCode(page)) loadMermaid().catch(() => {});
+    else quietly(lucidExport(current.documentId, page, same ? t.width : null));
+    quietly(lucidMermaid(current.documentId, page));
+    quietly(lucidPages(current.documentId));
+  }
+  syncLucid();
+});
+// Back from a lucid.app tab: edits made there may have made the picture stale.
+window.addEventListener("focus", () => { onSelectionChanged(); scanDocument(); });
+
+$("signIn").onclick = () => signIn().then(start, e => say(e.message, true));
+
+(async () => {
+  refreshButtons();
+  // The page also runs in a plain browser (handy for testing the Lucid side);
+  // there Office never connects, and the Word buttons stay off.
+  try {
+    const info = await within(Office.onReady(), 5000, "Office");
+    inPpt = info.host === Office.HostType.PowerPoint;
+    inOffice = inPpt || info.host === Office.HostType.Word;
+    if (inPpt) app = "PowerPoint";
+  } catch (e) { console.warn(e.message); }
+  if (inPpt) {
+    // New pictures fit the slide, less a margin, rather than a Word page. The
+    // slide size needs PowerPointApi 1.10; without it, the default 16:9 slide.
+    if (Office.context.requirements.isSetSupported("PowerPointApi", "1.10")) {
+      try {
+        await ppt(async ctx => {
+          const s = ctx.presentation.pageSetup.load("slideWidth,slideHeight");
+          await ctx.sync();
+          [slideWidthPt, slideHeightPt] = [s.slideWidth, s.slideHeight];
+        });
+      } catch (e) { console.warn("slide size not read, assuming 16:9:", e); }
+    }
+    [maxWidthPt, maxHeightPt] = [slideWidthPt * 0.9, slideHeightPt * 0.85];
+    console.log("slide", slideWidthPt, "x", slideHeightPt, "pt; new pictures fit", Math.round(maxWidthPt), "x", Math.round(maxHeightPt));
+  }
+  if (inOffice) {
+    // The theme: dark colours when Office's background is dark, again whenever it changes (where Office says so).
+    const theme = () => {
+      const bg = (Office.context.officeTheme || {}).bodyBackgroundColor || "#ffffff";
+      const [r, g, b] = bg.match(/[0-9a-f]{2}/gi).map(h => parseInt(h, 16));
+      document.documentElement.classList.toggle("dark", 0.299 * r + 0.587 * g + 0.114 * b < 128);
+    };
+    try { theme(); } catch (e) { console.warn("Word's theme not understood, staying light:", e.message); }
+    // Word has no theme-change event (it throws, which mustn't stop the pane from starting).
+    try { Office.context.document.addHandlerAsync(Office.EventType.OfficeThemeChanged, theme, () => {}); }
+    catch (e) { console.log("no theme-change event here:", e.message); }
+    Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, onSelectionChanged,
+      r => console.log("selection handler:", r.status, r.error && r.error.message));
+  } else console.warn("not running inside Word or PowerPoint: Insert/Update/Edit selected are disabled");
+  readSelection();
+  scanDocument();
+  await start();
+})();

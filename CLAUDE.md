@@ -19,8 +19,14 @@ Two stages:
 ## How it fits together
 
 - Lucid API facts and limits (what embeds, export, contents, search and
-  import can and can't do): `notes.md`. Check it before designing a feature.
-- `taskpane.html` (GitHub Pages) embeds Lucid with a **token-based editable
+  import can and can't do): `notes.md` at the git tag `dev-tools` (`git show
+  dev-tools:notes.md`). Check it before designing a feature.
+- The repo holds only what's deployed (static files on one HTTPS host, GitHub
+  Pages today). Test tooling, fixtures and design notes live at the tag
+  `dev-tools`; don't add them back to the tree.
+- `taskpane.html` is the page (markup, styles, help, CSP); `taskpane.js` all of
+  its logic (one flat classic script, so its top-level names are globals).
+  The pane embeds Lucid with a **token-based editable
   embed**: `https://lucid.app/embeds?token=<embed session token>`. Without an
   embedId the iframe shows Lucid's document picker; when the user picks one,
   the iframe posts `{type: "LucidEmbedEvent", event: "EmbedCreated",
@@ -30,9 +36,12 @@ Two stages:
   with no picker; `newEmbed` makes a new edit embed over the API, which Lucid
   allows only for documents picked once in its picker.
 - No backend. The pane is a **public OAuth client** (Lucid developer portal,
-  client type Public, PKCE S256; `CLIENT_ID` in taskpane.html isn't a secret)
+  client type Public, PKCE S256; `CLIENT_ID` in taskpane.js and signin.js isn't a secret)
   and calls api.lucid.co itself (Lucid's CORS allows any origin): tokens with
-  refresh (kept in localStorage), `POST /embeds/token`, PNG export via
+  refresh (kept in localStorage; a sign-in ends SESSION_HOURS = 12 after it
+  was made, however often refreshed, and is then revoked at
+  `/oauth2/token/revoke`, as **Sign out of Lucid** in the diagram menu does),
+  `POST /embeds/token`, PNG export via
   `GET /documents/{id}` with `Accept: image/png` (`pageId=` picks the page;
   `lucidExport`), and `/documents/{id}/contents` for the Mermaid. Lucid's
   results are cached in memory per document version, as promises (a prefetch
@@ -42,17 +51,28 @@ Two stages:
   SAMEORIGIN`); only `/embeds` can be. Sign-in therefore opens a window:
   Office's dialog in Word (`displayDialogAsync`; it must start on the add-in's
   own site), a popup in a plain browser. `signin.html` is both its first page
-  (`?go=` Lucid's authorize URL) and the redirect URI: it hands `?code&state`
-  back by `messageParent` (Word) or a BroadcastChannel (plain browser; in Word
-  the pane's storage is partitioned under Word's site, so that can't reach it).
+  (`?state&challenge`: `signin.js` builds Lucid's authorize URL itself, with
+  its own client ID, redirect URI and scopes, so the page can't start another
+  app's sign-in) and the redirect URI: it wipes the code from the address bar
+  (through `History.prototype`: office.js nulls `history.replaceState`) and
+  hands `code&state` back by `messageParent` (Word) or a BroadcastChannel
+  (plain browser; in Word the pane's storage is partitioned under Word's site,
+  so that can't reach it).
   That window also logs in to lucid.app in Word's own browser, which Lucid's
   editor needs (a cookie, apart from the API tokens). Without it the embed
   says so (`onLucidMessage`: a read-only "Viewer", or the picker's
   `logged_out`) and the pane shows its sign-in card, not Lucid's "Log in to
   edit", whose window is the default browser in desktop Word.
-- Alt text format is in README.md: link lines, then a fenced Mermaid block.
-  Pictures from older builds (no `lucid-page`, no Mermaid) must keep parsing
-  (`parseAlt` in taskpane.html).
+- Alt text format is in README.md: link lines, then a fenced Mermaid block, or
+  `lucid-mermaid: off` when Insert's **Mermaid** box was unticked (Update and
+  Update all keep that: `replacing`). Pictures from older builds (no
+  `lucid-page`, no Mermaid) must keep parsing (`parseAlt` in taskpane.js).
+- Alt text comes from documents anyone may have written. The pane only looks
+  up, and Update all only updates, diagrams opened in the editor on this
+  computer (`knownIds`, localStorage); Update all lists what it will change and
+  asks first. Ids from alt text, Lucid's messages and localStorage must be
+  UUIDs (`isId`) before they go into an API path; Lucid's messages count only
+  from the pane's own editor frame (`onLucidMessage`).
 - `mermaid.js` (stage 2) turns one page of `GET /documents/{id}/contents` into
   Mermaid: a flowchart, or (`uml.js`) a sequence / ER / class / state diagram or
   mind map when the page is drawn with Lucid's library for that, recognised by
@@ -66,15 +86,17 @@ Two stages:
   Text boxes attached to nothing become `%% note:` lines; when the page also has
   unlabelled arrows they're flagged (`UNPLACED`) as possible arrow labels, and the
   pane tells whoever inserts it to type labels on the arrows (`looseNote`).
-  Placing them for real needs positions: `parsing-research.md`.
-  `dev/fixtures/` holds real Lucid pages (mostly made by Lucid AI) and their
-  output; `node dev/test-mermaid.js` regenerates the `.mmd` files and checks
-  them with the pinned Mermaid parser, so a change shows up in `git diff`.
+  Placing them for real needs positions: `parsing-research.md` (tag `dev-tools`).
+  Shapes' hyperlinks are never written out (not in the picture, and internal
+  links would travel in the alt text), and `pageToMermaid` defuses any `%%{`
+  directive in the diagram's text. The translator fixtures and their checker
+  (`dev/fixtures/`, `dev/test-mermaid.js`) are at the tag `dev-tools`.
 - Flowcharts made from Mermaid code in Lucid can't be exported (notes.md, Export
   quirks). `lucidPages` flags them `fromCode` (not the one-picture kind above, which
   exports fine); the pane
   re-fetches the page list before every picture (`exportDiagram`; cached per version), and draws
-  those pages from their Mermaid with Mermaid 11.17.2 (pinned) from jsDelivr,
+  those pages from their Mermaid with Mermaid 11.17.2 (pinned, vendored:
+  `vendor/mermaid-11.17.2/mermaid.min.js`, `securityLevel: "strict"`),
   with plain SVG labels so the canvas isn't tainted, capped to WebKit's canvas
   limits. `mermaid.js` gives each shape at the end of a code subgraph's connectors
   to the subgraph listing most of its connectors.
@@ -97,7 +119,7 @@ Two stages:
   version (and DPI), which is what makes repeat inserts fast. Export DPI adapts so a picture has ~400 ppi at its width in Word (BASE_DPI/TARGET_PPI); each diagram's last export size is kept in localStorage.
 - Getting the Mermaid to an LLM: the pane's MD view writes the open document as
   Markdown with each diagram's Mermaid in place (Office.js paragraphs, tables,
-  pictures); `docx2md.py` does the same for a saved .docx. Keep the two alike.
+  pictures). (`docx2md.py`, the same for a saved .docx, is at the tag `dev-tools`.)
 - PowerPoint (the `ppt*` functions; each button branches on `inPpt`): a
   picture is a borderless rectangle filled with the PNG (`addGeometricShape`
   + `fill.setImage`, PowerPointApi 1.8), placed where Insert Picture would put
@@ -120,61 +142,49 @@ Two stages:
   later (`pptPlace` polls for it by id). Shape ids repeat across slides; a new
   slide's id and placeholders settle a moment after `slides.add`. No captions.
 - The pane also runs in a plain browser with the Word buttons disabled, which
-  is how the Lucid side can be tested without Word (open
-  `https://tigerbitten.github.io/word_lucidcharts/taskpane.html` with serve.js running).
+  is how the Lucid side can be tested without Word.
 
-## Testing in real Word (no human needed)
+## Security rules (keep them)
 
-Claude drives Word on the web in a dedicated Chrome over the DevTools protocol:
+The pane holds a Lucid sign-in that can read every diagram the user can open,
+and the diagrams are confidential. So:
 
-- `dev/chrome.ps1` starts it (own profile, Microsoft + Lucid signed in, opens
-  "Claude's test doc"). Keep the window un-minimised or screenshots hang.
-- `node dev/serve.js` (keep it running in the background) answers the pane's
-  GitHub Pages URLs from the local files, so a change is live on the next pane
-  reload (`node dev/cdp.js eval taskpane.html "location.reload()"`): no push and
-  no `?v=N` bump needed while testing. It only holds Word's frames (holding
-  Lucid's pages too made them fail to load), plus a browser-wide interception
-  of the GitHub Pages URLs for new tabs and popups (the sign-in window). A
-  page's first load can still come from Chrome's cache: reload it.
-- Background commands stop after their timeout (max 2h): restart `serve.js`
-  when it does.
-- The pane holds the Lucid sign-in (localStorage in the test Chrome): Lucid
-  calls from dev scripts go through it (`cdp.js eval taskpane.html`, e.g.
-  `docInfo(id)`, `fetchContents(id)`, `lucid(path)`). `dev/cdp.js open` cuts
-  URLs at `&`: navigate with `eval ... "location.href = ..."` instead.
-- `dev/cdp.js`: `eval` (Office.js runs in the `taskpane.html` frame, so
-  `Word.run` reads the document), `click` (trusted mouse click, works in Lucid's
-  frames too; use `css:#id` for buttons, text matches hidden help too), `type`,
-  `key`, `mouse`, `file`, `shot`, `open`/`close` (tabs). Chrome doesn't render a
-  background tab: Lucid tabs sit on their loading screen until `shot` brings
-  them to the front.
-- `node dev/e2e.js`: the pane's main flows in the test Word, PASS/FAIL per
-  check (insert, captions, headings, table cells, update, update all, edit
-  selected, MD view); `node dev/ppt-e2e.js` the same in PowerPoint. Run them after
-  pane changes; `node dev/test-mermaid.js` after translator changes (it also
-  checks the pane's script compiles).
-- `dev/word.js`: `doc` (pictures and paragraphs), `clear`, `end`, `open <docId>`
-  (a diagram straight into the pane's editor). `dev/contents.js <doc> <name>`
-  saves a document's contents as a fixture.
-- PowerPoint: the test deck is "Presentation" in OneDrive
-  (`https://powerpoint.cloud.microsoft/open/onedrive/?docId=DB0E68BED0AD0E44%21s6ba82e1f50e240508ca2c6faacd7d46a&driveId=DB0E68BED0AD0E44`);
-  `serve.js` holds PowerPoint's frames too. Upload the manifest there (Home >
-  Add-ins > More Add-ins > My Add-ins > Manage My Add-ins > Upload My Add-in;
-  the dialogs need `mouse` clicks, and `file` reaches the nested frame).
-  With Word open too, name the pane by its tab: `cdp.js eval
-  "taskpane.html|powerpoint" ...` (or `|word`). `node dev/ppt-e2e.js` checks
-  the PowerPoint flows (it rebuilds the deck).
-- `--stub` (`e2e.js`, `ppt-e2e.js`): no Lucid needed. `dev/stub.js` swaps the
-  pane's export for a drawn picture and its editor for nothing, so the Word
-  and PowerPoint sides can be checked when the Lucid sign-in has lapsed.
-- New realistic diagrams: Lucid AI (lucid.app home, "Generate with AI", or the
-  AI panel in an editor: type, then click Send; a prompt typed on the home page
-  can be lost if its tab reloads). Lucid's import dialog takes Mermaid,
-  draw.io, Visio... files (the documents page, New > Import documents; `file`
-  fills its input). Templates don't load on this account.
+- Every script is a file on the add-in's host. No CDN, no inline `<script>`, no
+  `eval`: the CSP `<meta>` in `taskpane.html` and `signin.html` enforces it, and
+  only allows connecting to `api.lucid.co` and framing `lucid.app`. A new
+  dependency is vendored under `vendor/<name>-<version>/`; a new place the pane
+  talks to needs a reason and a CSP change.
+- Office.js is `vendor/office-js-<date>/`: the Word and PowerPoint files from
+  `https://appsforoffice.microsoft.com/lib/1/hosted/` (README, Security, says
+  how to refresh it). It tries to frame a Microsoft telemetry page; the CSP
+  blocks that on purpose.
+- Never log a diagram's content (titles, Mermaid, contents) or a token.
+- Never write anything into a picture's alt text that the picture doesn't show,
+  beyond the link lines and the page's own text.
 
-The user allows: anything in Claude's test doc, any of their Lucid diagrams.
-The PowerPoint test deck was made by Claude for testing.
+## Testing
+
+The test tooling isn't in the tree (it isn't deployed): it's at the git tag
+`dev-tools`. `git checkout dev-tools -- dev` brings it back for a session (then
+`git rm -r --cached dev` / delete it before committing):
+
+- `dev/chrome.ps1` starts a test Chrome (own profile, Microsoft + Lucid signed
+  in, DevTools on :9222) on "Claude's test doc"; `node dev/serve.js` answers
+  the pane's GitHub Pages URLs from the local files (vendor/ included), so a
+  change is live on the next pane reload without a push.
+- `dev/cdp.js` drives it (`eval` in the `taskpane.html` frame, `click`, `type`,
+  `shot`...); `node dev/e2e.js` / `node dev/ppt-e2e.js` check the pane's flows
+  in Word and PowerPoint on the web (`--stub`: no Lucid needed).
+- `node dev/test-mermaid.js` regenerates the translator fixtures' `.mmd` files.
+  At that tag it still compiles an inline pane script and loads Mermaid from
+  jsDelivr: point it at `taskpane.js` and `vendor/` before relying on it.
+
+Only ever use a personal test Lucid account there, never one holding
+company diagrams: the tooling saves real diagram contents into the repo and
+lets an agent drive the account.
+
+The user allows: anything in Claude's test doc, any of their (test) Lucid
+diagrams. The PowerPoint test deck was made by Claude for testing.
 Commit locally; the user pushes.
 
 ## Style
@@ -215,7 +225,8 @@ When in doubt: fewer files, fewer layers, fewer knobs.
 
 ## Word caches the taskpane aggressively
 
-Every time `taskpane.html` changes and gets pushed, bump the `?v=N` query
+Every time the pane changes (`taskpane.html`, `taskpane.js`, or any file it
+loads) and gets pushed, bump the `?v=N` query
 param on `SourceLocation` in `manifest.xml` to the next number. Without a
 new URL, Word keeps serving a stale cached copy of the taskpane even after
 a fresh GitHub Pages deploy, and changes silently don't show up. This one
@@ -223,10 +234,12 @@ line has repeatedly cost more debugging time than everything else in the
 sibling projects — always bump it, no exceptions.
 
 Any separate `.js` files are separate requests and cache independently of the
-taskpane, so they carry the same `?v=N` on their `<script src>` tags (the
-translator modules, which import each other, get theirs from the import map at
-the top of `taskpane.html`). Bump all
-of them to the same N in one go — a fresh `taskpane.html` paired with a stale
+taskpane, so they carry the same `?v=N`: `listen.js?v=N` and `taskpane.js?v=N`
+in `taskpane.html`, `signin.js?v=N` in `signin.html`, `./mermaid.js?v=N` (the
+dynamic import in `taskpane.js`), and `./uml.js?v=N` / `./svg.js?v=N` (the
+imports at the top of `mermaid.js`; no import map: the CSP forbids inline
+scripts). `vendor/` files aren't versioned that way: a new version gets a new
+folder. Bump all of them to the same N in one go — a fresh `taskpane.html` paired with a stale
 script is the worst version of this bug, because the build marker updates and
 everything still looks fine.
 

@@ -22,7 +22,8 @@ function pictureToMermaid(shape) {
   const m = url.match(/^data:image\/svg\+xml(;base64)?,(.*)$/s);
   if (!m) return "flowchart TD\n  %% Lucid holds this page as a picture of a Mermaid diagram, and doesn't give its contents";
   const svg = m[1] ? fromBase64(m[2]) : decodeURIComponent(m[2]);
-  const kind = attr(svg.slice(0, 2000), "aria-roledescription") || "";
+  // One line: it's written into a comment below.
+  const kind = (attr(svg.slice(0, 2000), "aria-roledescription") || "").replace(/\s+/g, " ").trim();
   if (kind === "sequence") return sequence(svg);
   const graph = kind === "class" || kind === "classDiagram" ? classes(svg) : kind === "stateDiagram" ? states(svg) : null;
   if (graph) return graph;
@@ -72,7 +73,7 @@ function sequence(svg) {
     const ys = all(g, /<line[^>]*class="loopLine"[^>]*>/g).map(([l]) => [+attr(l, "y1"), +attr(l, "y2"), /dasharray/.test(l)]);
     if (!ys.length) continue;
     const top = Math.min(...ys.flat().filter(v => typeof v === "number")), bottom = Math.max(...ys.flat().filter(v => typeof v === "number"));
-    const kind = decode((g.match(/class="labelText"[^>]*>([\s\S]*?)<\/text>/) || [, "opt"])[1]);
+    const kind = decode((g.match(/class="labelText"[^>]*>([\s\S]*?)<\/text>/) || [, "opt"])[1]).replace(/\s+/g, " ");
     const cond = decode((g.match(/class="loopText"[^>]*>([\s\S]*?)<\/text>/) || [, ""])[1]).replace(/^\[|\]$/g, "");
     const sections = all(g, /<text[^>]*?\sy="([\d.-]+)"[^>]*class="sectionTitle"[^>]*>([\s\S]*?)<\/text>/g)
       .map(([, y, t]) => ({ y: +y, t: decode(t).replace(/^\[|\]$/g, "") }));
