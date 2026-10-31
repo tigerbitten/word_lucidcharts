@@ -5,19 +5,19 @@
     xsi:type="TaskPaneApp">
   <Id>d15ed42b-28f6-4647-b120-8418624f3a1c</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>build v53</ProviderName>
+  <ProviderName>build v54</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Lucidchart Diagrams" />
   <Description DefaultValue="Draw Lucidchart diagrams directly in Word and PowerPoint." />
-  <IconUrl DefaultValue="https://tigerbitten.github.io/word_lucidcharts/icon-32.png" />
-  <HighResolutionIconUrl DefaultValue="https://tigerbitten.github.io/word_lucidcharts/icon-64.png" />
+  <IconUrl DefaultValue="https://tigerbitten.github.io/word_lucidcharts/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://tigerbitten.github.io/word_lucidcharts/assets/icon-64.png" />
   <SupportUrl DefaultValue="https://github.com/tigerbitten/word_lucidcharts" />
   <Hosts>
     <Host Name="Document" />
     <Host Name="Presentation" />
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://tigerbitten.github.io/word_lucidcharts/taskpane.html?v=53" />
+    <SourceLocation DefaultValue="https://tigerbitten.github.io/word_lucidcharts/taskpane.html?v=54" />
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
 </OfficeApp>

@@ -94,7 +94,7 @@ Two stages:
   exports fine); the pane
   re-fetches the page list before every picture (`exportDiagram`; cached per version), and draws
   those pages from their Mermaid with Mermaid 11.17.2 (pinned, vendored:
-  `vendor/mermaid-11.17.2/mermaid.min.js`, `securityLevel: "strict"`),
+  `vendor/mermaid.min.js`, `securityLevel: "strict"`),
   with plain SVG labels so the canvas isn't tainted, capped to WebKit's canvas
   limits. `mermaid.js` gives each shape at the end of a code subgraph's connectors
   to the subgraph listing most of its connectors.
@@ -150,13 +150,20 @@ and the diagrams are confidential. So:
 - Every script is a file on the add-in's host. No CDN, no inline `<script>`, no
   `eval`: the CSP `<meta>` in `taskpane.html` and `signin.html` enforces it, and
   only allows connecting to `api.lucid.co` and framing `lucid.app`. A new
-  dependency is vendored under `vendor/<name>-<version>/`; a new place the pane
-  talks to needs a reason and a CSP change.
-- Office.js is `vendor/office-js-<date>/`: the Word and PowerPoint files from
-  `https://appsforoffice.microsoft.com/lib/1/hosted/` (README, Security, says
-  how to refresh it). It tries to frame a Microsoft telemetry page; the CSP
-  blocks that on purpose.
+  dependency is vendored as a file under `vendor/` (its version in a comment
+  where it's loaded); a new place the pane talks to needs a reason and a CSP
+  change.
+- Office.js is `vendor/office/`, filled by `vendor/fetch-office-js.sh` from
+  Microsoft's CDN (the same script as the Waveform Viewer's): re-run it every
+  few months and commit the result. It tries to frame a Microsoft telemetry
+  page; the CSP blocks that on purpose.
 - Never log a diagram's content (titles, Mermaid, contents) or a token.
+
+## Layout
+
+Mirrors the Waveform Viewer add-in: the pages and scripts at the top,
+`assets/` (icons), `vendor/` (Office.js and Mermaid), `manifest.xml`, and a
+README in the same style. Everything in the tree is deployed.
 
 ## Testing
 
@@ -234,8 +241,9 @@ taskpane, so they carry the same `?v=N`: `listen.js?v=N` and `taskpane.js?v=N`
 in `taskpane.html`, `signin.js?v=N` in `signin.html`, `./mermaid.js?v=N` (the
 dynamic import in `taskpane.js`), and `./uml.js?v=N` / `./svg.js?v=N` (the
 imports at the top of `mermaid.js`; no import map: the CSP forbids inline
-scripts). `vendor/` files aren't versioned that way: a new version gets a new
-folder. Bump all of them to the same N in one go — a fresh `taskpane.html` paired with a stale
+scripts). `vendor/` files carry no `?v=N` (office.js needs its URL to end in
+"office.js"); after updating one, Word may serve the old copy until its cache
+clears. Bump all of them to the same N in one go — a fresh `taskpane.html` paired with a stale
 script is the worst version of this bug, because the build marker updates and
 everything still looks fine.
 

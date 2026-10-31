@@ -6,7 +6,7 @@ const isId = s => typeof s === "string" && new RegExp("^" + UUID + "$").test(s);
 const MAX_PPI = 600;
 // Vendored and pinned: pages drawn here must keep looking the same (mermaid.js
 // output is written for Mermaid 11), and the pane runs no code from elsewhere.
-const MERMAID_SRC = "vendor/mermaid-11.17.2/mermaid.min.js";
+const MERMAID_SRC = "vendor/mermaid.min.js"; // 11.17.2
 // Browsers refuse canvases past a size; WebKit (Word for Mac) is the strictest.
 const CANVAS_MAX_SIDE = 16384, CANVAS_MAX_PIXELS = 16.7e6;
 const $ = id => document.getElementById(id);
@@ -417,7 +417,7 @@ async function lucidPages(id) {
 // A page as Mermaid (mermaid.js), for the picture's alt text. `page`: a Lucid page id, "" for the first page.
 async function lucidMermaid(id, page) {
   const [{ doc, value: contents }, { pageToMermaid, UNPLACED }] = await Promise.all([
-    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js?v=53")]);
+    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js?v=54")]);
   const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
   if (!p) throw new Error(`Lucid's diagram has no page "${page}" any more.`);
   // Cached per version: translating a big sequence diagram can take a second or two.

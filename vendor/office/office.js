@@ -56,6 +56,14 @@ OSFPerformance.officeExecuteStart = OSFPerformance.now();
 
 
 
+isOsfSecurityDefaultsEnabled = true;
+
+
+
+osfLoadMsAjax = false;
+
+
+
 /* Office JavaScript API library */
 
 /*
