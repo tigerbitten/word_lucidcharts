@@ -4,8 +4,8 @@
 // Containers (frames, swimlanes) become subgraphs; everything else a node.
 // Sequence, ER, class and state diagrams get their own Mermaid forms (uml.js).
 // An ES module, imported by the pane. The ?v=N is the build's (CLAUDE.md).
-import { umlToMermaid, decodeEntities } from "./uml.js?v=52";
-import { pictureToMermaid } from "./svg.js?v=52";
+import { umlToMermaid, decodeEntities } from "./uml.js?v=53";
+import { pictureToMermaid } from "./svg.js?v=53";
 
 // Lucid shape class -> Mermaid node brackets. First match wins; default is a box.
 const SHAPES = [

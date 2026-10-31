@@ -254,9 +254,11 @@ a secret). The scopes are asked for at sign-in (`signin.js`): `offline_access`,
 their diagrams can go into a document). Editable embeds also have to be allowed
 in your Lucid account's admin settings.
 
-Moving to another host: change the redirect URI and embed domain here, and
-`SIGNIN_PAGE` / `PANE_ORIGIN` (`taskpane.js`), `SIGNIN_PAGE` (`signin.js`) and
-the URLs in `manifest.xml`.
+Moving to another host: change the redirect URI and embed domain here, and the
+URLs in `manifest.xml`. The code works out its own address. Give the add-in a
+host name of its own (e.g. `lucid-addin.company.com`) with nothing else on it:
+browser storage, where the sign-in is kept, is shared by every page on the same
+host name, whatever the path.
 
 ### 2. Sideload the manifest
 

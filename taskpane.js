@@ -179,11 +179,14 @@ const ppt = fn => {
 // The add-in is a public OAuth client in Lucid's developer portal: it signs in
 // with PKCE (a one-time proof made for each sign-in) instead of a client
 // secret, so there's no backend to keep one. The client ID isn't a secret.
-// Registered there: SIGNIN_PAGE as redirect URI, tigerbitten.github.io as embed domain.
-// signin.js has the same client ID and redirect URI, and the scopes asked for.
+// Registered there: SIGNIN_PAGE as redirect URI, the pane's host as embed domain.
+// signin.js has the same client ID, and the scopes asked for.
 const CLIENT_ID = "sXwaqbgWYWaJ_I-bb9LBuqbSB1YMVMVS7NDE0Wut";
-const SIGNIN_PAGE = "https://tigerbitten.github.io/word_lucidcharts/signin.html";
-const PANE_ORIGIN = "https://tigerbitten.github.io";
+// Wherever the add-in is hosted, so moving it touches only Lucid's portal and
+// manifest.xml. A copy elsewhere can't sign anyone in: Lucid only sends the
+// answer to the redirect URI registered there.
+const SIGNIN_PAGE = new URL("signin.html", location.href).href;
+const PANE_ORIGIN = location.origin;
 // Export resolution: enough DPI for TARGET_PPI pixels per inch at the size the
 // picture is shown in Word, and at least BASE_DPI (what a first export of an
 // unknown diagram uses, to learn its size). Lucid caps exports at roughly 10
@@ -414,7 +417,7 @@ async function lucidPages(id) {
 // A page as Mermaid (mermaid.js), for the picture's alt text. `page`: a Lucid page id, "" for the first page.
 async function lucidMermaid(id, page) {
   const [{ doc, value: contents }, { pageToMermaid, UNPLACED }] = await Promise.all([
-    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js?v=52")]);
+    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js?v=53")]);
   const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
   if (!p) throw new Error(`Lucid's diagram has no page "${page}" any more.`);
   // Cached per version: translating a big sequence diagram can take a second or two.

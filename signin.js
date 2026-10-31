@@ -7,9 +7,10 @@
 // sign-in (consent phishing from a trusted address) or to send anyone elsewhere.
 // Back from Lucid as signin.html?code=...&state=... (or ?error=...): hands that to the pane.
 
-// Same as taskpane.js.
+// Same as taskpane.js. The redirect URI is this page, wherever it's hosted
+// (Lucid only accepts the one registered in its portal).
 const CLIENT_ID = "sXwaqbgWYWaJ_I-bb9LBuqbSB1YMVMVS7NDE0Wut";
-const SIGNIN_PAGE = "https://tigerbitten.github.io/word_lucidcharts/signin.html";
+const SIGNIN_PAGE = location.origin + location.pathname;
 // offline_access: stay signed in across restarts (taskpane.js ends a sign-in
 // after 8 hours); embed: Lucid's editor in the pane, for diagrams picked in its
 // picker; content:readonly: export and read any of the user's documents.
