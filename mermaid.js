@@ -4,8 +4,8 @@
 // Containers (frames, swimlanes) become subgraphs; everything else a node.
 // Sequence, ER, class and state diagrams get their own Mermaid forms (uml.js).
 // An ES module, imported by the pane. The ?v=N is the build's (CLAUDE.md).
-import { umlToMermaid, decodeEntities } from "./uml.js?v=54";
-import { pictureToMermaid } from "./svg.js?v=54";
+import { umlToMermaid, decodeEntities } from "./uml.js?v=55";
+import { pictureToMermaid } from "./svg.js?v=55";
 
 // Lucid shape class -> Mermaid node brackets. First match wins; default is a box.
 const SHAPES = [
@@ -23,10 +23,11 @@ const SHAPES = [
   [/BPMNActivity/, '("', '")'],
 ];
 
-// Mermaid labels are quoted, so quotes become entities and line breaks <br>.
+// Mermaid labels are quoted, so quotes become entities and line breaks <br>;
+// "#" too, or "#12;" in the text would be read as an entity.
 // A container or connector with no text still needs a label, so it gets a space.
 function label(text) {
-  return text.split("\n").map(l => l.trim()).filter(Boolean).join("<br>").replace(/"/g, "#quot;") || " ";
+  return text.split("\n").map(l => l.trim()).filter(Boolean).join("<br>").replace(/#/g, "#35;").replace(/"/g, "#quot;") || " ";
 }
 
 // A "Placeholder" text area holds the hint Lucid shows in an empty text box

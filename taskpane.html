@@ -11,7 +11,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.lucid.co; frame-src https://lucid.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <link rel="icon" href="assets/icon-32.png">
 <!-- Before office.js, so its message listener runs before office.js's own. -->
-<script src="listen.js?v=54"></script>
+<script src="listen.js?v=55"></script>
 <!-- No ?v=N here: office.js finds its host scripts by requiring its own URL to end in "office.js". -->
 <script src="vendor/office/office.js"></script>
 <style>
@@ -86,7 +86,7 @@
   <button id="reload" class="icon" title="Reload the editor, e.g. to see changes made on lucid.app">&#8635;</button>
   <button id="mdToggle" class="icon" title="The whole document as Markdown, with each diagram's Mermaid in place: to paste into an LLM">MD</button>
   <button id="helpToggle" class="icon" title="How this works">?</button>
-  <span id="build">build v54</span>
+  <span id="build">build v55</span>
 </div>
 <div id="pageRow" hidden>
   <label for="page">Page to insert:</label>
@@ -142,6 +142,6 @@
   <button id="replace">Update</button>
   <button id="load" title="Open the selected picture's diagram in the editor">Edit selected</button>
 </div>
-<script src="taskpane.js?v=54"></script>
+<script src="taskpane.js?v=55"></script>
 </body>
 </html>

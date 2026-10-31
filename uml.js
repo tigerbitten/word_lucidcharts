@@ -8,6 +8,8 @@
 const textOf = item => (item.textAreas || []).filter(t => t.label !== "Placeholder" && !(t.label === "FrameTitle" && t.text === "Add title"))
   .map(t => decodeEntities(t.text || "")).join("\n").trim();
 const area = (s, label) => decodeEntities(((s.textAreas || []).find(t => t.label === label) || {}).text || "");
+// What a container lists: `kind` "shapes" or "lines" (Lucid can leave either out).
+const held = (s, kind) => (s.contains || {})[kind] || [];
 
 // Lucid sometimes keeps text HTML-escaped ("&lt;&lt;include&gt;&gt;"); the
 // Mermaid is for reading, so it gets the characters.
@@ -120,11 +122,14 @@ function sequenceToMermaid(shapes, lines) {
   // reply to it (Lucid draws those dashed, but the API doesn't say so). An
   // open arrowhead is an asynchronous message.
   const fragments = shapes.filter(s => /^UML(OptionLoop|Alternative)/.test(s.class) && s.contains)
-    .map(s => ({ s, msgs: messages.filter(m => s.contains.lines.includes(m.id)) })).filter(f => f.msgs.length);
+    .map(s => ({ s, msgs: messages.filter(m => held(s, "lines").includes(m.id)) })).filter(f => f.msgs.length);
   const out = ["sequenceDiagram"];
   const titles = [...new Set(shapes.filter(s => /Frame|Text/.test(s.class) && textOf(s)).map(textOf))];
   if (titles.length === 1) out.push(`  title ${seqText(titles[0])}`);
   participants.forEach((p, i) => out.push(`  ${p.actor ? "actor" : "participant"} p${i + 1} as ${seqText(p.name)}`));
+  // Said whenever a message starts or ends on a bar, so a reader knows which part is a guess.
+  if (messages.some(m => activations.includes(m.endpoint1.connectedTo) || activations.includes(m.endpoint2.connectedTo)))
+    out.push("  %% Lucid doesn't say which lifeline each activation bar is on, so some senders and receivers below are inferred: check them before relying on who sends what.");
 
   // Messages in drawing order; a fragment opens at its first message and
   // holds all of its own, a fragment inside it being one whose messages are a
@@ -289,9 +294,9 @@ function stateToMermaid(shapes, lines) {
   const ids = new Map(states.map((s, i) => [s.id, "s" + (i + 1)]));
   // Each state or pseudo-state belongs to the smallest composite state listing it.
   const parent = new Map();
-  for (const c of states.filter(s => s.contains && s.contains.shapes.length))
-    for (const id of c.contains.shapes)
-      if (byId.has(id) && id !== c.id && (!parent.has(id) || byId.get(parent.get(id)).contains.shapes.length > c.contains.shapes.length)) parent.set(id, c.id);
+  for (const c of states.filter(s => held(s, "shapes").length))
+    for (const id of held(c, "shapes"))
+      if (byId.has(id) && id !== c.id && (!parent.has(id) || held(byId.get(parent.get(id)), "shapes").length > held(c, "shapes").length)) parent.set(id, c.id);
   const out = ["stateDiagram-v2"];
   // [*] means the start or the end of the scope it's written in, so a
   // transition touching one is written inside that pseudo-state's composite.

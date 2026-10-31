@@ -417,20 +417,27 @@ async function lucidPages(id) {
 // A page as Mermaid (mermaid.js), for the picture's alt text. `page`: a Lucid page id, "" for the first page.
 async function lucidMermaid(id, page) {
   const [{ doc, value: contents }, { pageToMermaid, UNPLACED }] = await Promise.all([
-    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js?v=54")]);
+    withDoc(id, "contents " + id, signal => fetchContents(id, signal)), import("./mermaid.js?v=55")]);
   const p = page ? contents.pages.find(p => p.id === page) : contents.pages[0];
   if (!p) throw new Error(`Lucid's diagram has no page "${page}" any more.`);
   // Cached per version: translating a big sequence diagram can take a second or two.
+  // A translator bug on an unusual page mustn't cost the picture: it goes in
+  // with UNTRANSLATED as its Mermaid, and Insert / Update say so (looseNote).
   const mermaid = await versioned(`mermaid ${id} ${p.id}`, doc.version, async () => {
-    const m = pageToMermaid(p);
-    // Not the Mermaid itself: diagrams can be confidential, and consoles get captured.
-    console.log("mermaid for page", p.id, "v" + doc.version + ":", m.split("\n").length, "lines");
-    return m;
+    try {
+      const m = pageToMermaid(p);
+      // Not the Mermaid itself: diagrams can be confidential, and consoles get captured.
+      console.log("mermaid for page", p.id, "v" + doc.version + ":", m.split("\n").length, "lines");
+      return m;
+    } catch (e) {
+      console.error("translating page", p.id, "v" + doc.version, "to Mermaid failed:", e);
+      return "flowchart TD\n  " + UNTRANSLATED;
+    }
   });
   // What the Mermaid couldn't tie to anything: texts that may be arrow labels
   // (mermaid.js marks them when the page also has unlabelled arrows), and arrows
   // with an end not on a box. Said after Insert/Update (looseNote).
-  const loose = { texts: mermaid.includes(UNPLACED) ? mermaid.split(UNPLACED)[1].match(/^  %% note: .*/gm).map(l => l.slice(11)) : [],
+  const loose = { untranslated: mermaid.includes(UNTRANSLATED), texts: mermaid.includes(UNPLACED) ? mermaid.split(UNPLACED)[1].match(/^  %% note: .*/gm).map(l => l.slice(11)) : [],
     arrows: (mermaid.match(/^  %% arrow with a loose end/gm) || []).length };
   return { title: doc.title, version: doc.version, page: p.id, pageTitle: p.title, mermaid, loose };
 }
@@ -836,8 +843,14 @@ async function exportDiagram(ids, page, shownPt, report = say) {
     // Mermaid (mermaid.js) and turns the SVG into a PNG at TARGET_PPI.
     report("Drawing the diagram from its Mermaid...");
     const [m, mermaid] = await Promise.all([fromLucid(lucidMermaid(ids.documentId, page)), loadMermaid()]);
+    if (m.loose.untranslated) throw new Error(`The add-in couldn't read the Mermaid code of "${m.title}", so it can't draw it. Lucid can't export this page either: edit it in Lucid, or insert another page.`);
     const { svg } = await mermaid.render("lucidPage" + Date.now(), m.mermaid);
     const root = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
+    // Plain SVG labels show Mermaid's character codes as typed (a quote, written
+    // #quot;, would read "&quot;" on the picture), so they're decoded here.
+    const texts = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let t; (t = texts.nextNode());) t.data = t.data.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(+code))
+      .replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
     const viewBox = root.getAttribute("viewBox");
     if (!viewBox) throw new Error(`Mermaid couldn't draw "${m.title}" (its drawing has no size).`);
     const [, , widthPx, heightPx] = viewBox.split(/[\s,]+/).map(Number);
@@ -879,6 +892,9 @@ async function exportDiagram(ids, page, shownPt, report = say) {
   report("Placing in document...");
   return d;
 }
+
+// The Mermaid of a page the translator couldn't handle.
+const UNTRANSLATED = "%% The add-in couldn't translate this Lucid page into Mermaid: only the picture shows the diagram.";
 
 // The editor's page by id ("" = the first page), once the page list has arrived.
 const pageInfo = pageId => current && current.pages && current.pages.find(p => p.id === (pageId || current.pages[0].id));
@@ -1017,6 +1033,7 @@ async function plainPng(blob, maxWidthPx, key) {
 // boxes, can't be tied to their arrows in the Mermaid: Lucid's contents have no
 // positions (parsing-research.md). The fix is in Lucid, so say how.
 function looseNote({ loose }) {
+  if (loose.untranslated) return " The add-in couldn't turn this page into Mermaid for LLMs (the browser console, F12, says why); the picture itself is fine.";
   const n = loose.texts.length, eg = loose.texts[0] && (loose.texts[0].length > 24 ? loose.texts[0].slice(0, 23) + "…" : loose.texts[0]);
   return (n ? ` For LLMs, type arrow labels on the arrow (double-click it in Lucid), then Update: ${n} text box${n === 1 ? " is" : "es are"} attached to nothing here ("${eg}"${n > 1 ? "..." : ""}).` : "")
     + (loose.arrows ? ` ${loose.arrows} arrow${loose.arrows === 1 ? " has an end" : "s have ends"} not on a box: drag ${loose.arrows === 1 ? "it" : "each"} onto its box.` : "");

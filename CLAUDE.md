@@ -89,6 +89,11 @@ Two stages:
   Shapes' hyperlinks are left out (they aren't in the picture), and `pageToMermaid` defuses any `%%{`
   directive in the diagram's text. The translator fixtures and their checker
   (`dev/fixtures/`, `dev/test-mermaid.js`) are at the tag `dev-tools`.
+  A translator error never costs a picture: `lucidMermaid` catches it, the
+  alt text gets `UNTRANSLATED` and the status line says so. That's a deliberate
+  exception to failing loudly: the Mermaid is for LLMs, the picture is for
+  people. Sequence pages say in a comment when senders / receivers on
+  activation bars were inferred.
 - Flowcharts made from Mermaid code in Lucid can't be exported (notes.md, Export
   quirks). `lucidPages` flags them `fromCode` (not the one-picture kind above, which
   exports fine); the pane
