@@ -75,7 +75,7 @@
   #confirm { flex-basis: 100%; font-size: 0.8rem; line-height: 1.4; }
   #confirm ul { margin: 0.2rem 0 0.4rem; padding-left: 1.1rem; max-height: 30vh; overflow: auto; }
   #confirm div { display: flex; gap: 0.35rem; }
-  #captionOpt, #mermaidOpt { flex: none; display: flex; align-items: center; gap: 0.2rem; font-size: 0.8rem; color: var(--muted); }
+  #captionOpt { flex: none; display: flex; align-items: center; gap: 0.2rem; font-size: 0.8rem; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -103,9 +103,6 @@
   <p><b>In PowerPoint</b>, Insert puts the picture on the slide in view: in its empty content box if it has one, else below
     its title, else in the middle. There are no captions. Update keeps the picture where you moved it and at the width you gave it,
     and puts its proportions back if it got stretched (drag a corner with Shift held to resize it evenly).</p>
-  <p><b>Mermaid</b> (by Insert): the picture's alt text gets the diagram's text and structure as Mermaid, for LLMs.
-    Alt text travels with the document and isn't hidden by cropping the picture, so untick it for a confidential
-    diagram; Update keeps whichever the picture was inserted with.</p>
   <p><b>MD</b> shows the whole document as Markdown, each diagram as its Mermaid, to copy into an LLM
     (or download as a .md file): most tools that read .docx files skip the Mermaid in the pictures' alt text.
     Only paste into an LLM your organisation has approved for the document's contents.</p>
@@ -118,7 +115,7 @@
     their boxes. A text box placed beside an arrow ends up as a loose note in the Mermaid: Lucid doesn't tell the
     add-in where things sit, so it can't know which arrow the text belongs to. Insert and Update say when a page has these.</p>
   <p>If Lucid's editor asks you to log in, use the pane's <b>Sign in to Lucid</b>, not Lucid's own button:
-    Lucid's opens your web browser, and logging in there doesn't reach the add-in. A sign-in lasts 12 hours;
+    Lucid's opens your web browser, and logging in there doesn't reach the add-in. A sign-in lasts 8 hours;
     <b>Sign out of Lucid</b> (in the menu at the top) ends it and forgets this computer's recent diagrams.</p>
 </div>
 <div id="main">
@@ -140,7 +137,6 @@
   <div id="confirm" hidden><span id="confirmText"></span><ul id="confirmList"></ul>
     <div><button id="confirmYes" class="primary"></button><button id="confirmNo">Cancel</button></div></div>
   <label id="captionOpt" title="Insert puts a &quot;Figure N: title&quot; caption under the picture"><input type="checkbox" id="caption"> Caption</label>
-  <label id="mermaidOpt" title="Insert puts the diagram's text and structure, as Mermaid, in the picture's alt text for LLMs. Alt text travels with the document: untick for confidential diagrams."><input type="checkbox" id="withMermaid"> Mermaid</label>
   <button id="insert" class="primary" title="Insert the diagram in the editor as a new picture below the cursor">Insert</button>
   <button id="replace">Update</button>
   <button id="load" title="Open the selected picture's diagram in the editor">Edit selected</button>

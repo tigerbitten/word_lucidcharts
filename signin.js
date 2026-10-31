@@ -11,7 +11,7 @@
 const CLIENT_ID = "sXwaqbgWYWaJ_I-bb9LBuqbSB1YMVMVS7NDE0Wut";
 const SIGNIN_PAGE = "https://tigerbitten.github.io/word_lucidcharts/signin.html";
 // offline_access: stay signed in across restarts (taskpane.js ends a sign-in
-// after 12 hours); embed: Lucid's editor in the pane, for diagrams picked in its
+// after 8 hours); embed: Lucid's editor in the pane, for diagrams picked in its
 // picker; content:readonly: export and read any of the user's documents.
 const SCOPES = ["offline_access", "lucidchart.document.app.picker.share.embed", "lucidchart.document.content:readonly"];
 

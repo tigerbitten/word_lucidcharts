@@ -4,10 +4,9 @@ A Word add-in (it also works in PowerPoint: see below) with Lucidchart's editor 
 Lucid account, draw, and insert the diagram into the document as a picture.
 Each picture's alt text links back to its Lucid diagram, so it can be reopened
 and updated later, and carries the diagram as Mermaid, so an LLM reading the
-`.docx` understands the diagram instead of guessing from pixels (untick
-**Mermaid**, next to Insert, for a confidential diagram: see Alt text). A Word
-figure caption ("Figure 3: Login flow") goes under each picture, unless
-**Caption** (next to Insert) is unticked.
+`.docx` understands the diagram instead of guessing from pixels. A Word figure
+caption ("Figure 3: Login flow") goes under each picture, unless **Caption**
+(next to Insert) is unticked.
 
 Prototype.
 
@@ -22,7 +21,7 @@ pane loads nothing from anywhere else and talks only to Lucid (Security, below).
 
 1. Open the add-in. If you're not signed in, click **Sign in to Lucid** and
    sign in (and approve access) in the window that opens; it closes by itself
-   and the pane carries on. Sign-in lasts across restarts for 12 hours, then
+   and the pane carries on. Sign-in lasts across restarts for 8 hours, then
    asks again. **Sign out of Lucid** is at the bottom of the diagram menu.
 2. The first time, Lucid's document picker appears. Pick a document or create
    one, click **Continue**, keep **Edit** and click Lucid's **Insert**. That
@@ -31,8 +30,7 @@ pane loads nothing from anywhere else and talks only to Lucid (Security, below).
 3. Draw. Lucid saves as you go.
 4. **Insert** puts the diagram below the cursor, centred and scaled to fit the
    page, with a figure caption under it (untick **Caption** for none), and
-   leaves the cursor below the figure. Untick **Mermaid** to leave the diagram's
-   text out of the picture's alt text.
+   leaves the cursor below the figure.
 
 ### In PowerPoint
 
@@ -116,8 +114,7 @@ rename shows as out of date, and **Update** brings its name in line, along with
 its caption, unless you've reworded the caption by hand: only a caption whose
 title still matches the old name changes. Update never adds or removes
 captions. A picture inserted before Mermaid support also shows as out of date,
-and Update adds the Mermaid; one inserted with **Mermaid** unticked stays
-without it through every update.
+and Update adds the Mermaid.
 
 A caption names the diagram, and for a document with several pages also the
 page when it has a real title ("Figure 2: Order system – Checkout"; Lucid's
@@ -179,14 +176,9 @@ editor (if it's missing, as in pictures linked by pasted URL in older builds, th
 version is how the pane tells a picture is out of date; the page is which page
 of the Lucid document the picture shows.
 
-Alt text travels with the document. The Mermaid holds all the text on the
-page, including notes and table cells, and cropping or covering the picture in
-Word doesn't touch it. For a confidential diagram, untick **Mermaid** before
-Insert: the alt text then has only the lines above the Mermaid, plus
-`lucid-mermaid: off`, which Update and Update all respect. The Lucid link,
-document and embed ids and the title are always there (they're how the picture
-is updated); they don't give anyone without access to the diagram a way in.
-Shapes' hyperlinks are never written out: they aren't in the picture.
+The alt text holds all the text on the page (notes and table cells too), so it
+is as confidential as the document it's in; cropping the picture doesn't touch
+it. The ids don't give anyone without access to the diagram a way in.
 
 ### The Mermaid
 
@@ -294,7 +286,7 @@ anywhere.
 
 The tokens (an hour-long access token and a refresh token) are kept in the
 browser's storage for the pane, on the user's machine; the host never sees
-them. A sign-in ends 12 hours after it was made, however often it's refreshed
+them. A sign-in ends 8 hours after it was made, however often it's refreshed
 (Lucid's refresh tokens would otherwise last 180 days, long after the SSO
 session ends): the pane then revokes it at Lucid and asks again. **Sign out of
 Lucid** revokes it at once, which ends every token of that sign-in. Any other
@@ -336,7 +328,7 @@ a look-alike page) and a session lifetime for Lucid.
 
 | The pane says | Do this |
 |---|---|
-| Your Lucid sign-in is more than 12 hours old | Click **Sign in to Lucid**. Sign-ins end after 12 hours. |
+| Your Lucid sign-in is more than 8 hours old | Click **Sign in to Lucid**. Sign-ins end after 8 hours. |
 | Lucid refused the request (403) | Either your account can't open that diagram, or a scope is missing on the OAuth client (add it, then sign in again). |
 | The browser blocked the sign-in window | Allow pop-ups for the page (Word on the web asks first: allow it), then click Sign in again. |
 | Lucid's editor needs you logged in to Lucid here in Word | Click **Sign in to Lucid**. Lucid's editor needs a lucid.app login in Word's own browser; Lucid's "Log in to edit" button opens your web browser instead (desktop Word), which never reaches Word. The pane's sign-in window does. |

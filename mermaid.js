@@ -250,9 +250,7 @@ function translate(page) {
 
   edges.sort((x, y) => rank.get(x.from) - rank.get(y.from) || rank.get(x.to) - rank.get(y.to));
   for (const e of edges) out.push(`  ${ids.get(e.from)} ${e.kind}${e.text ? `|"${label(e.text)}"|` : ""} ${ids.get(e.to)}`);
-  // Shapes' hyperlinks (s.linkUrl) are left out: they don't show in the picture,
-  // and internal links (tickets, wikis, sometimes with tokens in them) would
-  // travel in the alt text wherever the document goes.
+  // Shapes' hyperlinks (s.linkUrl) are left out: they don't show in the picture.
   // Arrow labels drawn as separate text boxes arrive here as notes: Lucid's
   // contents have no positions, so nothing ties a text to its arrow. Said once,
   // so a reader can match them up (the pane also tells whoever inserts it).

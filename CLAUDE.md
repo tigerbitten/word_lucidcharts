@@ -38,7 +38,7 @@ Two stages:
 - No backend. The pane is a **public OAuth client** (Lucid developer portal,
   client type Public, PKCE S256; `CLIENT_ID` in taskpane.js and signin.js isn't a secret)
   and calls api.lucid.co itself (Lucid's CORS allows any origin): tokens with
-  refresh (kept in localStorage; a sign-in ends SESSION_HOURS = 12 after it
+  refresh (kept in localStorage; a sign-in ends SESSION_HOURS = 8 after it
   was made, however often refreshed, and is then revoked at
   `/oauth2/token/revoke`, as **Sign out of Lucid** in the diagram menu does),
   `POST /embeds/token`, PNG export via
@@ -63,10 +63,9 @@ Two stages:
   says so (`onLucidMessage`: a read-only "Viewer", or the picker's
   `logged_out`) and the pane shows its sign-in card, not Lucid's "Log in to
   edit", whose window is the default browser in desktop Word.
-- Alt text format is in README.md: link lines, then a fenced Mermaid block, or
-  `lucid-mermaid: off` when Insert's **Mermaid** box was unticked (Update and
-  Update all keep that: `replacing`). Pictures from older builds (no
-  `lucid-page`, no Mermaid) must keep parsing (`parseAlt` in taskpane.js).
+- Alt text format is in README.md: link lines, then a fenced Mermaid block.
+  Pictures from older builds (no `lucid-page`, no Mermaid) must keep parsing
+  (`parseAlt` in taskpane.js).
 - Alt text comes from documents anyone may have written. The pane only looks
   up, and Update all only updates, diagrams opened in the editor on this
   computer (`knownIds`, localStorage); Update all lists what it will change and
@@ -87,8 +86,7 @@ Two stages:
   unlabelled arrows they're flagged (`UNPLACED`) as possible arrow labels, and the
   pane tells whoever inserts it to type labels on the arrows (`looseNote`).
   Placing them for real needs positions: `parsing-research.md` (tag `dev-tools`).
-  Shapes' hyperlinks are never written out (not in the picture, and internal
-  links would travel in the alt text), and `pageToMermaid` defuses any `%%{`
+  Shapes' hyperlinks are left out (they aren't in the picture), and `pageToMermaid` defuses any `%%{`
   directive in the diagram's text. The translator fixtures and their checker
   (`dev/fixtures/`, `dev/test-mermaid.js`) are at the tag `dev-tools`.
 - Flowcharts made from Mermaid code in Lucid can't be exported (notes.md, Export
@@ -159,8 +157,6 @@ and the diagrams are confidential. So:
   how to refresh it). It tries to frame a Microsoft telemetry page; the CSP
   blocks that on purpose.
 - Never log a diagram's content (titles, Mermaid, contents) or a token.
-- Never write anything into a picture's alt text that the picture doesn't show,
-  beyond the link lines and the page's own text.
 
 ## Testing
 

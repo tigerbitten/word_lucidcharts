@@ -51,7 +51,7 @@ function refreshButtons() {
   const changed = t && t.version != null && t.latest != null && t.version < t.latest;
   const renamed = t && t.latestTitle != null && t.latestTitle !== t.title;
   // A picture from before stage 2 has no Mermaid for an LLM to read; Update adds it.
-  const noMermaid = t && t.mermaid === false && !t.mermaidOff;
+  const noMermaid = t && t.mermaid === false;
   const stale = changed || renamed || noMermaid;
   $("insert").disabled = !ready || !current;
   $("insert").title = !current ? "Open a diagram first, with the menu at the top"
@@ -68,7 +68,6 @@ function refreshButtons() {
   // diagram picture is selected (it opens that picture's diagram).
   $("insert").hidden = $("replace").hidden = !current;
   $("captionOpt").hidden = !current || inPpt; // slides have no figure captions
-  $("mermaidOpt").hidden = !current;
   $("load").hidden = !current && selected.kind !== "ours";
   $("load").title = selected.kind === "ours" ? "Open the selected picture's diagram in the editor" : "Select a diagram picture in the document to edit its diagram";
   $("diagram").disabled = $("mdToggle").disabled = busy;
@@ -207,7 +206,7 @@ let slideWidthPt = 960, slideHeightPt = 540; // PowerPoint's default 16:9 slide,
 // Lucid's refresh token would otherwise keep working for up to 180 days, long
 // after the SSO session that made it has ended. (Any page on the add-in's site
 // could read it too: README, Sign-in.)
-const SESSION_HOURS = 12;
+const SESSION_HOURS = 8;
 let tokens = null;
 try { tokens = JSON.parse(localStorage.getItem("lucidSignIn")); } catch {}
 // Also true for a sign-in saved by an older build, which has no signedInAt.
@@ -622,14 +621,11 @@ function onLucidMessage(e) {
 // Alt text links the picture back to its Lucid diagram so it can be reopened and
 // updated, records which Lucid version and page it shows, and carries the page
 // as Mermaid: the part an LLM reading the document understands.
-// `d.mermaid` null: inserted with Mermaid unticked (a confidential diagram), which
-// the picture remembers so Update never adds it.
 function altText(d, ids) {
   return [`Lucidchart diagram: ${d.title}`, `https://lucid.app/lucidchart/${ids.documentId}/edit`,
     ids.embedId && `lucid-embed: ${ids.embedId}`, `lucid-version: ${d.version}`, `lucid-page: ${d.page}`,
-    ...(d.mermaid == null ? ["lucid-mermaid: off"] : ["```mermaid", d.mermaid, "```"])].filter(Boolean).join("\n");
+    "```mermaid", d.mermaid, "```"].filter(Boolean).join("\n");
 }
-const withoutMermaid = d => Object.assign(d, { mermaid: null, loose: { texts: [], arrows: 0 } });
 
 function parseAlt(alt) {
   alt = alt || "";
@@ -640,7 +636,7 @@ function parseAlt(alt) {
   const page = alt.match(/lucid-page: (\S+)/);
   const title = alt.match(/^Lucidchart diagram: (.*)$/m);
   return { documentId: doc[1], embedId: embed ? embed[1] : null, version: version ? +version[1] : null,
-    page: page ? page[1] : "", title: title ? title[1] : "untitled", mermaid: /^```mermaid$/m.test(alt), mermaidOff: /^lucid-mermaid: off$/m.test(alt) };
+    page: page ? page[1] : "", title: title ? title[1] : "untitled", mermaid: /^```mermaid$/m.test(alt) };
 }
 
 // Each picture carries a short random tag (in Word its alt-text title, in
@@ -1028,16 +1024,11 @@ const drawnNote = d => d.drawnHere ? " (This page is Mermaid code in Lucid, whic
 // Captions or not, remembered in this browser; on unless turned off.
 try { $("caption").checked = localStorage.getItem("addCaption") !== "no"; } catch { $("caption").checked = true; }
 $("caption").onchange = () => { try { localStorage.setItem("addCaption", $("caption").checked ? "yes" : "no"); } catch {} };
-// Mermaid in the alt text or not, remembered the same way.
-try { $("withMermaid").checked = localStorage.getItem("addMermaid") !== "no"; } catch { $("withMermaid").checked = true; }
-$("withMermaid").onchange = () => { try { localStorage.setItem("addMermaid", $("withMermaid").checked ? "yes" : "no"); } catch {} };
 
 $("insert").onclick = () => act("Inserting...", async () => {
   const ids = current;
   const withCaption = $("caption").checked;
-  const withMermaid = $("withMermaid").checked;
   const d = await exportDiagram(ids, current.page);
-  if (!withMermaid) withoutMermaid(d);
   const tag = newTag();
   let widthPt = d.shownPt;
   if (inPpt) widthPt = await pptPlace(d, ids, tag, null);
@@ -1091,21 +1082,19 @@ $("insert").onclick = () => act("Inserting...", async () => {
     after.getRange(Word.RangeLocation.start).select();
     await ctx.sync();
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page, mermaidOff: !withMermaid };
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
   say(`Inserted "${d.title}".` + drawnNote(d) + shrinkNote(widthPt, d) + looseNote(d));
 });
 
 // What putting `d` (an export of diagram `ids`) in place of a picture whose
 // parsed alt text is `found` amounts to, and the ids its alt text gets.
-// A picture inserted without Mermaid stays without it (`d` loses its Mermaid).
 function replacing(found, d, ids) {
-  if (found && found.mermaidOff) withoutMermaid(d);
   const sameDiagram = found && found.documentId === ids.documentId;
   return {
     // A diagram Lucid won't embed (an old picture linked by pasted URL) has no embed id; keep the picture's own if it's the same diagram.
     ids: { documentId: ids.documentId, embedId: ids.embedId || (sameDiagram ? found.embedId : null) },
     oldTitle: found && found.title,
-    outcome: !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : !found.mermaid && !found.mermaidOff ? "mermaid" : "refreshed",
+    outcome: !sameDiagram ? "replaced" : found.version !== d.version ? "updated" : found.title !== d.title ? "renamed" : !found.mermaid ? "mermaid" : "refreshed",
   };
 }
 
@@ -1195,7 +1184,7 @@ $("replace").onclick = () => act("Updating...", async () => {
     }
     ({ tag, outcome, oldTitle, widthPt } = await replacePicture(ctx, pic, viaRange ? s.range : null, found, d, ids));
   });
-  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page, mermaidOff: d.mermaid == null };
+  last = { kind: "ours", ...ids, title: d.title, version: d.version, latest: d.version, latestTitle: d.title, tag, width: widthPt, page: d.page };
   say((outcome === "refreshed" ? `"${d.title}" was already up to date; refreshed it at full resolution for its size.`
     : outcome === "mermaid" ? `Added Mermaid text for LLMs to "${d.title}" (and refreshed its image).`
     : outcome === "renamed" ? `Renamed the picture "${oldTitle}" to "${d.title}", to match Lucid.`
@@ -1295,7 +1284,7 @@ $("diagram").onchange = () => {
 // Lucid document) and for Update all, with what Lucid says each diagram is now.
 let docPictures = [];
 const latestOf = new Map(); // documentId -> { version, title } from /info
-const isStale = p => { const l = latestOf.get(p.documentId); return !!l && (p.version < l.version || p.title !== l.title || (!p.mermaid && !p.mermaidOff)); };
+const isStale = p => { const l = latestOf.get(p.documentId); return !!l && (p.version < l.version || p.title !== l.title || !p.mermaid); };
 async function scanDocument() {
   if (!inOffice) return;
   try {
@@ -1355,7 +1344,7 @@ $("updateAll").onclick = () => act("Checking the document's diagrams...", async 
   $("confirmList").replaceChildren(...stale.map(p => {
     const l = latestOf.get(p.documentId);
     const what = [p.version < l.version && `v${p.version} to v${l.version}`, p.title !== l.title && `renamed "${l.title}"`,
-      !p.mermaid && !p.mermaidOff && "adds Mermaid"].filter(Boolean).join(", ");
+      !p.mermaid && "adds Mermaid"].filter(Boolean).join(", ");
     return Object.assign(document.createElement("li"), { textContent: `"${p.title}": ${what}` });
   }));
   $("confirmYes").textContent = `Update ${stale.length}`;
@@ -1403,7 +1392,7 @@ $("helpToggle").onclick = () => { $("help").hidden = !$("help").hidden; };
 // The document as Markdown for an LLM: text, headings, lists and tables as
 // they read, each diagram picture as its title and Mermaid. The clipboard is
 // blocked in Word's frame, so it's shown for the person to select and copy.
-// A picture inserted without Mermaid is just its title and link.
+// A picture from before Mermaid support is just its title and link.
 const pictureMarkdown = alt => {
   const found = parseAlt(alt), fence = "```";
   const mermaid = alt.match(/^```mermaid\n([\s\S]*?)\n```/m);
